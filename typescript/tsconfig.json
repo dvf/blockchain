@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "inlineSources": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "noImplicitAny": true,
+    "sourceMap": true,
+    "target": "es6",
+    "watch": true,
+    "rootDir": "./src",
+    "outDir": "./lib"
+  },
+  "exclude": ["node_modules"]
+}
