@@ -6,9 +6,15 @@ A typescript / node.js port of the Python [source code](../python) from the post
 ```
 npm install
 ```
+
+## Compilation
+```
+npm run build
+```
+
 ## Testing
 ```
-grunt
+npm run test
 ```
 
 ## License

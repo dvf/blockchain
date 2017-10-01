@@ -4,10 +4,12 @@
     "name": "Ash Brener",
     "email": "ashley@frisb.com"
   },
-  "version": "0.1.0",
+  "version": "0.1.1",
   "main": "./lib/index",
   "scripts": {
-    "build": "DEBUG=web-client grunt"
+    "postinstall": "grunt",
+    "build": "grunt",
+    "test": "DEBUG=blockchain,web-client grunt mochaTest"
   },
   "dependencies": {
     "body-parser": "^1.18.2",
