@@ -6,7 +6,10 @@ This is the source code for my post on [Building a Blockchain](https://medium.co
 
 1. Make sure [Python 3.6+](https://www.python.org/downloads/) is installed
 1. Install requirements: `$ pip install -r requirements.txt`
-1. Run the server: `$ python blockchain.py`
+1. Run the server:
+    * `$ python blockchain.py` 
+    * `$ python blockchain.py -p 5001`
+    * `$ python blockchain.py --port 5002`
 
 ## Contributing
 
