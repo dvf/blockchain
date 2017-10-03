@@ -102,4 +102,7 @@ ENV/
 
 # PyCharm
 .idea/
-node_modules
+.vscode/
+typescript/node_modules
+typescript/lib
+
