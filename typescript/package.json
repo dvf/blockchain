@@ -1,0 +1,35 @@
+{
+  "name": "blockchain",
+  "author": {
+    "name": "Ash Brener",
+    "email": "ashley@frisb.com"
+  },
+  "version": "0.1.1",
+  "main": "./lib/index",
+  "scripts": {
+    "postinstall": "grunt",
+    "build": "grunt",
+    "test": "DEBUG=blockchain,web-client grunt mochaTest"
+  },
+  "dependencies": {
+    "@types/lodash": "^4.14.76",
+    "@types/node": "^8.0.31",
+    "@types/uuid": "^3.4.2",
+    "body-parser": "^1.18.2",
+    "express": "^4.15.5",
+    "lodash": "^4.17.4",
+    "quiq": "^2.0.0",
+    "routing-controllers": "^0.7.3",
+    "uuid": "^3.1.0",
+    "writeln": "^1.0.2"
+  },
+  "devDependencies": {
+    "grunt": "^1.0.1",
+    "grunt-contrib-clean": "^1.1.0",
+    "grunt-mocha-test": "^0.13.2",
+    "grunt-ts": "^6.0.0-beta.16",
+    "mocha": "^3.5.3",
+    "source-map-support": "^0.4.18",
+    "typescript": "^2.5.2"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "extends": "tslint:recommended",
+  "rules": {
+    "comment-format": [false],
+    "curly": false,
+    "indent": true,
+    "max-line-length": 256,
+    "no-constructor-vars": false,
+    "no-reference": false,
+    "no-trailing-whitespace": false,
+    "object-literal-sort-keys": false,
+    "one-line": [false],
+    "quotemark": [true, "single", "avoid-escape"],
+    "trailing-comma": false
+  },
+  "rulesDirectory": [
+  ]
+}
