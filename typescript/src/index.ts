@@ -1,9 +1,8 @@
-import { Server } from 'quiq';
+import { factory } from 'quiq';
 
-const { factory: { app, server } } = Server;
 const port = parseInt(process.argv[2] || '5000', 10);
 
-server.create(app.create({
+factory.server.create(factory.app.create({
 	controllers: [
 		`${ __dirname }/controllers/**/*.js`
 	]

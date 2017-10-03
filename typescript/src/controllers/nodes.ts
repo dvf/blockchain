@@ -1,8 +1,6 @@
 import { JsonController, UseBefore, Get, Post, BodyParam, HttpCode } from 'routing-controllers';
-import { Server } from 'quiq';
+import { middleware } from 'quiq';
 import { nodes, chain, registerNode, resolveConflicts } from '../blockchain';
-
-const { PayloadValidator } = Server.middleware;
 
 interface IRegisterNodesResponse {
 	nodes: Array<string>;
@@ -16,7 +14,7 @@ interface IResolveNodesResponse {
 @JsonController('/nodes/')
 export class NodesController {
 	@UseBefore(
-		PayloadValidator('nodes')
+		middleware.PayloadValidator('nodes')
 	)
 	@Post('register')
 	@HttpCode(201)

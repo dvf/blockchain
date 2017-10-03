@@ -1,6 +1,4 @@
-import { Server } from 'quiq';
-
-const { factory } = Server;
+import { factory } from 'quiq';
 
 export const app = factory.app.create({
 	controllers: [

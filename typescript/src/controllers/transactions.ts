@@ -1,8 +1,6 @@
 import { JsonController, UseBefore, Post, BodyParam, HttpCode } from 'routing-controllers';
-import { Server } from 'quiq';
+import { middleware } from 'quiq';
 import { createTransaction } from '../blockchain';
-
-const { PayloadValidator } = Server.middleware;
 
 interface INewTransactionResponse {
 	block: number
@@ -11,7 +9,7 @@ interface INewTransactionResponse {
 @JsonController('/transactions/')
 export class TransactionsController {
 	@UseBefore(
-		PayloadValidator('sender', 'recipient', 'amount')
+		middleware.PayloadValidator('sender', 'recipient', 'amount')
 	)
 	@Post('new')
 	@HttpCode(201)

@@ -12,18 +12,18 @@
     "test": "DEBUG=blockchain,web-client grunt mochaTest"
   },
   "dependencies": {
-    "body-parser": "^1.18.2",
-    "express": "^4.15.5",
-    "lodash": "^4.17.4",
-    "quiq": "^1.0.2",
-    "routing-controllers": "^0.7.3",
-    "uuid": "^3.1.0",
-    "writeln": "^1.0.1"
-  },
-  "devDependencies": {
     "@types/lodash": "^4.14.76",
     "@types/node": "^8.0.31",
     "@types/uuid": "^3.4.2",
+    "body-parser": "^1.18.2",
+    "express": "^4.15.5",
+    "lodash": "^4.17.4",
+    "quiq": "^2.0.0",
+    "routing-controllers": "^0.7.3",
+    "uuid": "^3.1.0",
+    "writeln": "^1.0.2"
+  },
+  "devDependencies": {
     "grunt": "^1.0.1",
     "grunt-contrib-clean": "^1.1.0",
     "grunt-mocha-test": "^0.13.2",

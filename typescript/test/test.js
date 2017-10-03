@@ -2,7 +2,7 @@
 const assert = require('assert');
 const { fork } = require('child_process');
 const { Writeln } = require('writeln');
-const { Server: { JsonWebClient } } = require('quiq');
+const { JsonWebClient } = require('quiq');
 
 const webClient = new JsonWebClient('Blockchain Test Client');
 const nodes = [];

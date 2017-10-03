@@ -1,6 +1,6 @@
-import { Server } from 'quiq';
+import { JsonWebClient } from 'quiq';
 
-const webClient = new Server.JsonWebClient('blockchain');
+const webClient = new JsonWebClient('blockchain');
 
 export class Node {
 	constructor(private address: string) { }
