@@ -3,8 +3,11 @@ package org.learn.blockchains.rest.services;
 import static org.learn.blockchains.util.Maps.entriesToMap;
 import static org.learn.blockchains.util.Maps.entry;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.validation.Valid;
@@ -19,6 +22,7 @@ import org.learn.blockchains.components.BlockChain;
 import org.learn.blockchains.model.Block;
 import org.learn.blockchains.model.ChainResponse;
 import org.learn.blockchains.model.MineResponse;
+import org.learn.blockchains.model.NodesRequest;
 import org.learn.blockchains.model.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -64,4 +68,34 @@ public class BlockChainController {
 		Long index = blockChain.newTransaction(trans.getSender(), trans.getRecipient(), trans.getAmount());
 		return Stream.of(entry("message", "Transaction will be added to Block " + index)).collect(entriesToMap());
 	}
+
+	@Path("/nodes/register")
+	@POST
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Map<String, String> regNodes(@Valid NodesRequest nodeReq) throws JsonProcessingException {
+		nodeReq.getNodes().stream().forEach(t -> {
+			try {
+				blockChain.registerNode(t);
+			} catch (MalformedURLException e) {
+				e.printStackTrace();
+			}
+		});
+		return Stream.of(entry("message", "New nodes have been added "),
+				entry("total_nodes", "" + blockChain.getNodes().size())).collect(entriesToMap());
+	}
+
+	@Path("/nodes/resolve")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Map<String, Object> consensus() throws IOException {
+		boolean resolveConflicts = blockChain.resolveConflicts();
+		if (resolveConflicts)
+			return Stream.of(entry("message", "Our chain was replaced "),
+					entry("chain",  blockChain.getChain())).collect(Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue()));
+		else
+			return Stream.of(entry("message", "Our chain is authoritative "),
+					entry("chain",  blockChain.getChain())).collect(Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue()));
+	}
+
 }
