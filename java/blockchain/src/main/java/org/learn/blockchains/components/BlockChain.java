@@ -1,5 +1,8 @@
 package org.learn.blockchains.components;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
@@ -8,17 +11,29 @@ import java.util.List;
 import java.util.Set;
 
 import org.learn.blockchains.model.Block;
+import org.learn.blockchains.model.ChainResponse;
 import org.learn.blockchains.model.Transaction;
+import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.hash.Hashing;
 
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+
+@Component
 public class BlockChain {
 
 	private List<Transaction> currentTransactions;
 	private List<Block> chain;
 	private Set<String> nodes;
+
+	public void registerNode(String address) throws MalformedURLException {
+		URL url = new URL(address);
+		nodes.add(url.getHost());
+	}
 
 	public BlockChain() throws JsonProcessingException {
 		super();
@@ -26,6 +41,56 @@ public class BlockChain {
 		chain = new ArrayList<>();
 		nodes = new HashSet<>();
 		this.newBlock(100L, "1");
+	}
+
+	//TODO handle the IOException or false node
+	public boolean resolveConflicts() throws IOException {
+		Set<String> neighbours = this.nodes;
+		List<Block> newChain = null;
+		int max_length = this.chain.size();
+
+		for (String node : neighbours) {
+			Request request = new Request.Builder().url("http://" + node + "/chain").build();
+			Response response = new OkHttpClient().newCall(request).execute();
+			if (response.code() == 200) {
+				ObjectMapper mappper = new ObjectMapper();
+				ChainResponse map = mappper.readValue(response.body().string(), ChainResponse.class);
+				Integer length = map.getLength();
+				List<Block> chain = map.getChain();
+				if (length > max_length && BlockChain.validChain(chain)) {
+					max_length = length;
+					newChain = chain;
+				}
+			}
+		}
+		if (newChain != null) {
+			this.chain = newChain;
+			return true;
+		}
+		return false;
+	}
+
+	public static boolean validChain(List<Block> chain) throws JsonProcessingException {
+		if (chain == null || chain.isEmpty())
+			return false;
+		Block lastBlock = chain.get(0);
+		for (int currentIndex = 1; currentIndex < chain.size(); currentIndex++) {
+			Block currentBlock = chain.get(currentIndex);
+			System.out.println(lastBlock);
+			System.out.println(currentBlock);
+			if (!currentBlock.getPreviousHash().equals(hash(lastBlock))) {
+				return false;
+			}
+			if (!BlockChain.validProof(lastBlock.getProof(), currentBlock.getProof())) {
+				return false;
+			}
+			lastBlock = currentBlock;
+		}
+		return true;
+	}
+
+	public boolean validChain() throws JsonProcessingException {
+		return validChain(chain);
 	}
 
 	public Block lastBlock() {
@@ -39,7 +104,7 @@ public class BlockChain {
 		block.setTimestamp(new Date().getTime());
 		block.setTransactions(currentTransactions);
 		block.setProof(proof);
-		block.setPreviousHash((previusHash != null) ? previusHash : this.hash(lastBlock()));
+		block.setPreviousHash((previusHash != null) ? previusHash : hash(lastBlock()));
 		this.currentTransactions = new ArrayList<>();
 		this.chain.add(block);
 		return block;
@@ -54,7 +119,7 @@ public class BlockChain {
 		return lastBlock().getIndex() + 1L;
 	}
 
-	private String hash(Block block) throws JsonProcessingException {
+	public static String hash(Block block) throws JsonProcessingException {
 		ObjectMapper mapper = new ObjectMapper();
 		String json = mapper.writeValueAsString(block);
 		return Hashing.sha256().hashString(json, StandardCharsets.UTF_8).toString();
@@ -71,6 +136,18 @@ public class BlockChain {
 		String s = "" + lastProof + "" + proof;
 		String sha256 = Hashing.sha256().hashString(s, StandardCharsets.UTF_8).toString();
 		return sha256.endsWith("0000");
+	}
+
+	public List<Transaction> getCurrentTransactions() {
+		return currentTransactions;
+	}
+
+	public List<Block> getChain() {
+		return chain;
+	}
+
+	public Set<String> getNodes() {
+		return nodes;
 	}
 
 	@Override

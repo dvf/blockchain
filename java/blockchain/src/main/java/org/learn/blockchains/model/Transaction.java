@@ -1,8 +1,13 @@
 package org.learn.blockchains.model;
 
+import org.hibernate.validator.constraints.NotBlank;
+
 public class Transaction {
+	@NotBlank(message= "is blank")
 	private String sender;
+	@NotBlank(message= "is blank")
 	private String recipient;
+	@NotBlank(message= "is blank")
 	private String amount;
 
 	public String getSender() {
