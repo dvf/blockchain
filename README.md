@@ -30,6 +30,8 @@ $ pipenv install
     
 ## Docker
 
+Another option for running this blockchain program is to use Docker.  Follow the instructions below to create a local Docker container:
+
 1. Clone this repository
 2. Build the docker container
 
