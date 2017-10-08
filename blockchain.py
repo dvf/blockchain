@@ -159,7 +159,7 @@ class Blockchain(object):
         """
 
         last_proof = last_block['proof']
-        last_hash = last_block['previous_hash']
+        last_hash = self.hash(last_block)
 
         proof = 0
         while self.valid_proof(last_proof, proof, last_hash) is False:
