@@ -1,7 +1,6 @@
 import hashlib
 import json
 from time import time
-from typing import Any, Dict, List, Optional
 from urllib.parse import urlparse
 from uuid import uuid4
 
@@ -9,31 +8,30 @@ import requests
 from flask import Flask, jsonify, request
 
 
-class Blockchain:
+class Blockchain(object):
     def __init__(self):
         self.current_transactions = []
         self.chain = []
         self.nodes = set()
 
         # Create the genesis block
-        self.new_block(previous_hash='1', proof=100)
+        self.new_block(previous_hash=1, proof=100)
 
-    def register_node(self, address: str) -> None:
+    def register_node(self, address):
         """
         Add a new node to the list of nodes
-
-        :param address: Address of node. Eg. 'http://192.168.0.5:5000'
+        :param address: <str> Address of node. Eg. 'http://192.168.0.5:5000'
+        :return: None
         """
 
         parsed_url = urlparse(address)
         self.nodes.add(parsed_url.netloc)
 
-    def valid_chain(self, chain: List[Dict[str, Any]]) -> bool:
+    def valid_chain(self, chain):
         """
         Determine if a given blockchain is valid
-
-        :param chain: A blockchain
-        :return: True if valid, False if not
+        :param chain: <list> A blockchain
+        :return: <bool> True if valid, False if not
         """
 
         last_block = chain[0]
@@ -49,7 +47,7 @@ class Blockchain:
                 return False
 
             # Check that the Proof of Work is correct
-            if not self.valid_proof(last_block['proof'], block['proof']):
+            if not self.valid_proof(last_block['proof'], block['proof'], block['previous_hash']):
                 return False
 
             last_block = block
@@ -57,12 +55,11 @@ class Blockchain:
 
         return True
 
-    def resolve_conflicts(self) -> bool:
+    def resolve_conflicts(self):
         """
         This is our consensus algorithm, it resolves conflicts
         by replacing our chain with the longest one in the network.
-
-        :return: True if our chain was replaced, False if not
+        :return: <bool> True if our chain was replaced, False if not
         """
 
         neighbours = self.nodes
@@ -91,13 +88,12 @@ class Blockchain:
 
         return False
 
-    def new_block(self, proof: int, previous_hash: Optional[str]) -> Dict[str, Any]:
+    def new_block(self, proof, previous_hash=None):
         """
         Create a new Block in the Blockchain
-
-        :param proof: The proof given by the Proof of Work algorithm
-        :param previous_hash: Hash of previous Block
-        :return: New Block
+        :param proof: <int> The proof given by the Proof of Work algorithm
+        :param previous_hash: (Optional) <str> Hash of previous Block
+        :return: <dict> New Block
         """
 
         block = {
@@ -114,14 +110,13 @@ class Blockchain:
         self.chain.append(block)
         return block
 
-    def new_transaction(self, sender: str, recipient: str, amount: int) -> int:
+    def new_transaction(self, sender, recipient, amount):
         """
         Creates a new transaction to go into the next mined Block
-
-        :param sender: Address of the Sender
-        :param recipient: Address of the Recipient
-        :param amount: Amount
-        :return: The index of the Block that will hold this transaction
+        :param sender: <str> Address of the Sender
+        :param recipient: <str> Address of the Recipient
+        :param amount: <int> Amount
+        :return: <int> The index of the Block that will hold this transaction
         """
         self.current_transactions.append({
             'sender': sender,
@@ -132,45 +127,50 @@ class Blockchain:
         return self.last_block['index'] + 1
 
     @property
-    def last_block(self) -> Dict[str: Any]:
+    def last_block(self):
         return self.chain[-1]
 
     @staticmethod
-    def hash(block: Dict[str, Any]) -> str:
+    def hash(block):
         """
         Creates a SHA-256 hash of a Block
-
-        :param block: Block
+        :param block: <dict> Block
+        :return: <str>
         """
 
         # We must make sure that the Dictionary is Ordered, or we'll have inconsistent hashes
         block_string = json.dumps(block, sort_keys=True).encode()
         return hashlib.sha256(block_string).hexdigest()
 
-    def proof_of_work(self, last_proof: int) -> int:
+    def proof_of_work(self, last_block):
         """
         Simple Proof of Work Algorithm:
-         - Find a number p' such that hash(pp') contains leading 4 zeroes, where p is the previous p'
-         - p is the previous proof, and p' is the new proof
+         - Find a number p' such that hash(pp'h) contains leading 4 zeroes, where p is the previous p'
+         - p is the previous proof, p' is the new proof, and h is the hash of the last block
+        :param last_block: <dict> last Block
+        :return: <int>
         """
 
+        last_proof = last_block['proof']
+        last_hash = last_block['previous_hash']
+
         proof = 0
-        while self.valid_proof(last_proof, proof) is False:
+        while self.valid_proof(last_proof, proof, last_hash) is False:
             proof += 1
 
         return proof
 
     @staticmethod
-    def valid_proof(last_proof: int, proof: int) -> bool:
+    def valid_proof(last_proof, proof, last_hash):
         """
         Validates the Proof
-
-        :param last_proof: Previous Proof
-        :param proof: Current Proof
-        :return: True if correct, False if not.
+        :param last_proof: <int> Previous Proof
+        :param proof: <int> Current Proof
+        :param last_hash: <str> The hash of the Previous Block
+        :return: <bool> True if correct, False if not.
         """
 
-        guess = f'{last_proof}{proof}'.encode()
+        guess = f'{last_proof}{proof}{last_hash}'.encode()
         guess_hash = hashlib.sha256(guess).hexdigest()
         return guess_hash[:4] == "0000"
 
@@ -189,8 +189,7 @@ blockchain = Blockchain()
 def mine():
     # We run the proof of work algorithm to get the next proof...
     last_block = blockchain.last_block
-    last_proof = last_block['proof']
-    proof = blockchain.proof_of_work(last_proof)
+    proof = blockchain.proof_of_work(last_block)
 
     # We must receive a reward for finding the proof.
     # The sender is "0" to signify that this node has mined a new coin.
