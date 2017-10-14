@@ -9,7 +9,14 @@ from flask import Flask, jsonify, request
 
 
 class Blockchain(object):
+    """
+    class Blockchain
+    """
+
     def __init__(self):
+        """
+        init of Blockchain
+        """
         self.current_transactions = []
         self.chain = []
         self.nodes = set()
@@ -21,8 +28,9 @@ class Blockchain(object):
         """
         Add a new node to the list of nodes
 
-        :param address: <str> Address of node. Eg. 'http://192.168.0.5:5000'
-        :return: None
+        :param address: Address of node. Eg. 'http://192.168.0.5:5000'
+        :type address: str
+        :returns: None
         """
 
         parsed_url = urlparse(address)
@@ -32,8 +40,9 @@ class Blockchain(object):
         """
         Determine if a given blockchain is valid
 
-        :param chain: <list> A blockchain
-        :return: <bool> True if valid, False if not
+        :param chain: the blockchain
+        :type chain: list
+        :returns: <bool> True if valid, False if not
         """
 
         last_block = chain[0]
@@ -62,7 +71,7 @@ class Blockchain(object):
         This is our consensus algorithm, it resolves conflicts
         by replacing our chain with the longest one in the network.
 
-        :return: <bool> True if our chain was replaced, False if not
+        :returns: <bool> True if our chain was replaced, False if not
         """
 
         neighbours = self.nodes
@@ -95,9 +104,10 @@ class Blockchain(object):
         """
         Create a new Block in the Blockchain
 
-        :param proof: <int> The proof given by the Proof of Work algorithm
+        :param proof: The proof given by the Proof of Work algorithm
+        :type proof: int
         :param previous_hash: (Optional) <str> Hash of previous Block
-        :return: <dict> New Block
+        :returns: <dict> New Block
         """
 
         block = {
@@ -121,7 +131,7 @@ class Blockchain(object):
         :param sender: <str> Address of the Sender
         :param recipient: <str> Address of the Recipient
         :param amount: <int> Amount
-        :return: <int> The index of the Block that will hold this transaction
+        :returns: <int> The index of the Block that will hold this transaction
         """
         self.current_transactions.append({
             'sender': sender,
@@ -141,7 +151,7 @@ class Blockchain(object):
         Creates a SHA-256 hash of a Block
 
         :param block: <dict> Block
-        :return: <str>
+        :returns: <str>
         """
 
         # We must make sure that the Dictionary is Ordered, or we'll have inconsistent hashes
@@ -154,8 +164,8 @@ class Blockchain(object):
          - Find a number p' such that hash(pp') contains leading 4 zeroes, where p is the previous p'
          - p is the previous proof, and p' is the new proof
 
-        :param last_proof: <int>
-        :return: <int>
+        :param last_proof: <int> previous proof
+        :returns: <int>
         """
 
         proof = 0
@@ -169,9 +179,9 @@ class Blockchain(object):
         """
         Validates the Proof
 
-        :param last_proof: <int> Previous Proof
-        :param proof: <int> Current Proof
-        :return: <bool> True if correct, False if not.
+        :param last_proof: <int> previous proof
+        :param proof: <int> current proof
+        :returns: <bool> True if correct, False if not.
         """
 
         guess = f'{last_proof}{proof}'.encode()
@@ -201,8 +211,7 @@ def mine():
     blockchain.new_transaction(
         sender="0",
         recipient=node_identifier,
-        amount=1,
-    )
+        amount=1, )
 
     # Forge the new Block by adding it to the chain
     block = blockchain.new_block(proof)
@@ -227,7 +236,8 @@ def new_transaction():
         return 'Missing values', 400
 
     # Create a new Transaction
-    index = blockchain.new_transaction(values['sender'], values['recipient'], values['amount'])
+    index = blockchain.new_transaction(values['sender'], values['recipient'],
+                                       values['amount'])
 
     response = {'message': f'Transaction will be added to Block {index}'}
     return jsonify(response), 201
