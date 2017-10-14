@@ -2,6 +2,8 @@ require 'digest/sha2'
 require 'json'
 
 class Blockchain
+  attr_reader :chain
+
   def initialize
     @chain = []
     @current_transactions = []
@@ -13,7 +15,7 @@ class Blockchain
     block = {
       index: @chain.size + 1,
       timestamp: Time.now,
-      transactions: current_transactions,
+      transactions: @current_transactions,
       proof: proof,
       previous_hash: previous_hash || self.class.hash(@chain[-1])
     }
@@ -38,6 +40,7 @@ class Blockchain
     proof = 0
     while not self.class.valid_proof?(last_proof, proof)
       proof += 1
+    end
     
     proof
   end
