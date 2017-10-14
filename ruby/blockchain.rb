@@ -34,8 +34,22 @@ class Blockchain
     last_block['index'] + 1
   end
 
+  def proof_of_work(last_proof)
+    proof = 0
+    while not self.class.valid_proof?(last_proof, proof)
+      proof += 1
+    
+    proof
+  end
+
   def self.hash(block)
     Digest::SHA256.hexdigest block.to_json
+  end
+
+  def self.valid_proof?(last_proof, proof)
+    guess = "#{last_proof}#{proof}"
+
+    Digest::SHA256.hexdigest(guess)[0..3] == '0000'
   end
 
   protected
