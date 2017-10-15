@@ -1,5 +1,7 @@
-from blockchain import app, Blockchain, node_identifier
+from blockchain import node_identifier
+import blockchain
 import json
+import itertools
 
 
 def test_get_genesis_chain(client):
@@ -79,14 +81,56 @@ def test_add_new_transactions_in_more_blocks(client):
         rv = client.get('/mine')
         assert rv.status_code == 200
         data = json.loads(rv.data)
-        assert len(data['transactions']) == 2  # 1 for transaction, 1 for reward
-    
+        # 1 for transaction, 1 for reward
+        assert len(data['transactions']) == 2
+
+
+def test_adding_incomplete_new_transaction(client):
+    """Test adding incomplete new transaction."""
+    complete_data = (('sender', 'x'), ('recipient', 'y'), ('amount', 100.0))
+    for missing_data in itertools.combinations(complete_data, len(complete_data) - 1):
+        rv = client.post(
+            '/transactions/new',
+            data=json.dumps(dict(missing_data)),
+            content_type='application/json')
+        assert rv.status_code == 400
+
 
 def test_register_nodes(client):
     """Test registering other nodes."""
-    pass
+    rv = client.post('/nodes/register', data=json.dumps({
+        'nodes': ['http://localhost:5001'],
+    }), content_type='application/json')
+    assert rv.status_code == 201
+    data = json.loads(rv.data)
+    assert 'message' in data
+    assert len(data['total_nodes']) == 1
+    assert 'localhost:5001' in data['total_nodes'][0]
 
 
-def test_resolving_conflicts_between_nodes(client):
-    """Test resolving conflicts with other registered nodes."""
-    pass
+def test_register_invalid_nodes(client):
+    """Test registering invalid nodes."""
+    rv = client.post('/nodes/register', data=json.dumps({
+        'wrong_key': None
+    }), content_type='application/json')
+    assert rv.status_code == 400
+
+
+def test_no_nodes_to_resolve_conflict(client):
+    """Test resolving conflicts when no other nodes exist."""
+    rv = client.get('/nodes/resolve')
+    assert rv.status_code == 200
+    data = json.loads(rv.data)
+    assert data['message'] == 'Our chain is authoritative'
+    assert 'chain' in data
+
+
+def test_response_of_mocking_resolving_conflicts_between_nodes(client):
+    """Test the response of resolving conflicts with other registered nodes."""
+    # Mokeypatch blockchain's method
+    blockchain.blockchain.resolve_conflicts = lambda: True
+    rv = client.get('/nodes/resolve')
+    assert rv.status_code == 200
+    data = json.loads(rv.data)
+    assert data['message'] == 'Our chain was replaced'
+    assert 'new_chain' in data
