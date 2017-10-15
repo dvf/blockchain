@@ -1,6 +1,7 @@
 import hashlib
 import json
 from time import time
+from typing import Any, Dict, List, Optional
 from urllib.parse import urlparse
 from uuid import uuid4
 
@@ -12,7 +13,6 @@ class Blockchain(object):
     """
     class Blockchain
     """
-
     def __init__(self):
         """
         init of Blockchain
@@ -22,27 +22,27 @@ class Blockchain(object):
         self.nodes = set()
 
         # Create the genesis block
-        self.new_block(previous_hash=1, proof=100)
+        self.new_block(previous_hash='1', proof=100)
 
-    def register_node(self, address):
+    def register_node(self, address: str) -> None:
         """
         Add a new node to the list of nodes
 
         :param address: Address of node. Eg. 'http://192.168.0.5:5000'
         :type address: str
-        :returns: None
         """
 
         parsed_url = urlparse(address)
         self.nodes.add(parsed_url.netloc)
 
-    def valid_chain(self, chain):
+    def valid_chain(self, chain: List[Dict[str, Any]]) -> bool:
         """
         Determine if a given blockchain is valid
 
         :param chain: the blockchain
         :type chain: list
         :returns: <bool> True if valid, False if not
+
         """
 
         last_block = chain[0]
@@ -66,7 +66,7 @@ class Blockchain(object):
 
         return True
 
-    def resolve_conflicts(self):
+    def resolve_conflicts(self) -> bool:
         """
         This is our consensus algorithm, it resolves conflicts
         by replacing our chain with the longest one in the network.
@@ -100,13 +100,13 @@ class Blockchain(object):
 
         return False
 
-    def new_block(self, proof, previous_hash=None):
+    def new_block(self, proof: int, previous_hash: Optional[str]) -> Dict[str, Any]:
         """
         Create a new Block in the Blockchain
 
         :param proof: The proof given by the Proof of Work algorithm
         :type proof: int
-        :param previous_hash: (Optional) <str> Hash of previous Block
+        :param previous_hash: (Optional) <str> Hash of previous block
         :returns: <dict> New Block
         """
 
@@ -124,14 +124,18 @@ class Blockchain(object):
         self.chain.append(block)
         return block
 
-    def new_transaction(self, sender, recipient, amount):
+    def new_transaction(self, sender: str, recipient: str, amount: int) -> int:
         """
         Creates a new transaction to go into the next mined Block
 
-        :param sender: <str> Address of the Sender
-        :param recipient: <str> Address of the Recipient
-        :param amount: <int> Amount
+        :param sender: Address of the Sender
+        :type sender: str
+        :param recipient: Address of the Recipient
+        :type recipient: str
+        :param amount: Amount
+        :type amount: int
         :returns: <int> The index of the Block that will hold this transaction
+
         """
         self.current_transactions.append({
             'sender': sender,
@@ -142,23 +146,25 @@ class Blockchain(object):
         return self.last_block['index'] + 1
 
     @property
-    def last_block(self):
+    def last_block(self) -> Dict[str: Any]:
         return self.chain[-1]
 
     @staticmethod
-    def hash(block):
+    def hash(block: Dict[str, Any]) -> str:
         """
         Creates a SHA-256 hash of a Block
 
-        :param block: <dict> Block
+        :param block: Block
+        :type block: dict
         :returns: <str>
+
         """
 
         # We must make sure that the Dictionary is Ordered, or we'll have inconsistent hashes
         block_string = json.dumps(block, sort_keys=True).encode()
         return hashlib.sha256(block_string).hexdigest()
 
-    def proof_of_work(self, last_proof):
+    def proof_of_work(self, last_proof: int) -> int:
         """
         Simple Proof of Work Algorithm:
          - Find a number p' such that hash(pp') contains leading 4 zeroes, where p is the previous p'
@@ -166,6 +172,7 @@ class Blockchain(object):
 
         :param last_proof: <int> previous proof
         :returns: <int>
+
         """
 
         proof = 0
@@ -175,12 +182,14 @@ class Blockchain(object):
         return proof
 
     @staticmethod
-    def valid_proof(last_proof, proof):
+    def valid_proof(last_proof: int, proof: int) -> bool:
         """
         Validates the Proof
 
-        :param last_proof: <int> previous proof
-        :param proof: <int> current proof
+        :param last_proof: previous proof
+        :type last_proof: int
+        :param proof: current proof
+        :type proof: int
         :returns: <bool> True if correct, False if not.
         """
 
@@ -289,4 +298,11 @@ def consensus():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    from argparse import ArgumentParser
+
+    parser = ArgumentParser()
+    parser.add_argument('-p', '--port', default=5000, type=int, help='port to listen on')
+    args = parser.parse_args()
+    port = args.port
+
+    app.run(host='0.0.0.0', port=port)
