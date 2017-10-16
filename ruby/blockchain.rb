@@ -1,5 +1,6 @@
 require 'digest/sha2'
 require 'json'
+require 'uri'
 
 class Blockchain
   attr_reader :chain
@@ -7,8 +8,16 @@ class Blockchain
   def initialize
     @chain = []
     @current_transactions = []
+    @nodes = {}
 
     new_block(previous_hash: 1, proof: 100)
+  end
+
+  def register_node(address)
+    uri = URI.parse(address)
+
+    @nodes << uri.host
+    @nodes.uniq!
   end
 
   def new_block(previous_hash: nil, proof: nil)
