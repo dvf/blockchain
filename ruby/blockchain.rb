@@ -20,6 +20,21 @@ class Blockchain
     @nodes.uniq!
   end
 
+  def valid_chain?(chain)
+    last_block = chain[0]
+
+    (1..chain.size).each do |index||
+      block = chain[index]
+
+      return false if block[:previous_hash] != hash(last_block)
+      return false unless valid_proof?(last_block[:proof], block[:proof])
+
+      last_block = block
+    end
+
+    true
+  end
+
   def new_block(previous_hash: nil, proof: nil)
     block = {
       index: @chain.size + 1,
