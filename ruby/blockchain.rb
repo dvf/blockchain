@@ -55,8 +55,6 @@ class Blockchain
     Digest::SHA256.hexdigest(guess)[0..3] == '0000'
   end
 
-  protected
-
   def last_block
     @chain[-1]
   end

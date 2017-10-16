@@ -3,6 +3,7 @@ require 'json'
 require 'sinatra'
 require 'sinatra/reloader' if development?
 
+node_identifire = SecureRandom.uuid.gsub('-', '')
 blockchain = Blockchain.new
 
 post '/transactions' do
@@ -18,6 +19,23 @@ post '/transactions' do
 end
 
 get '/mine' do
+  last_block = blockchain.last_block
+  last_proof = last_block[:proof]
+  proof = blockchain.proof_of_work(last_proof)
+
+  blockchain.new_transaction("0", node_identifire, 1)
+
+  block = blockchain.new_block(proof: proof)
+
+  response = {
+    message: 'New block is mineded',
+    index: block[:index],
+    transactions: block[:transactions],
+    proof: block[:proof],
+    previous_hash: block[:previous_hash]
+  }
+
+  [200, response.to_json]
 end
 
 get '/chain' do
