@@ -15,7 +15,7 @@ post '/transactions' do
 
   index = blockchain.new_transaction(params['sender'], params['recipient'], params['amount'])
 
-  [201, { message: "Transaction added to #{index}" }.to_json]
+  [201, { message: "Transaction will be added to Block #{index}" }.to_json]
 end
 
 get '/mine' do
@@ -28,7 +28,7 @@ get '/mine' do
   block = blockchain.new_block(proof: proof)
 
   response = {
-    message: 'New block is mineded',
+    message: 'New Block Forged',
     index: block[:index],
     transactions: block[:transactions],
     proof: block[:proof],
