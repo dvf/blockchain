@@ -9,7 +9,7 @@ blockchain = Blockchain.new
 post '/transactions' do
   params = JSON.parse request.body.read
 
-  if %w[sender recipient amount].any? { |key| params[key].nil? || params[key].length == 0 }
+  if %w[sender recipient amount].any? { |key| params[key].nil? || params[key].to_s.length == 0 }
     return [400, 'Missing values']
   end
 
