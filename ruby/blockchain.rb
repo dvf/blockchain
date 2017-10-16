@@ -33,7 +33,7 @@ class Blockchain
       amount: amount
     }
 
-    last_block['index'] + 1
+    last_block[:index] + 1
   end
 
   def proof_of_work(last_proof)
