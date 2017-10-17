@@ -44,3 +44,26 @@ get '/chain' do
     length: blockchain.chain.size
   }.to_json
 end
+
+post '/nodes/register' do
+  params = JSON.parse request.body.read
+
+  nodes = params[:nodes]
+  return [400, 'Invalid nodes'] unless nodes
+
+  nodes.map { |node| blockchain.register_node(node) }
+
+  [201, { message: 'New node added', total_nodes: blockchain.nodes }.to_json]
+end
+
+get '/nodes/resolve' do
+  replaced = blockchain.resolve_conflicts
+
+  response = if replaced
+               { message: 'Chain replaced', new_chain: blockchain.chain }
+             else
+               { message: 'Chain checked', chain: blockchain.chain }
+             end
+
+  [200, response.to_json]
+end
