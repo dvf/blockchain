@@ -1,6 +1,7 @@
 require 'digest/sha2'
 require 'json'
 require 'uri'
+require 'faraday'
 
 class Blockchain
   attr_reader :chain
@@ -32,6 +33,33 @@ class Blockchain
       last_block = block
     end
 
+    true
+  end
+
+  def resolve_conflicts
+    neighbours = @nodes
+    new_chain = nil
+
+    max_length = @chain.size
+    neighbours.each do |node|
+      response = Faraday.get("http://#{node}/chain")
+
+      next unless response.status == 200
+
+      json = JSON.parse(response.body)
+
+      length = json[:length]
+      chain = json[:chain]
+
+      if length > max_length && valid_chain?(chain)
+        max_length = length
+        new_chain = chain
+      end
+    end
+
+    return false unless new_chain
+
+    @chain = new_chain
     true
   end
 
