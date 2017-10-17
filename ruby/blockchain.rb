@@ -4,12 +4,12 @@ require 'uri'
 require 'faraday'
 
 class Blockchain
-  attr_reader :chain
+  attr_reader :chain, :nodes
 
   def initialize
     @chain = []
     @current_transactions = []
-    @nodes = {}
+    @nodes = []
 
     new_block(previous_hash: 1, proof: 100)
   end
@@ -17,18 +17,19 @@ class Blockchain
   def register_node(address)
     uri = URI.parse(address)
 
-    @nodes << uri.host
+    @nodes << "#{uri.scheme}://#{uri.host}:#{uri.port}"
     @nodes.uniq!
   end
 
   def valid_chain?(chain)
     last_block = chain[0]
 
-    (1..chain.size).each do |index||
+    (1...chain.size).each do |index|
       block = chain[index]
+      puts block
 
-      return false if block[:previous_hash] != hash(last_block)
-      return false unless valid_proof?(last_block[:proof], block[:proof])
+      return false unless block[:previous_hash] == self.class.hash(last_block)
+      return false unless self.class.valid_proof?(last_block[:proof], block[:proof])
 
       last_block = block
     end
@@ -42,11 +43,11 @@ class Blockchain
 
     max_length = @chain.size
     neighbours.each do |node|
-      response = Faraday.get("http://#{node}/chain")
+      response = Faraday.get("#{node}/chain")
 
       next unless response.status == 200
 
-      json = JSON.parse(response.body)
+      json = JSON.parse(response.body, symbolize_names: true)
 
       length = json[:length]
       chain = json[:chain]
