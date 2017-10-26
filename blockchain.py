@@ -132,7 +132,7 @@ class Blockchain:
         return self.last_block['index'] + 1
 
     @property
-    def last_block(self) -> Dict[str: Any]:
+    def last_block(self) -> Dict[str, Any]:
         return self.chain[-1]
 
     @staticmethod
@@ -201,7 +201,7 @@ def mine():
     )
 
     # Forge the new Block by adding it to the chain
-    block = blockchain.new_block(proof)
+    block = blockchain.new_block(proof, [])
 
     response = {
         'message': "New Block Forged",
