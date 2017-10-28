@@ -26,7 +26,14 @@ class Blockchain:
         """
 
         parsed_url = urlparse(address)
-        self.nodes.add(parsed_url.netloc)
+        if parsed_url.netloc:
+            self.nodes.add(parsed_url.netloc)
+        elif parsed_url.path:
+            # Accepts an URL without scheme like '192.168.0.5:5000'.
+            self.nodes.add(parsed_url.path)
+        else:
+            raise ValueError('Invalid URL')
+
 
     def valid_chain(self, chain: List[Dict[str, Any]]) -> bool:
         """
@@ -132,7 +139,7 @@ class Blockchain:
         return self.last_block['index'] + 1
 
     @property
-    def last_block(self) -> Dict[str: Any]:
+    def last_block(self) -> Dict[str, Any]:
         return self.chain[-1]
 
     @staticmethod
@@ -201,7 +208,7 @@ def mine():
     )
 
     # Forge the new Block by adding it to the chain
-    block = blockchain.new_block(proof)
+    block = blockchain.new_block(proof, [])
 
     response = {
         'message': "New Block Forged",
