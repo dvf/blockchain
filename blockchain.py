@@ -62,7 +62,7 @@ class Blockchain:
         共识算法解决冲突
         使用网络中最长的链.
 
-        :return: True 如果链被取代, False if not
+        :return:  如果链被取代返回 True, 否则为False
         """
 
         neighbours = self.nodes
@@ -93,7 +93,7 @@ class Blockchain:
 
     def new_block(self, proof: int, previous_hash: Optional[str]) -> Dict[str, Any]:
         """
-        Create a new Block in the Blockchain
+        生成新块
 
         :param proof: The proof given by the Proof of Work algorithm
         :param previous_hash: Hash of previous Block
@@ -116,7 +116,7 @@ class Blockchain:
 
     def new_transaction(self, sender: str, recipient: str, amount: int) -> int:
         """
-        Creates a new transaction to go into the next mined Block
+        生成新交易信息，信息将加入到下一个待挖的区块中
 
         :param sender: Address of the Sender
         :param recipient: Address of the Recipient
@@ -163,7 +163,7 @@ class Blockchain:
     @staticmethod
     def valid_proof(last_proof: int, proof: int) -> bool:
         """
-        验证证明
+        验证证明: 是否hash(last_proof, proof)以4个0开头
 
         :param last_proof: Previous Proof
         :param proof: Current Proof
@@ -216,9 +216,8 @@ def mine():
 @app.route('/transactions/new', methods=['POST'])
 def new_transaction():
     values = request.get_json()
-    print(values)
 
-    # Check that the required fields are in the POST'ed data
+    # 检查POST数据
     required = ['sender', 'recipient', 'amount']
     if not all(k in values for k in required):
         return 'Missing values', 400
