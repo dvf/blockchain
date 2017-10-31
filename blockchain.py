@@ -15,7 +15,7 @@ class Blockchain:
         self.chain = []
         self.nodes = set()
 
-        # Create the genesis block
+        # 创建创世块
         self.new_block(previous_hash='1', proof=100)
 
     def register_node(self, address: str) -> None:
@@ -59,10 +59,10 @@ class Blockchain:
 
     def resolve_conflicts(self) -> bool:
         """
-        This is our consensus algorithm, it resolves conflicts
-        by replacing our chain with the longest one in the network.
+        共识算法解决冲突
+        使用网络中最长的链.
 
-        :return: True if our chain was replaced, False if not
+        :return: True 如果链被取代, False if not
         """
 
         neighbours = self.nodes
@@ -138,7 +138,7 @@ class Blockchain:
     @staticmethod
     def hash(block: Dict[str, Any]) -> str:
         """
-        Creates a SHA-256 hash of a Block
+        生成块的 SHA-256 hash值
 
         :param block: Block
         """
@@ -149,9 +149,9 @@ class Blockchain:
 
     def proof_of_work(self, last_proof: int) -> int:
         """
-        Simple Proof of Work Algorithm:
-         - Find a number p' such that hash(pp') contains leading 4 zeroes, where p is the previous p'
-         - p is the previous proof, and p' is the new proof
+        简单的工作量证明:
+         - 查找一个 p' 使得 hash(pp') 以4个0开头
+         - p 是上一个块的证明,  p' 是当前的证明
         """
 
         proof = 0
@@ -163,7 +163,7 @@ class Blockchain:
     @staticmethod
     def valid_proof(last_proof: int, proof: int) -> bool:
         """
-        Validates the Proof
+        验证证明
 
         :param last_proof: Previous Proof
         :param proof: Current Proof
@@ -192,8 +192,8 @@ def mine():
     last_proof = last_block['proof']
     proof = blockchain.proof_of_work(last_proof)
 
-    # We must receive a reward for finding the proof.
-    # The sender is "0" to signify that this node has mined a new coin.
+    # 给工作量证明的节点提供奖励.
+    # 发送者为 "0" 表明是新挖出的币
     blockchain.new_transaction(
         sender="0",
         recipient=node_identifier,
@@ -216,6 +216,7 @@ def mine():
 @app.route('/transactions/new', methods=['POST'])
 def new_transaction():
     values = request.get_json()
+    print(values)
 
     # Check that the required fields are in the POST'ed data
     required = ['sender', 'recipient', 'amount']
@@ -282,4 +283,4 @@ if __name__ == '__main__':
     args = parser.parse_args()
     port = args.port
 
-    app.run(host='0.0.0.0', port=port)
+    app.run(host='127.0.0.1', port=port)
