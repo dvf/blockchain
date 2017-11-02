@@ -53,6 +53,39 @@ $ docker run --rm -p 82:5000 blockchain
 $ docker run --rm -p 83:5000 blockchain
 ```
 
+## Heroku
+
+This blockchain program can also be run on the web with heroku.
+
+### Use Heroku Git
+1. Clone this repository
+
+
+2. Build new app in [heroku](https://www.heroku.com/)
+
+
+3. Install [Heroku CLI](https://devcenter.heroku.com/articles/heroku-command-line)
+
+
+4. Create a new Git repository(for heroku)
+
+'''
+$ heroku login
+$ cd blockchain/
+$ git init
+$ heroku git:remote -a <Your app name>
+'''
+
+
+5. Deploy your application
+
+'''
+git add .
+git commit -am "Deploy blockchain program"
+git push heroku master
+'''
+
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
