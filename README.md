@@ -53,7 +53,18 @@ $ docker run --rm -p 82:5000 blockchain
 $ docker run --rm -p 83:5000 blockchain
 ```
 
+## Running Tests
+
+```
+$ pytest tests/
+```
+
+With coverage report (html report for example):
+
+```
+$ pytest --cov=blockchain --cov-report html tests/
+```
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
-

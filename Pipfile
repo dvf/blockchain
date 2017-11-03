@@ -4,6 +4,9 @@ verify_ssl = true
 name = "pypi"
 
 [dev-packages]
+pytest = "*"
+"pytest-coverage" = "*"
+
 
 [requires]
 python_version = "3.6"
@@ -12,4 +15,3 @@ python_version = "3.6"
 
 flask = "==0.12.2"
 requests = "==2.18.4"
-
