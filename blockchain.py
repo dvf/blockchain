@@ -21,7 +21,6 @@ class Blockchain:
     def register_node(self, address: str) -> None:
         """
         Add a new node to the list of nodes
-
         :param address: Address of node. Eg. 'http://192.168.0.5:5000'
         """
 
@@ -31,7 +30,6 @@ class Blockchain:
     def valid_chain(self, chain: List[Dict[str, Any]]) -> bool:
         """
         Determine if a given blockchain is valid
-
         :param chain: A blockchain
         :return: True if valid, False if not
         """
@@ -49,7 +47,7 @@ class Blockchain:
                 return False
 
             # Check that the Proof of Work is correct
-            if not self.valid_proof(last_block['proof'], block['proof']):
+            if not self.valid_proof(last_block['proof'], block['proof'], block['previous_hash']):
                 return False
 
             last_block = block
@@ -61,7 +59,6 @@ class Blockchain:
         """
         This is our consensus algorithm, it resolves conflicts
         by replacing our chain with the longest one in the network.
-
         :return: True if our chain was replaced, False if not
         """
 
@@ -94,7 +91,6 @@ class Blockchain:
     def new_block(self, proof: int, previous_hash: Optional[str]) -> Dict[str, Any]:
         """
         Create a new Block in the Blockchain
-
         :param proof: The proof given by the Proof of Work algorithm
         :param previous_hash: Hash of previous Block
         :return: New Block
@@ -117,7 +113,6 @@ class Blockchain:
     def new_transaction(self, sender: str, recipient: str, amount: int) -> int:
         """
         Creates a new transaction to go into the next mined Block
-
         :param sender: Address of the Sender
         :param recipient: Address of the Recipient
         :param amount: Amount
@@ -139,7 +134,6 @@ class Blockchain:
     def hash(block: Dict[str, Any]) -> str:
         """
         Creates a SHA-256 hash of a Block
-
         :param block: Block
         """
 
@@ -147,30 +141,35 @@ class Blockchain:
         block_string = json.dumps(block, sort_keys=True).encode()
         return hashlib.sha256(block_string).hexdigest()
 
-    def proof_of_work(self, last_proof: int) -> int:
+    def proof_of_work(self, last_block: Dict[str, Any]) -> int:
         """
         Simple Proof of Work Algorithm:
-         - Find a number p' such that hash(pp') contains leading 4 zeroes, where p is the previous p'
-         - p is the previous proof, and p' is the new proof
+         - Find a number p' such that hash(pp'h) contains leading 4 zeroes, where p is the previous p'
+         - p is the previous proof, p' is the new proof, and h is the hash of the last block
+
+         :param last_block: Last Block
         """
 
+        last_proof = last_block['proof']
+        last_hash = self.hash(last_block)
+
         proof = 0
-        while self.valid_proof(last_proof, proof) is False:
+        while self.valid_proof(last_proof, proof, last_hash) is False:
             proof += 1
 
         return proof
 
     @staticmethod
-    def valid_proof(last_proof: int, proof: int) -> bool:
+    def valid_proof(last_proof: int, proof: int, last_hash: str) -> bool:
         """
         Validates the Proof
-
         :param last_proof: Previous Proof
         :param proof: Current Proof
+        :param last_hash: Hash of previous Block
         :return: True if correct, False if not.
         """
 
-        guess = f'{last_proof}{proof}'.encode()
+        guess = f'{last_proof}{proof}{last_hash}'.encode()
         guess_hash = hashlib.sha256(guess).hexdigest()
         return guess_hash[:4] == "0000"
 
@@ -189,8 +188,7 @@ blockchain = Blockchain()
 def mine():
     # We run the proof of work algorithm to get the next proof...
     last_block = blockchain.last_block
-    last_proof = last_block['proof']
-    proof = blockchain.proof_of_work(last_proof)
+    proof = blockchain.proof_of_work(last_block)
 
     # We must receive a reward for finding the proof.
     # The sender is "0" to signify that this node has mined a new coin.
