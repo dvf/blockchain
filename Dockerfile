@@ -4,7 +4,7 @@ WORKDIR /app
 
 ENV BUILD_LIST git
 
-COPY blockchain.py Pipfile /app/
+COPY Pipfile /app
 
 RUN apk add --update $BUILD_LIST \
     && pip install pipenv \
@@ -12,6 +12,8 @@ RUN apk add --update $BUILD_LIST \
     && pipenv install \
     && apk del $BUILD_LIST \
     && rm -rf /var/cache/apk/*
+
+COPY blockchain.py /app
 
 EXPOSE 5000
 
