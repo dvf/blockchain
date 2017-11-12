@@ -1,0 +1,17 @@
+language: python
+
+python:
+  - 3.6
+  - nightly
+
+env:
+  - PIPENV_VENV_IN_PROJECT=1
+  - PIPENV_IGNORE_VIRTUALENVS=1
+
+install:
+  - pip install pipenv
+  - pipenv --three
+  - pipenv install -d --system
+
+script:
+  - pipenv run python -m unittest
