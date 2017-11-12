@@ -6,8 +6,7 @@ python:
 
 install:
   - pip install pipenv
-  - pipenv --three
-  - pipenv install -d --system
+  - pipenv install -dev
 
 script:
   - pipenv run python -m unittest
