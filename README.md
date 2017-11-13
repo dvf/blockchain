@@ -80,6 +80,7 @@ $ heroku git:remote -a <Your app name>
 5. Deploy your application
 
 '''
+pip install -r requirements.txt 
 git add .
 git commit -am "Deploy blockchain program"
 git push heroku master
