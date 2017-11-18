@@ -43,6 +43,7 @@ namespace BlockChainDemo
                             return chain.GetFullChain();
 
                         //POST: http://localhost:12345/nodes/register
+                        //{ "Urls": ["localhost:54321", "localhost:54345", "localhost:12321"] }
                         case "/nodes/register":
                             if (request.HttpMethod != HttpMethod.Post.Method)
                                 return $"{new HttpResponseMessage(HttpStatusCode.MethodNotAllowed)}";
