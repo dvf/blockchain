@@ -69,22 +69,23 @@ This blockchain program can also be run on the web with heroku.
 
 4. Create a new Git repository(for heroku)
 
-'''
+```shell
+
 $ heroku login
 $ cd blockchain/
 $ git init
 $ heroku git:remote -a <Your app name>
-'''
+```
 
 
 5. Deploy your application
 
-'''
-pip install -r requirements.txt 
+```shell
+
 git add .
-git commit -am "Deploy blockchain program"
+git commit -am "Deploy blockchain"
 git push heroku master
-'''
+```
 
 
 ## Contributing
