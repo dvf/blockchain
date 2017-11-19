@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System.Configuration;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -9,6 +10,10 @@ namespace BlockChainDemo
     {
         public WebServer(BlockChain chain)
         {
+            var settings = ConfigurationManager.AppSettings;
+            string host = settings["host"]?.Length > 1 ? settings["host"] : "localhost";
+            string port = settings["port"]?.Length > 1 ? settings["port"] : "12345";
+
             var server = new TinyWebServer.WebServer(request =>
                 {
                     string path = request.Url.PathAndQuery.ToLower();
@@ -53,18 +58,18 @@ namespace BlockChainDemo
                             var obj = JsonConvert.DeserializeAnonymousType(json, urlList);
                             return chain.RegisterNodes(obj.Urls);
 
-                        //GET: http://localhost:12345/nodes/register
+                        //GET: http://localhost:12345/nodes/resolve
                         case "/nodes/resolve":
                             return chain.Consensus();
                     }
 
                     return "";
                 },
-                "http://localhost:12345/mine/",
-                "http://localhost:12345/transactions/new/",
-                "http://localhost:12345/chain/",
-                "http://localhost:12345/nodes/register/",
-                "http://localhost:12345/nodes/resolve/"
+                $"http://{host}:{port}/mine/",
+                $"http://{host}:{port}/transactions/new/",
+                $"http://{host}:{port}/chain/",
+                $"http://{host}:{port}/nodes/register/",
+                $"http://{host}:{port}/nodes/resolve/"
             );
 
             server.Run();

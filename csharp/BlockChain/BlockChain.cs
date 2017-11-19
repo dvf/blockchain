@@ -66,18 +66,24 @@ namespace BlockChainDemo
 
             foreach (Node node in _nodes)
             {
-                var request = (HttpWebRequest)WebRequest.Create(node.Address);
+                var url = new Uri(node.Address, "/chain");
+                var request = (HttpWebRequest)WebRequest.Create(url);
                 var response = (HttpWebResponse)request.GetResponse();
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
-                    string json = new StreamReader(response.GetResponseStream()).ReadToEnd();
-                    List<Block> chain = JsonConvert.DeserializeObject<List<Block>>(json);
-
-                    if (chain.Count > _chain.Count && IsValidChain(chain))
+                    var model = new
                     {
-                        maxLength = chain.Count;
-                        newChain = chain;
+                        chain = new List<Block>(),
+                        length = 0
+                    };
+                    string json = new StreamReader(response.GetResponseStream()).ReadToEnd();
+                    var data = JsonConvert.DeserializeAnonymousType(json, model);
+
+                    if (data.chain.Count > _chain.Count && IsValidChain(data.chain))
+                    {
+                        maxLength = data.chain.Count;
+                        newChain = data.chain;
                     }
                 }
             }
@@ -179,7 +185,7 @@ namespace BlockChainDemo
             var builder = new StringBuilder();
             foreach (string node in nodes)
             {
-                string url = $"https://{node}";
+                string url = $"http://{node}";
                 RegisterNode(url);
                 builder.Append($"{url}, ");
             }
