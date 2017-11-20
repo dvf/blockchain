@@ -8,8 +8,14 @@ import requests
 from flask import Flask, jsonify, request
 
 
-class Blockchain:
+class Blockchain(object):
+    """
+    class Blockchain
+    """
     def __init__(self):
+        """
+        init of Blockchain
+        """
         self.current_transactions = []
         self.chain = []
         self.nodes = set()
@@ -22,6 +28,7 @@ class Blockchain:
         Add a new node to the list of nodes
 
         :param address: Address of node. Eg. 'http://192.168.0.5:5000'
+        :type address: str
         """
 
         parsed_url = urlparse(address)
@@ -31,8 +38,10 @@ class Blockchain:
         """
         Determine if a given blockchain is valid
 
-        :param chain: A blockchain
-        :return: True if valid, False if not
+        :param chain: the blockchain
+        :type chain: list
+        :returns: <bool> True if valid, False if not
+
         """
 
         last_block = chain[0]
@@ -40,8 +49,8 @@ class Blockchain:
 
         while current_index < len(chain):
             block = chain[current_index]
-            print(f'{last_block}')
-            print(f'{block}')
+            print(f'last block: {last_block}')
+            print(f'block: {block}')
             print("\n-----------\n")
             # Check that the hash of the block is correct
             if block['previous_hash'] != self.hash(last_block):
@@ -61,7 +70,7 @@ class Blockchain:
         This is our consensus algorithm, it resolves conflicts
         by replacing our chain with the longest one in the network.
 
-        :return: True if our chain was replaced, False if not
+        :returns: <bool> True if our chain was replaced, False if not
         """
 
         neighbours = self.nodes
@@ -95,8 +104,9 @@ class Blockchain:
         Create a new Block in the Blockchain
 
         :param proof: The proof given by the Proof of Work algorithm
-        :param previous_hash: Hash of previous Block
-        :return: New Block
+        :type proof: int
+        :param previous_hash: (Optional) <str> Hash of previous block
+        :returns: <dict> New Block
         """
 
         block = {
@@ -118,9 +128,13 @@ class Blockchain:
         Creates a new transaction to go into the next mined Block
 
         :param sender: Address of the Sender
+        :type sender: str
         :param recipient: Address of the Recipient
+        :type recipient: str
         :param amount: Amount
-        :return: The index of the Block that will hold this transaction
+        :type amount: int
+        :returns: <int> The index of the Block that will hold this transaction
+
         """
         self.current_transactions.append({
             'sender': sender,
@@ -140,6 +154,9 @@ class Blockchain:
         Creates a SHA-256 hash of a Block
 
         :param block: Block
+        :type block: dict
+        :returns: <str>
+
         """
 
         # We must make sure that the Dictionary is Ordered, or we'll have inconsistent hashes
@@ -151,6 +168,10 @@ class Blockchain:
         Simple Proof of Work Algorithm:
          - Find a number p' such that hash(pp') contains leading 4 zeroes, where p is the previous p'
          - p is the previous proof, and p' is the new proof
+
+        :param last_proof: <int> previous proof
+        :returns: <int>
+
         """
 
         proof = 0
@@ -164,9 +185,11 @@ class Blockchain:
         """
         Validates the Proof
 
-        :param last_proof: Previous Proof
-        :param proof: Current Proof
-        :return: True if correct, False if not.
+        :param last_proof: previous proof
+        :type last_proof: int
+        :param proof: current proof
+        :type proof: int
+        :returns: <bool> True if correct, False if not.
         """
 
         guess = f'{last_proof}{proof}'.encode()
@@ -196,8 +219,7 @@ def mine():
     blockchain.new_transaction(
         sender="0",
         recipient=node_identifier,
-        amount=1,
-    )
+        amount=1, )
 
     # Forge the new Block by adding it to the chain
     previous_hash = blockchain.hash(last_block)
@@ -223,7 +245,8 @@ def new_transaction():
         return 'Missing values', 400
 
     # Create a new Transaction
-    index = blockchain.new_transaction(values['sender'], values['recipient'], values['amount'])
+    index = blockchain.new_transaction(values['sender'], values['recipient'],
+                                       values['amount'])
 
     response = {'message': f'Transaction will be added to Block {index}'}
     return jsonify(response), 201
