@@ -1,0 +1,8 @@
+Flask==0.10.1
+Flask-RESTful==0.2.12
+Jinja2==2.7.3
+Werkzeug==0.9.6
+gunicorn==19.0.0
+requests
+uwsgi
+
