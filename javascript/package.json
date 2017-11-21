@@ -1,0 +1,31 @@
+{
+  "name": "blockchain",
+  "version": "1.0.0",
+  "description": "javascript implementation of blockchain by Daniel van Flymen",
+  "main": "index.js",
+  "scripts": {
+    "test": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hskang9/blockchain.git"
+  },
+  "keywords": [
+    "blockchain",
+    "javascript",
+    "express"
+  ],
+  "author": "Hyungsuk Kang",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/hskang9/blockchain/issues"
+  },
+  "homepage": "https://github.com/hskang9/blockchain#readme",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "express": "^4.16.2",
+    "request": "^2.83.0",
+    "sha256": "^0.2.0",
+    "url-parse": "^1.2.0"
+  }
+}
