@@ -1,8 +1,8 @@
 import hashlib
+import logging
 from datetime import datetime
 
 from database import Block, db
-import logging
 
 
 logger = logging.getLogger('root.blockchain')
@@ -121,32 +121,3 @@ class Blockchain:
 
         block_bytes = block.to_json().encode()
         return hashlib.sha256(block_bytes).hexdigest()
-
-    def proof_of_work(self, last_proof):
-        """
-        Simple Proof of Work Algorithm:
-         - Find a number p' such that hash(pp') contains leading 4 zeroes, where p is the previous p'
-         - p is the previous proof, and p' is the new proof
-
-        :param last_proof: The proof from the previous block
-        """
-
-        proof = 0
-        while self.valid_proof(last_proof, proof) is False:
-            proof += 1
-
-        return proof
-
-    def valid_proof(self, last_proof, proof):
-        """
-        Validates the Proof
-
-        :param last_proof: Previous Proof
-        :param proof: Current Proof
-        :return: True if correct, False if not.
-        """
-
-        guess = f'{last_proof}{proof}'.encode()
-        guess_hash = hashlib.sha256(guess).hexdigest()
-
-        return guess_hash[:self.difficulty] == '0' * self.difficulty  # In Python, '0' * 4 gives '0000'
