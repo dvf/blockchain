@@ -1,4 +1,6 @@
-from database import db, Config
+from sqlalchemy import func
+
+from database import Config, Peer, db
 
 
 def set_config(key, value, replace=False):
@@ -14,6 +16,8 @@ def set_config(key, value, replace=False):
         db.commit()
         return
 
+    return config_value
+
 
 def get_config(key, default=None):
     config = db.query(Config).filter_by(key=key).first()
@@ -21,3 +25,13 @@ def get_config(key, default=None):
         return config.value
     else:
         return default
+
+
+def get_random_peers(limit=10):
+    """
+    Returns random peers
+
+    :param limit: How many peers to return
+    :return:
+    """
+    return db.query(Peer).order_by(func.random()).limit(limit)

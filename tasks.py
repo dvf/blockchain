@@ -1,55 +1,68 @@
-import time
 import asyncio
+import logging
 import multiprocessing
+import time
+from uuid import uuid4
 
 import aiohttp
-from sqlalchemy import func
 
-from database import Peer, db
-
-
-def get_random_peers(limit=10):
-    """
-    Returns random peers
-
-    :param limit: How many peers to return
-    :return:
-    """
-    return db.query(Peer).order_by(func.random()).limit(limit)
+from blockchain import Blockchain
+from database import db
+from helpers import get_config, set_config, get_random_peers
+from mining import miner
+from networking import PortMapper
 
 
-async def populate_peers(app):
+log = logging.getLogger('root.tasks')
+
+
+def initiate_node(app):
+    # Set up TCP Redirect (Port Forwarding)
+    port_mapper = PortMapper()
+    port_mapper.add_portmapping(8080, 8080, 'TCP', 'Electron')
+
+    # Set the identifier (unique Id) for our node
+    node_identifier = get_config('node_identifier')
+    if not node_identifier:
+        node_identifier = set_config(key='node_identifier', value=uuid4().hex)
+
+    app.request_headers = {
+        'content-type': 'application/json',
+        'x-node-identifier': node_identifier,
+        'x-node-ip': port_mapper.external_ip,
+        'x-node-port': port_mapper.external_port,
+    }
+
+    log.info('Node Identifier: %s', node_identifier)
+
+    # Add the Blockchain helper class to the app
+    app.blockchain = Blockchain()
+
+
+async def peer_discovery(app):
     """
     Ask random peers to return peers they know about
     """
-    print(app)
     while True:
         peers = get_random_peers()
 
-        async with aiohttp.ClientSession() as session:
-            for peer in peers:
-                try:
-                    async with session.get(f'http://{peer.ip}:8000', timeout=3) as resp:
-                        print(resp.status)
-                        print(await resp.text())
-                except asyncio.TimeoutError:
-                    db.delete(peer)
-                    db.commit()
-                    print(f"{peer.ip}: Deleting node")
+        for peer in peers:
+            try:
+                response = await aiohttp.request('GET', 'peer.hostname', headers=app.request_headers)
+                print(f'Made request: {response.status}')
+
+            except asyncio.TimeoutError:
+                db.delete(peer)
+                db.commit()
+                print(f'{peer.hostname}: Deleted node')
 
         await asyncio.sleep(10)
 
 
 async def watch_blockchain(app):
     while True:
-        print(f"TXN: {app.blockchain.current_transactions}")
+        print(f'TXN: {app.blockchain.current_transactions}')
         await asyncio.sleep(2)
-
-
-async def add_stuff(app):
-    while True:
-        await asyncio.sleep(1.5)
-        app.blockchain.current_transactions.append("a")
 
 
 async def consensus():
@@ -94,12 +107,31 @@ async def consensus():
         return False
 
 
-def miner():
+def we_should_still_be_mining():
+    return True
+
+
+async def mining_controller(app):
+    left, right = multiprocessing.Pipe()
+    event = multiprocessing.Event()
+
+    # Spawn a new process consisting of the miner() function
+    # and send the right end of the pipe to it
+    process = multiprocessing.Process(target=miner, args=(right, event))
+    process.start()
+
+    left.send({'last_hash': 123, 'difficulty': 6})
+
     while True:
-        time.sleep(2)
-        print('Hey! Mining is happening!')
+        event.set()
 
+        # We'll check the pipe every 100 ms
+        await asyncio.sleep(1)
 
-async def mining_controller():
-    p = multiprocessing.Process(target=miner, args=())
-    p.start()
+        # Check if we should still be mining
+        if not we_should_still_be_mining():
+            event.clear()
+
+        if left.poll():
+            result = left.recv()
+            print(f'A new block was found with proof: {result}')

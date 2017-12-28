@@ -13,23 +13,22 @@ db = scoped_session(sessionmaker(bind=engine))
 class BaseModel(object):
     @declared_attr
     def __tablename__(self):
-        return self.__name__.lower()  # Ensures all tables have the same name as their models (below)
-
-    def to_json(self):
         """
-        Convenience method to convert any database row to JSON
-
-        :return: <JSON>
+        Ensures all tables have the same name as their models (below)
         """
-        return json.dumps({c.name: getattr(self, c.name) for c in self.__table__.columns}, sort_keys=True)
+        return self.__name__.lower()
 
     def to_dict(self):
         """
-        Convenience method to convert any database row to dict
-
-        :return: <JSON>
+        Helper method to convert any database row to dict
         """
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
+    def to_json(self):
+        """
+        Helper method to convert any database row to JSON
+        """
+        return json.dumps(self.to_dict(), sort_keys=True)
 
 
 Base = declarative_base(cls=BaseModel)
@@ -37,7 +36,7 @@ Base = declarative_base(cls=BaseModel)
 
 class Peer(Base):
     identifier = Column(String(32), primary_key=True)
-    ip = Column(String, index=True, unique=True)
+    hostname = Column(String, index=True, unique=True)
 
 
 class Block(Base):
@@ -56,9 +55,7 @@ class Config(Base):
 
 def reset_db():
     """
-    Deletes and Re-creates the Database
-
-    :return:
+    Drops and Re-creates the Database
     """
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
