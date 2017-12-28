@@ -134,4 +134,9 @@ async def mining_controller(app):
 
         if left.poll():
             result = left.recv()
-            print(f'A new block was found with proof: {result}')
+            proof = result['proof']
+            previous_hash = result['last_hash']
+            app.blockchain.new_block(proof, previous_hash)
+            last_block_hash = app.blockchain.hash(app.blockchain.last_block)
+
+            left.send({'last_hash': last_block_hash, 'difficulty': 6})

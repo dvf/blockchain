@@ -51,4 +51,4 @@ def miner(right, event):
 
         if latest_task:
             proof = proof_of_work(latest_task['last_hash'], latest_task['difficulty'], event)
-            right.send(proof)
+            right.send({'proof': proof, 'last_hash': latest_task['last_hash']})

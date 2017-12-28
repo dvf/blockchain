@@ -9,6 +9,15 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 engine = create_engine('sqlite:///electron.db')
 db = scoped_session(sessionmaker(bind=engine))
 
+from datetime import datetime
+import json
+
+class DateTimeEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, datetime):
+            return o.isoformat()
+
+        return json.JSONEncoder.default(self, o)
 
 class BaseModel(object):
     @declared_attr
@@ -28,7 +37,7 @@ class BaseModel(object):
         """
         Helper method to convert any database row to JSON
         """
-        return json.dumps(self.to_dict(), sort_keys=True)
+        return json.dumps(self.to_dict(), sort_keys=True, cls=DateTimeEncoder)
 
 
 Base = declarative_base(cls=BaseModel)

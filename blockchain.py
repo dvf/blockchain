@@ -15,7 +15,7 @@ class Blockchain:
 
         # Create the genesis block if necessary
         if not self.get_blocks(0):
-            self.new_block(previous_hash='1', proof=100, height=0)
+            self.new_block(previous_hash='1', proof=100)
             logger.info("✨ Created genesis block")
 
         logger.info("Blockchain Initiated")
@@ -59,7 +59,7 @@ class Blockchain:
 
         return True
 
-    def new_block(self, proof, previous_hash, height):
+    def new_block(self, proof, previous_hash):
         """
         Create a new Block in the Blockchain
 
@@ -70,7 +70,6 @@ class Blockchain:
         """
 
         block = Block(
-            height=height,
             timestamp=datetime.now(),
             transactions=self.current_transactions,
             proof=proof,
