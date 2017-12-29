@@ -8,7 +8,7 @@ from tasks import initiate_node, mining_controller, peer_discovery
 
 app = Sanic()
 
-# reset_db()
+reset_db()
 initiate_node(app)
 
 app.add_task(peer_discovery(app))

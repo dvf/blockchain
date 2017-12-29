@@ -1,54 +1,47 @@
 import logging
+from datetime import datetime
 from hashlib import sha256
 import signal
+
+from blockchain import Blockchain
 
 
 log = logging.getLogger('root.mining')
 
 
-def valid_proof(last_hash, proof, target):
-    """
-    Validates the Proof
-
-    :param last_hash: Hash of the previous block
-    :param proof: Current Proof
-    :param target: Target Difficulty
-    :return: True if correct, False if not.
-    """
-
-    guess = f'{last_hash}{proof}'.encode()
-    guess_hash = sha256(guess).hexdigest()
-    return guess_hash < target
-
-
-def proof_of_work(last_hash, difficulty, event):
+def proof_of_work(current_block, difficulty, event):
     """
     Simple Proof of Work Algorithm
 
-    :param last_hash: The hash of the previous block
+    :param current_block: The partially complete block currently being mined
     :param difficulty: The minimum number of leading zeros
     """
 
     # String of 64 f's replaced with 3 leading zeros (if the difficulty is 3): 000fff...f
     target = str.ljust("0" * difficulty, 64, "f")
 
-    proof = 0
-    while valid_proof(last_hash, proof, target) is False:
+    current_block['timestamp'] = datetime.now()
+    current_block['proof'] = 0
+    guess_hash = Blockchain.hash(current_block)
+
+    while guess_hash > target:
         # Check if we should still be mining
         # if not event.is_set():
         #     raise Exception("STOP MINING")
-        proof += 1
-    return proof
+        current_block['timestamp'] = datetime.now()
+        current_block['proof'] += 1
+        guess_hash = Blockchain.hash(current_block)
+
+    current_block['hash'] = guess_hash
+    return current_block
 
 
 def miner(right, event):
 
     while True:
-        log.info(f'Waiting for task')
-        latest_task = right.recv()
-        log.info(f"Received new task for hash {latest_task['last_hash']} "
-                 f"with difficulty {latest_task['difficulty']}")
+        task = right.recv()
+        log.info(f"Received new mining task with difficulty {task['difficulty']}")
 
-        if latest_task:
-            proof = proof_of_work(latest_task['last_hash'], latest_task['difficulty'], event)
-            right.send({'proof': proof, 'last_hash': latest_task['last_hash']})
+        if task:
+            found_block = proof_of_work(task['block'], task['difficulty'], event)
+            right.send({'found_block': found_block})

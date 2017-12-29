@@ -1,8 +1,10 @@
-import hashlib
+import json
 import logging
 from datetime import datetime
+from hashlib import sha256
 
-from database import Block, db
+from database import Block, db, DateTimeEncoder
+from helpers import json_serializer
 
 
 logger = logging.getLogger('root.blockchain')
@@ -12,10 +14,14 @@ class Blockchain:
     def __init__(self):
         self.current_transactions = []
         self.difficulty = 4
+        self.current_block = None
 
         # Create the genesis block if necessary
-        if not self.get_blocks(0):
-            self.new_block(previous_hash='1', proof=100)
+        if not self.last_block:
+            block = self.build_block()
+            block['hash'] = self.hash(block)
+            self.save_block(block)
+
             logger.info("✨ Created genesis block")
 
         logger.info("Blockchain Initiated")
@@ -59,30 +65,31 @@ class Blockchain:
 
         return True
 
-    def new_block(self, proof, previous_hash):
+    def build_block(self):
         """
         Create a new Block in the Blockchain
-
-        :param proof: The proof given by the Proof of Work algorithm
-        :param previous_hash: Hash of previous Block
-        :param height: The Height of the new block
-        :return: New Block
         """
+        last_block = self.last_block
 
-        block = Block(
-            timestamp=datetime.now(),
-            transactions=self.current_transactions,
-            proof=proof,
-            previous_hash=previous_hash,
-        )
+        return {
+            'transactions': self.current_transactions,
+            'previous_hash': last_block.hash if last_block else 0,
+            'timestamp': datetime.now()
+        }
 
+    def save_block(self, block_dict):
+        """
+        Saves Block to the database and resets outstanding transactions
+
+        :param block_dict: A dictionary representation of a Block
+        :return:
+        """
+        block = Block(**block_dict)
         db.add(block)
         db.commit()
 
         # Reset the current list of transactions
         self.current_transactions = []
-
-        return block
 
     def new_transaction(self, sender, recipient, amount):
         """
@@ -113,10 +120,7 @@ class Blockchain:
     @staticmethod
     def hash(block):
         """
-        Creates a SHA-256 hash of a Block
-
-        :param block: Block
+        Creates a SHA-256 hash of the fields for a Block
         """
-
-        block_bytes = block.to_json().encode()
-        return hashlib.sha256(block_bytes).hexdigest()
+        json_string = json.dumps(block, sort_keys=True, cls=DateTimeEncoder)
+        return sha256(json_string.encode()).hexdigest()

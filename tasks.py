@@ -18,20 +18,20 @@ log = logging.getLogger('root.tasks')
 
 def initiate_node(app):
     # Set up TCP Redirect (Port Forwarding)
-    port_mapper = PortMapper()
-    port_mapper.add_portmapping(8080, 8080, 'TCP', 'Electron')
+    # port_mapper = PortMapper()
+    # port_mapper.add_portmapping(8080, 8080, 'TCP', 'Electron')
 
     # Set the identifier (unique Id) for our node
     node_identifier = get_config('node_identifier')
     if not node_identifier:
         node_identifier = set_config(key='node_identifier', value=uuid4().hex)
 
-    app.request_headers = {
-        'content-type': 'application/json',
-        'x-node-identifier': node_identifier,
-        'x-node-ip': port_mapper.external_ip,
-        'x-node-port': port_mapper.external_port,
-    }
+    # app.request_headers = {
+    #     'content-type': 'application/json',
+    #     'x-node-identifier': node_identifier,
+    #     'x-node-ip': port_mapper.external_ip,
+    #     'x-node-port': port_mapper.external_port,
+    # }
 
     log.info('Node Identifier: %s', node_identifier)
 
@@ -120,7 +120,7 @@ async def mining_controller(app):
     process = multiprocessing.Process(target=miner, args=(right, event))
     process.start()
 
-    left.send({'last_hash': 123, 'difficulty': 6})
+    left.send({'block': app.blockchain.build_block(), 'difficulty': 4})
 
     while True:
         event.set()
@@ -134,9 +134,8 @@ async def mining_controller(app):
 
         if left.poll():
             result = left.recv()
-            proof = result['proof']
-            previous_hash = result['last_hash']
-            app.blockchain.new_block(proof, previous_hash)
-            last_block_hash = app.blockchain.hash(app.blockchain.last_block)
+            found_block = result['found_block']
 
-            left.send({'last_hash': last_block_hash, 'difficulty': 6})
+            app.blockchain.save_block(found_block)
+
+            left.send({'block': app.blockchain.build_block(), 'difficulty': 4})

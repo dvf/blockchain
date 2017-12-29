@@ -1,3 +1,5 @@
+from datetime import date, datetime
+
 from sqlalchemy import func
 
 from database import Config, Peer, db
@@ -35,3 +37,13 @@ def get_random_peers(limit=10):
     :return:
     """
     return db.query(Peer).order_by(func.random()).limit(limit)
+
+
+def json_serializer(obj):
+    """
+    JSON serializer for objects not serializable by default json code
+    """
+
+    if isinstance(obj, (datetime, date)):
+        return obj.isoformat()
+    raise TypeError("Type %s not serializable" % type(obj))

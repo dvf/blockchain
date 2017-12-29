@@ -11,7 +11,7 @@ class BlockchainTestCase(TestCase):
         self.blockchain = Blockchain()
 
     def create_block(self, proof=123, previous_hash='abc'):
-        self.blockchain.new_block(proof, previous_hash)
+        self.blockchain.build_block(proof, previous_hash)
 
     def create_transaction(self, sender='a', recipient='b', amount=1):
         self.blockchain.new_transaction(

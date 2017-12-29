@@ -1,4 +1,6 @@
 import json
+from datetime import datetime
+from hashlib import sha256
 
 from sqlalchemy import Column, DateTime, Integer, PickleType, String, create_engine
 from sqlalchemy.ext.declarative import declarative_base, declared_attr
@@ -9,8 +11,6 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 engine = create_engine('sqlite:///electron.db')
 db = scoped_session(sessionmaker(bind=engine))
 
-from datetime import datetime
-import json
 
 class DateTimeEncoder(json.JSONEncoder):
     def default(self, o):
@@ -19,7 +19,13 @@ class DateTimeEncoder(json.JSONEncoder):
 
         return json.JSONEncoder.default(self, o)
 
-class BaseModel(object):
+
+Base = declarative_base()
+
+
+class BaseModel(Base):
+    __abstract__ = True
+
     @declared_attr
     def __tablename__(self):
         """
@@ -40,15 +46,13 @@ class BaseModel(object):
         return json.dumps(self.to_dict(), sort_keys=True, cls=DateTimeEncoder)
 
 
-Base = declarative_base(cls=BaseModel)
-
-
-class Peer(Base):
+class Peer(BaseModel):
     identifier = Column(String(32), primary_key=True)
     hostname = Column(String, index=True, unique=True)
+    timestamp = Column(DateTime, index=True)
 
 
-class Block(Base):
+class Block(BaseModel):
     height = Column(Integer, primary_key=True, autoincrement=True)
     timestamp = Column(DateTime, index=True)
     transactions = Column(PickleType)
@@ -57,7 +61,7 @@ class Block(Base):
     hash = Column(String(64))
 
 
-class Config(Base):
+class Config(BaseModel):
     key = Column(String(64), primary_key=True, unique=True)
     value = Column(PickleType)
 
@@ -68,3 +72,4 @@ def reset_db():
     """
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
+
