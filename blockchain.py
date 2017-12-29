@@ -1,10 +1,8 @@
-import json
 import logging
 from datetime import datetime
 from hashlib import sha256
 
-from database import Block, db, DateTimeEncoder
-from helpers import json_serializer
+from database import Block, db
 
 
 logger = logging.getLogger('root.blockchain')
@@ -72,9 +70,11 @@ class Blockchain:
         last_block = self.last_block
 
         return {
+            'height': last_block.height + 1 if last_block else 0,
+            'timestamp': datetime.utcnow(),
             'transactions': self.current_transactions,
             'previous_hash': last_block.hash if last_block else 0,
-            'timestamp': datetime.now()
+            'proof': -1,
         }
 
     def save_block(self, block_dict):
@@ -118,9 +118,14 @@ class Blockchain:
         return db.query(Block).order_by(Block.height.desc()).first()
 
     @staticmethod
-    def hash(block):
+    def hash(b):
         """
         Creates a SHA-256 hash of the fields for a Block
         """
-        json_string = json.dumps(block, sort_keys=True, cls=DateTimeEncoder)
-        return sha256(json_string.encode()).hexdigest()
+        byte_array = f"{b['height']}" \
+                     f"{b['timestamp']}" \
+                     f"{b['transactions']}" \
+                     f"{b['previous_hash']}" \
+                     f"{b['proof']}".encode()
+
+        return sha256(byte_array).hexdigest()

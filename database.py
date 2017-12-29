@@ -53,7 +53,7 @@ class Peer(BaseModel):
 
 
 class Block(BaseModel):
-    height = Column(Integer, primary_key=True, autoincrement=True)
+    height = Column(Integer, primary_key=True)
     timestamp = Column(DateTime, index=True)
     transactions = Column(PickleType)
     previous_hash = Column(String(64))

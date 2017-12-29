@@ -20,7 +20,7 @@ def proof_of_work(current_block, difficulty, event):
     # String of 64 f's replaced with 3 leading zeros (if the difficulty is 3): 000fff...f
     target = str.ljust("0" * difficulty, 64, "f")
 
-    current_block['timestamp'] = datetime.now()
+    current_block['timestamp'] = datetime.utcnow()
     current_block['proof'] = 0
     guess_hash = Blockchain.hash(current_block)
 
@@ -28,7 +28,7 @@ def proof_of_work(current_block, difficulty, event):
         # Check if we should still be mining
         # if not event.is_set():
         #     raise Exception("STOP MINING")
-        current_block['timestamp'] = datetime.now()
+        current_block['timestamp'] = datetime.utcnow()
         current_block['proof'] += 1
         guess_hash = Blockchain.hash(current_block)
 
