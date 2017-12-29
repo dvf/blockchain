@@ -83,6 +83,7 @@ class Blockchain:
         :param block_dict: A dictionary representation of a Block
         :return:
         """
+        print(block_dict)
         block = Block(**block_dict)
         db.add(block)
         db.commit()
