@@ -20,8 +20,6 @@ def proof_of_work(current_block, difficulty, event):
     # String of 64 f's replaced with 3 leading zeros (if the difficulty is 3): 000fff...f
     target = str.ljust("0" * difficulty, 64, "f")
 
-    current_block['timestamp'] = datetime.utcnow()
-    current_block['proof'] = 0
     guess_hash = Blockchain.hash(current_block)
 
     while guess_hash > target:
@@ -36,12 +34,12 @@ def proof_of_work(current_block, difficulty, event):
     return current_block
 
 
-def miner(right, event):
+def miner(pipe, event):
 
     while True:
-        task = right.recv()
+        task = pipe.recv()
         log.info(f"Received new mining task with difficulty {task['difficulty']}")
 
         if task:
             found_block = proof_of_work(task['block'], task['difficulty'], event)
-            right.send({'found_block': found_block})
+            pipe.send({'found_block': found_block})

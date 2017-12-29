@@ -18,20 +18,20 @@ log = logging.getLogger('root.tasks')
 
 def initiate_node(app):
     # Set up TCP Redirect (Port Forwarding)
-    # port_mapper = PortMapper()
-    # port_mapper.add_portmapping(8080, 8080, 'TCP', 'Electron')
+    port_mapper = PortMapper()
+    port_mapper.add_portmapping(8080, 8080, 'TCP', 'Electron')
 
     # Set the identifier (unique Id) for our node
     node_identifier = get_config('node_identifier')
     if not node_identifier:
         node_identifier = set_config(key='node_identifier', value=uuid4().hex)
 
-    # app.request_headers = {
-    #     'content-type': 'application/json',
-    #     'x-node-identifier': node_identifier,
-    #     'x-node-ip': port_mapper.external_ip,
-    #     'x-node-port': port_mapper.external_port,
-    # }
+    app.request_headers = {
+        'content-type': 'application/json',
+        'x-node-identifier': node_identifier,
+        'x-node-ip': port_mapper.external_ip,
+        'x-node-port': port_mapper.external_port,
+    }
 
     log.info('Node Identifier: %s', node_identifier)
 
@@ -112,30 +112,30 @@ def we_should_still_be_mining():
 
 
 async def mining_controller(app):
-    left, right = multiprocessing.Pipe()
+    pipe, remote_pipe = multiprocessing.Pipe()
     event = multiprocessing.Event()
 
     # Spawn a new process consisting of the miner() function
     # and send the right end of the pipe to it
-    process = multiprocessing.Process(target=miner, args=(right, event))
+    process = multiprocessing.Process(target=miner, args=(remote_pipe, event))
     process.start()
 
-    left.send({'block': app.blockchain.build_block(), 'difficulty': 4})
+    pipe.send({'block': app.blockchain.build_block(), 'difficulty': 5})
 
     while True:
         event.set()
 
         # We'll check the pipe every 100 ms
-        await asyncio.sleep(1)
+        await asyncio.sleep(0.1)
 
         # Check if we should still be mining
         if not we_should_still_be_mining():
             event.clear()
 
-        if left.poll():
-            result = left.recv()
+        if pipe.poll():
+            result = pipe.recv()
             found_block = result['found_block']
 
             app.blockchain.save_block(found_block)
 
-            left.send({'block': app.blockchain.build_block(), 'difficulty': 4})
+            pipe.send({'block': app.blockchain.build_block(), 'difficulty': 5})
