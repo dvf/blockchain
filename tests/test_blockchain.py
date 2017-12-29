@@ -101,4 +101,4 @@ class TestHashingAndProofs(BlockchainTestCase):
         new_hash = hashlib.sha256(new_block_json).hexdigest()
 
         assert len(new_hash) == 64
-        assert new_hash == self.blockchain.hash(new_block)
+        assert new_hash == self.blockchain.hash_block(new_block)

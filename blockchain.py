@@ -1,8 +1,8 @@
 import logging
 from datetime import datetime
-from hashlib import sha256
 
 from database import Block, db
+from helpers import hash_block
 
 
 logger = logging.getLogger('root.blockchain')
@@ -12,12 +12,11 @@ class Blockchain:
     def __init__(self):
         self.current_transactions = []
         self.difficulty = 4
-        self.current_block = None
 
-        # Create the genesis block if necessary
+        # Create the genesis block if it doesn't exist
         if not self.last_block:
             block = self.build_block()
-            block['hash'] = self.hash(block)
+            block['hash'] = hash_block(block)
             self.save_block(block)
 
             logger.info("✨ Created genesis block")
@@ -50,8 +49,8 @@ class Blockchain:
         while current_index < len(chain):
             block = chain[current_index]
 
-            # Check that the hash of the block is correct
-            if block['previous_hash'] != self.hash(last_block):
+            # Check that the hash_block of the block is correct
+            if block['previous_hash'] != self.hash_block(last_block):
                 return False
 
             # Check that the Proof of Work is correct
@@ -116,16 +115,3 @@ class Blockchain:
         :return: <Block>
         """
         return db.query(Block).order_by(Block.height.desc()).first()
-
-    @staticmethod
-    def hash(b):
-        """
-        Creates a SHA-256 hash of the fields for a Block
-        """
-        byte_array = f"{b['height']}" \
-                     f"{b['timestamp']}" \
-                     f"{b['transactions']}" \
-                     f"{b['previous_hash']}" \
-                     f"{b['proof']}".encode()
-
-        return sha256(byte_array).hexdigest()

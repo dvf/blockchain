@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from hashlib import sha256
 
 from sqlalchemy import func
 
@@ -11,12 +11,12 @@ def set_config(key, value, replace=False):
     if config_value is None:
         db.add(Config(key=key, value=value))
         db.commit()
-        return
+        return value
 
     if config_value != value and replace is True:
         db.add(Config(key=key, value=value))
         db.commit()
-        return
+        return value
 
     return config_value
 
@@ -39,11 +39,14 @@ def get_random_peers(limit=10):
     return db.query(Peer).order_by(func.random()).limit(limit)
 
 
-def json_serializer(obj):
+def hash_block(block):
     """
-    JSON serializer for objects not serializable by default json code
+    Creates a SHA-256 hash_block of the fields for a Block
     """
+    byte_array = f"{block['height']}" \
+                 f"{block['timestamp']}" \
+                 f"{block['transactions']}" \
+                 f"{block['previous_hash']}" \
+                 f"{block['proof']}".encode()
 
-    if isinstance(obj, (datetime, date)):
-        return obj.isoformat()
-    raise TypeError("Type %s not serializable" % type(obj))
+    return sha256(byte_array).hexdigest()

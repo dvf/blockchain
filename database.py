@@ -1,6 +1,3 @@
-import json
-from datetime import datetime
-
 from sqlalchemy import Column, DateTime, Integer, PickleType, String, create_engine
 from sqlalchemy.ext.declarative import declarative_base, declared_attr
 from sqlalchemy.orm import scoped_session, sessionmaker

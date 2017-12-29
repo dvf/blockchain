@@ -3,7 +3,8 @@ from sanic.response import json
 from sqlalchemy import func
 
 from database import Peer, db, reset_db
-from tasks import initiate_node, mining_controller, peer_discovery
+from tasks import initiate_node, peer_discovery
+from mining import mining_controller
 
 
 app = Sanic()
