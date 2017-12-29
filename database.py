@@ -1,6 +1,5 @@
 import json
 from datetime import datetime
-from hashlib import sha256
 
 from sqlalchemy import Column, DateTime, Integer, PickleType, String, create_engine
 from sqlalchemy.ext.declarative import declarative_base, declared_attr
@@ -10,14 +9,6 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 # Set up the Database
 engine = create_engine('sqlite:///electron.db')
 db = scoped_session(sessionmaker(bind=engine))
-
-
-class DateTimeEncoder(json.JSONEncoder):
-    def default(self, o):
-        if isinstance(o, datetime):
-            return o.isoformat()
-
-        return json.JSONEncoder.default(self, o)
 
 
 Base = declarative_base()
@@ -38,12 +29,6 @@ class BaseModel(Base):
         Helper method to convert any database row to dict
         """
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
-
-    def to_json(self):
-        """
-        Helper method to convert any database row to JSON
-        """
-        return json.dumps(self.to_dict(), sort_keys=True, cls=DateTimeEncoder)
 
 
 class Peer(BaseModel):
