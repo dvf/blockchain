@@ -8,21 +8,20 @@ import requests
 from flask import Flask, jsonify, request
 
 
-class Blockchain(object):
+class Blockchain:
     def __init__(self):
         self.current_transactions = []
         self.chain = []
         self.nodes = set()
 
         # Create the genesis block
-        self.new_block(previous_hash=1, proof=100)
+        self.new_block(previous_hash='1', proof=100)
 
     def register_node(self, address):
         """
         Add a new node to the list of nodes
 
-        :param address: <str> Address of node. Eg. 'http://192.168.0.5:5000'
-        :return: None
+        :param address: Address of node. Eg. 'http://192.168.0.5:5000'
         """
 
         parsed_url = urlparse(address)
@@ -32,8 +31,8 @@ class Blockchain(object):
         """
         Determine if a given blockchain is valid
 
-        :param chain: <list> A blockchain
-        :return: <bool> True if valid, False if not
+        :param chain: A blockchain
+        :return: True if valid, False if not
         """
 
         last_block = chain[0]
@@ -62,7 +61,7 @@ class Blockchain(object):
         This is our consensus algorithm, it resolves conflicts
         by replacing our chain with the longest one in the network.
 
-        :return: <bool> True if our chain was replaced, False if not
+        :return: True if our chain was replaced, False if not
         """
 
         neighbours = self.nodes
@@ -91,13 +90,13 @@ class Blockchain(object):
 
         return False
 
-    def new_block(self, proof, previous_hash=None):
+    def new_block(self, proof, previous_hash):
         """
         Create a new Block in the Blockchain
 
-        :param proof: <int> The proof given by the Proof of Work algorithm
-        :param previous_hash: (Optional) <str> Hash of previous Block
-        :return: <dict> New Block
+        :param proof: The proof given by the Proof of Work algorithm
+        :param previous_hash: Hash of previous Block
+        :return: New Block
         """
 
         block = {
@@ -118,10 +117,10 @@ class Blockchain(object):
         """
         Creates a new transaction to go into the next mined Block
 
-        :param sender: <str> Address of the Sender
-        :param recipient: <str> Address of the Recipient
-        :param amount: <int> Amount
-        :return: <int> The index of the Block that will hold this transaction
+        :param sender: Address of the Sender
+        :param recipient: Address of the Recipient
+        :param amount: Amount
+        :return: The index of the Block that will hold this transaction
         """
         self.current_transactions.append({
             'sender': sender,
@@ -140,8 +139,7 @@ class Blockchain(object):
         """
         Creates a SHA-256 hash of a Block
 
-        :param block: <dict> Block
-        :return: <str>
+        :param block: Block
         """
 
         # We must make sure that the Dictionary is Ordered, or we'll have inconsistent hashes
@@ -176,6 +174,7 @@ class Blockchain(object):
         :param proof: <int> Current Proof
         :param last_hash: <str> The hash of the Previous Block
         :return: <bool> True if correct, False if not.
+
         """
 
         guess = f'{last_proof}{proof}{last_hash}'.encode()
@@ -208,7 +207,8 @@ def mine():
     )
 
     # Forge the new Block by adding it to the chain
-    block = blockchain.new_block(proof)
+    previous_hash = blockchain.hash(last_block)
+    block = blockchain.new_block(proof, previous_hash)
 
     response = {
         'message': "New Block Forged",
