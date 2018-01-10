@@ -1,0 +1,31 @@
+{
+  "name": "BlockchainJS",
+  "version": "1.0.0",
+  "description": "Implementation of blockchain in JavaScript from Daniel van Flymen´s blog post https://medium.com/p/117428612f46",
+  "main": "index.js",
+  "scripts": {
+    "start": "npm run clean && npm run build && node build/server.js",
+    "build": "babel ./src/ -d ./build/ -s --minified --no-comments --ignore *.test.js",
+    "test": "jest",
+    "test:watch": "jest --watchAll",
+    "clean": "rm -rf ./build/"
+  },
+  "author": "Magnus Sillén",
+  "license": "MIT",
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.26.0",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-preset-es2015": "^6.24.1",
+    "jest": "^22.0.4"
+  },
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "crypto-js": "^3.1.9-1",
+    "express": "^4.16.2",
+    "multer": "^1.3.0",
+    "node-fetch": "^1.7.3",
+    "url-parse": "^1.2.0",
+    "uuid": "^3.1.0"
+  }
+}

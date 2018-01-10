@@ -102,3 +102,7 @@ ENV/
 
 # PyCharm
 .idea/
+
+# Node.js
+**/node_modules/
+javascript/build/
