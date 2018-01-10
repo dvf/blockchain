@@ -1,7 +1,7 @@
 # JavaScript port of [https://github.com/dvf/blockchain](https://github.com/dvf/blockchain)
 
 ## Installation
-Install Node.js and npm. I recommend using at least Node.js v8.9.2 and npm v5.6.0.
+Install Node.js and npm. I recommend using at least npm v5.6.0.
 ```
 $ npm install
 ```
