@@ -1,7 +1,6 @@
 import hashlib
 import json
 from time import time
-from typing import Any, Dict, List, Optional
 from urllib.parse import urlparse
 from uuid import uuid4
 
@@ -18,7 +17,7 @@ class Blockchain:
         # Create the genesis block
         self.new_block(previous_hash='1', proof=100)
 
-    def register_node(self, address: str) -> None:
+    def register_node(self, address):
         """
         Add a new node to the list of nodes
 
@@ -28,7 +27,7 @@ class Blockchain:
         parsed_url = urlparse(address)
         self.nodes.add(parsed_url.netloc)
 
-    def valid_chain(self, chain: List[Dict[str, Any]]) -> bool:
+    def valid_chain(self, chain):
         """
         Determine if a given blockchain is valid
 
@@ -57,7 +56,7 @@ class Blockchain:
 
         return True
 
-    def resolve_conflicts(self) -> bool:
+    def resolve_conflicts(self):
         """
         This is our consensus algorithm, it resolves conflicts
         by replacing our chain with the longest one in the network.
@@ -105,7 +104,7 @@ class Blockchain:
             'timestamp': time(),
             'transactions': self.current_transactions,
             'proof': proof,
-            'previous_hash': previous_hash or self.hash(self.chain[-1]),
+            'previous_hash': previous_hash or self.hash(last_block),
         }
 
         # Reset the current list of transactions
@@ -114,7 +113,7 @@ class Blockchain:
         self.chain.append(block)
         return block
 
-    def new_transaction(self, sender: str, recipient: str, amount: int) -> int:
+    def new_transaction(self, sender, recipient, amount):
         """
         Creates a new transaction to go into the next mined Block
 
@@ -136,7 +135,7 @@ class Blockchain:
         return self.chain[-1]
 
     @staticmethod
-    def hash(block: Dict[str, Any]) -> str:
+    def hash(block):
         """
         Creates a SHA-256 hash of a Block
 
@@ -147,7 +146,7 @@ class Blockchain:
         block_string = json.dumps(block, sort_keys=True).encode()
         return hashlib.sha256(block_string).hexdigest()
 
-    def proof_of_work(self, last_proof: int) -> int:
+    def proof_of_work(self, last_proof):
         """
         Simple Proof of Work Algorithm:
          - Find a number p' such that hash(pp') contains leading 4 zeroes, where p is the previous p'
@@ -161,7 +160,7 @@ class Blockchain:
         return proof
 
     @staticmethod
-    def valid_proof(last_proof: int, proof: int) -> bool:
+    def valid_proof(last_proof, proof):
         """
         Validates the Proof
 
@@ -201,7 +200,8 @@ def mine():
     )
 
     # Forge the new Block by adding it to the chain
-    block = blockchain.new_block(proof)
+    previous_hash = blockchain.hash(last_block)
+    block = blockchain.new_block(proof, previous_hash)
 
     response = {
         'message': "New Block Forged",
