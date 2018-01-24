@@ -73,7 +73,7 @@ class Blockchain:
         # Grab and verify the chains from all the nodes in our network
         for node in neighbours:
             response = requests.get(f'http://{node}/chain')
-
+            import pdb;pdb.set_trace()
             if response.status_code == 200:
                 length = response.json()['length']
                 chain = response.json()['chain']
@@ -152,7 +152,7 @@ class Blockchain:
 
          - Find a number p' such that hash(pp') contains leading 4 zeroes
          - Where p is the previous proof, and p' is the new proof
-         
+
         :param last_block: <dict> last Block
         :return: <int>
         """
@@ -242,9 +242,13 @@ def full_chain():
     response = {
         'chain': blockchain.chain,
         'length': len(blockchain.chain),
+        'valid': blockchain.valid_chain(blockchain.chain)
     }
     return jsonify(response), 200
 
+@app.route('/nodes',methods=['GET'])
+def nodes():
+    return jsonify(list(blockchain.nodes)), 200
 
 @app.route('/nodes/register', methods=['POST'])
 def register_nodes():
