@@ -16,11 +16,11 @@ describe('Blockchain', () => {
     it('should create a genesis block', () => {
       expect(blockchain.chain.length).toEqual(1);
       expect(blockchain.chain[0]).toMatchObject({
-          index: 1,
-          previousHash: '1',
-          proof: 100,
-          transactions: []
-        });
+        index: 1,
+        previousHash: '1',
+        proof: 100,
+        transactions: []
+      });
     });
   });
 
@@ -40,7 +40,7 @@ describe('Blockchain', () => {
       const hash2 = blockchain.hash(object2);
 
       expect(hash1).toEqual(hash2);
-    })
+    });
   });
 
   describe('newBlock', () => {
@@ -224,8 +224,6 @@ describe('Blockchain', () => {
           chain: []
         })
       }));
-
-      const replaced = blockchain.resolveConflicts();
 
       return blockchain.resolveConflicts()
         .then((replaced) => {

@@ -141,7 +141,7 @@ class Blockchain {
       }
 
       index++;
-    };
+    }
 
     return true;
   }
