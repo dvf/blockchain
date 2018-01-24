@@ -1,0 +1,3 @@
+[submodule "clojure/blockchain"]
+	path = clojure/blockchain
+	url = git@github.com:paoloo/blockchain.git
