@@ -149,9 +149,10 @@ class Blockchain:
     def proof_of_work(self, last_block):
         """
         Simple Proof of Work Algorithm:
-         - Find a number p' such that hash(pp'h) contains leading 4 zeroes, where p is the previous p'
-         - p is the previous proof, p' is the new proof, and h is the hash of the last block
 
+         - Find a number p' such that hash(pp') contains leading 4 zeroes
+         - Where p is the previous proof, and p' is the new proof
+         
         :param last_block: <dict> last Block
         :return: <int>
         """
