@@ -48,7 +48,7 @@ class Blockchain:
                 return False
 
             # Check that the Proof of Work is correct
-            if not self.valid_proof(last_block['proof'], block['proof'], last_block['previous_hash']):
+            if not self.valid_proof(last_block['proof'], block['proof'], self.hash(last_block)):
                 return False
 
             last_block = block
@@ -72,8 +72,8 @@ class Blockchain:
 
         # Grab and verify the chains from all the nodes in our network
         for node in neighbours:
+            print(f"Querying chain on node: {node}")
             response = requests.get(f'http://{node}/chain')
-            import pdb;pdb.set_trace()
             if response.status_code == 200:
                 length = response.json()['length']
                 chain = response.json()['chain']
@@ -163,7 +163,6 @@ class Blockchain:
         proof = 0
         while self.valid_proof(last_proof, proof, last_hash) is False:
             proof += 1
-
         return proof
 
     @staticmethod
