@@ -101,7 +101,7 @@ class Blockchain:
 
         block = {
             'index': len(self.chain) + 1,
-            'timestamp': time(),
+            #'timestamp': time(),
             'transactions': self.current_transactions,
             'proof': proof,
             'previous_hash': previous_hash or self.hash(self.chain[-1]),
@@ -245,6 +245,20 @@ def full_chain():
     }
     return jsonify(response), 200
 
+@app.route('/balances', methods=['GET'])
+def balances():
+    response = {}
+    for c in blockchain.chain:
+        for t in c['transactions']:
+            if t['sender'] not in response:
+                response[t['sender']] = 0
+            if t['recipient'] not in response:
+                response[t['recipient']] = 0
+                
+            response[t['sender']] -= t['amount']
+            response[t['recipient']] += t['amount']
+    return jsonify(response), 200
+
 @app.route('/nodes',methods=['GET'])
 def nodes():
     return jsonify(list(blockchain.nodes)), 200
@@ -290,7 +304,12 @@ if __name__ == '__main__':
 
     parser = ArgumentParser()
     parser.add_argument('-p', '--port', default=5000, type=int, help='port to listen on')
+    parser.add_argument('-n','--node',default='node0',type=str)
     args = parser.parse_args()
     port = args.port
+    
+    node_identifier = args.node
+    
+    app.debug = True
 
     app.run(host='0.0.0.0', port=port)
