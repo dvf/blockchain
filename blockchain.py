@@ -55,7 +55,7 @@ class Blockchain:
                 return False
 
             # Check that the Proof of Work is correct
-            if not self.valid_proof(last_block['proof'], block['proof'], last_block['previous_hash']):
+            if not self.valid_proof(last_block['proof'], block['proof'], self.hash(last_block)):
                 return False
 
             last_block = block
@@ -79,8 +79,8 @@ class Blockchain:
 
         # Grab and verify the chains from all the nodes in our network
         for node in neighbours:
+            print(f"Querying chain on node: {node}")
             response = requests.get(f'http://{node}/chain')
-
             if response.status_code == 200:
                 length = response.json()['length']
                 chain = response.json()['chain']
@@ -159,7 +159,7 @@ class Blockchain:
 
          - Find a number p' such that hash(pp') contains leading 4 zeroes
          - Where p is the previous proof, and p' is the new proof
-         
+
         :param last_block: <dict> last Block
         :return: <int>
         """
@@ -170,7 +170,6 @@ class Blockchain:
         proof = 0
         while self.valid_proof(last_proof, proof, last_hash) is False:
             proof += 1
-
         return proof
 
     @staticmethod
@@ -249,9 +248,13 @@ def full_chain():
     response = {
         'chain': blockchain.chain,
         'length': len(blockchain.chain),
+        'valid': blockchain.valid_chain(blockchain.chain)
     }
     return jsonify(response), 200
 
+@app.route('/nodes',methods=['GET'])
+def nodes():
+    return jsonify(list(blockchain.nodes)), 200
 
 @app.route('/nodes/register', methods=['POST'])
 def register_nodes():
