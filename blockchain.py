@@ -120,15 +120,46 @@ class Blockchain:
         :param sender: Address of the Sender
         :param recipient: Address of the Recipient
         :param amount: Amount
-        :return: The index of the Block that will hold this transaction
+        :return: (The index of the Block that will hold this transaction or None,
+                  Error message if None)
         """
+
+        # Check sufficient funds
+        #import pdb; pdb.set_trace()
+        if (sender != "0") and (self.balances()[sender] < amount):
+            return (False,'Insufficient amount in account')
+
+        # TODO: check signature
+
         self.current_transactions.append({
             'sender': sender,
             'recipient': recipient,
             'amount': amount,
         })
 
-        return self.last_block['index'] + 1
+        return (self.last_block['index'] + 1, None)
+
+    def balances(self):
+        response = {}
+        for c in self.chain:
+            for t in c['transactions']:
+                #import pdb; pdb.set_trace()
+                if t['sender'] not in response:
+                    response[t['sender']] = 0
+                if t['recipient'] not in response:
+                    response[t['recipient']] = 0
+                response[t['sender']] -= t['amount']
+                response[t['recipient']] += t['amount']
+
+        # Transaction not yet in the chain (not sure right way to include these..)
+        for t in self.current_transactions:
+            if t['sender'] not in response:
+                response[t['sender']] = 0
+            if t['recipient'] not in response:
+                response[t['recipient']] = 0
+            response[t['sender']] -= t['amount']
+            response[t['recipient']] += t['amount']
+        return response
 
     @property
     def last_block(self):
@@ -230,9 +261,13 @@ def new_transaction():
         return 'Missing values', 400
 
     # Create a new Transaction
-    index = blockchain.new_transaction(values['sender'], values['recipient'], values['amount'])
+    #import pdb;pdb.set_trace()
+    index,err = blockchain.new_transaction(values['sender'], values['recipient'], values['amount'])
 
-    response = {'message': f'Transaction will be added to Block {index}'}
+    if index:
+        response = {'message': f'Transaction will be added to Block {index}'}
+    else:
+        response = {'message': f'Transaction failed because of: {err}'}
     return jsonify(response), 201
 
 
@@ -247,16 +282,7 @@ def full_chain():
 
 @app.route('/balances', methods=['GET'])
 def balances():
-    response = {}
-    for c in blockchain.chain:
-        for t in c['transactions']:
-            if t['sender'] not in response:
-                response[t['sender']] = 0
-            if t['recipient'] not in response:
-                response[t['recipient']] = 0
-                
-            response[t['sender']] -= t['amount']
-            response[t['recipient']] += t['amount']
+    response = blockchain.balances()
     return jsonify(response), 200
 
 @app.route('/nodes',methods=['GET'])
@@ -298,18 +324,22 @@ def consensus():
 
     return jsonify(response), 200
 
+@app.route('/sample_transaction', methods=['GET'])
+def sample_transaction():
+    pass
 
 if __name__ == '__main__':
     from argparse import ArgumentParser
 
     parser = ArgumentParser()
     parser.add_argument('-p', '--port', default=5000, type=int, help='port to listen on')
-    parser.add_argument('-n','--node',default='node0',type=str)
+    parser.add_argument('-n','--node',default=None,type=str)
     args = parser.parse_args()
     port = args.port
-    
-    node_identifier = args.node
-    
+
+    if args.node is not None:
+        node_identifier = args.node
+
     app.debug = True
 
     app.run(host='0.0.0.0', port=port)
