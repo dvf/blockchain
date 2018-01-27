@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import hashlib
+import re
+
 # https://en.wikibooks.org/wiki/Cryptography/A_Basic_Public_Key_Example
 
 def isprime(n):
@@ -95,8 +97,20 @@ class Key:
         return self.encrypt(h.hexdigest().encode())
 
     def verify_signature(self, sig, msg):
+        if any([x > 255 for x in sig]):
+            return False
         return self.decrypt(sig) == hashlib.sha256(msg).hexdigest().encode()
 
+    def __eq__(self, other):
+        return (self._e == other._e) and (self._m == other._m)
+
+    def __repr__(self):
+        return "<Key: {},{}>".format(self._e,self._m)
+
+    @staticmethod
+    def fromstring(s):
+        m = re.search('<Key: (\d+),(\d+)>',s)
+        return Key(int(m.group(1)), int(m.group(2)))
 
 class KeyGen:
 
@@ -118,10 +132,15 @@ class KeyGen:
         
         coprimes = get_coprimes(fn)
         e = coprimes[coprime_idx]
-        pub = Key(e,m)
-        priv_e = KeyGen.find_private_decrypt_exp(e,fn)
+        pub = Key(e, m)
+        priv = Key(KeyGen.find_private_decrypt_exp(e,fn), m)
+        while pub == priv:
+            coprime_idx += 1
+            e = coprimes[coprime_idx]
+            pub = Key(e, m)
+            priv = Key(KeyGen.find_private_decrypt_exp(e, fn), m)
         
-        return pub, Key(priv_e,m)
+        return pub, priv
 
     @staticmethod
     def find_private_decrypt_exp(pub_e, fn):

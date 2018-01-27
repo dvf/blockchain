@@ -7,10 +7,12 @@ from uuid import uuid4
 import requests
 from flask import Flask, jsonify, request
 
+from toy_crypto import KeyGen, Key
 
 class Blockchain:
     def __init__(self):
         self.current_transactions = []
+        self.current_addresses = {}
         self.chain = []
         self.nodes = set()
 
@@ -26,6 +28,26 @@ class Blockchain:
 
         parsed_url = urlparse(address)
         self.nodes.add(parsed_url.netloc)
+
+    def addresses(self):
+        result = {}
+        for c in self.chain:
+            for a,v in c['addresses'].items():
+                if a in result:
+                    raise Exception("Address should only exist once in chain")
+                result[a] = v
+        return result
+
+    def new_address(self, address, key):
+        if address in self.addresses():
+            return False
+        try:
+            # Check that the specified public key can be deserialized
+            Key.fromstring(key)
+        except AttributeError:
+            return False
+        blockchain.current_addresses[address] = key
+        return True
 
     def valid_chain(self, chain):
         """
@@ -103,17 +125,20 @@ class Blockchain:
             'index': len(self.chain) + 1,
             #'timestamp': time(),
             'transactions': self.current_transactions,
+            'addresses': self.current_addresses,
             'proof': proof,
             'previous_hash': previous_hash or self.hash(self.chain[-1]),
         }
 
         # Reset the current list of transactions
         self.current_transactions = []
+        self.current_addresses = {}
 
         self.chain.append(block)
         return block
 
-    def new_transaction(self, sender, recipient, amount):
+    def new_transaction(self, sender, recipient, amount, signature=None,
+                        proof=None):
         """
         Creates a new transaction to go into the next mined Block
 
@@ -124,12 +149,27 @@ class Blockchain:
                   Error message if None)
         """
 
+        if (sender == "0"):
+            # Mined block. Check proof
+            last_block = self.last_block
+            last_proof = last_block['proof']
+            this_hash = self.hash(last_block)
+            if not self.valid_proof(last_proof, proof, this_hash):
+                return (False, "Invalid proof for mined block")
+
         # Check sufficient funds
         #import pdb; pdb.set_trace()
         if (sender != "0") and (self.balances()[sender] < amount):
             return (False,'Insufficient amount in account')
 
         # TODO: check signature
+        if sender != "0":
+            j = {'sender': sender, 'recipient': recipient, 'amount': amount}
+            msg = f'sender:{j["sender"]},recipient:{j["recipient"]},amount:{j["amount"]}'
+            pub_key = Key.fromstring(self.addresses()[sender])
+            if not pub_key.verify_signature(signature, msg.encode()):
+                print("invalid signature")
+                return (False, "Signature invalid")
 
         self.current_transactions.append({
             'sender': sender,
@@ -151,7 +191,7 @@ class Blockchain:
                 response[t['sender']] -= t['amount']
                 response[t['recipient']] += t['amount']
 
-        # Transaction not yet in the chain (not sure right way to include these..)
+        # Transactions not yet in the chain (not sure right way to include these..)
         for t in self.current_transactions:
             if t['sender'] not in response:
                 response[t['sender']] = 0
@@ -229,13 +269,21 @@ def mine():
     last_block = blockchain.last_block
     proof = blockchain.proof_of_work(last_block)
 
+    if ('recipient_addr' not in request.args):
+        return "recipient_key not specified", 400
+
+    #if request.args['recipient_addr'] not in blockchain.addresses():
+    #    return "{} addresses has not been registered with blockchain".format(request.args['recipient_addr']), 400
+
     # We must receive a reward for finding the proof.
     # The sender is "0" to signify that this node has mined a new coin.
-    blockchain.new_transaction(
-        sender="0",
-        recipient=node_identifier,
-        amount=1,
-    )
+    result,err = blockchain.new_transaction(
+            sender="0",
+            recipient=request.args['recipient_addr'],
+            amount=1,
+            proof=proof )
+    if not result:
+        return err, 400
 
     # Forge the new Block by adding it to the chain
     previous_hash = blockchain.hash(last_block)
@@ -256,13 +304,12 @@ def new_transaction():
     values = request.get_json()
 
     # Check that the required fields are in the POST'ed data
-    required = ['sender', 'recipient', 'amount']
+    required = ['sender', 'recipient', 'amount','signature']
     if not all(k in values for k in required):
         return 'Missing values', 400
 
-    # Create a new Transaction
-    #import pdb;pdb.set_trace()
-    index,err = blockchain.new_transaction(values['sender'], values['recipient'], values['amount'])
+    index,err = blockchain.new_transaction(values['sender'], values['recipient'], values['amount'],
+                                           values['signature'])
 
     if index:
         response = {'message': f'Transaction will be added to Block {index}'}
@@ -279,6 +326,25 @@ def full_chain():
         'valid': blockchain.valid_chain(blockchain.chain)
     }
     return jsonify(response), 200
+
+@app.route('/addresses', methods=['GET'])
+def addresses():
+    return jsonify(blockchain.addresses()), 200
+
+@app.route('/addresses/register', methods=['POST'])
+def reg_address():
+    values = request.get_json()
+
+    required = ['address', 'key']
+    if not all([x in required for x in values]):
+        return 'Missing values', 400
+
+    result = blockchain.new_address(values['address'], values['key'])
+
+    if result:
+        return "Addresses registered", 201
+    else:
+        return "Error adding address", 400
 
 @app.route('/balances', methods=['GET'])
 def balances():
@@ -324,18 +390,18 @@ def consensus():
 
     return jsonify(response), 200
 
-@app.route('/sample_transaction', methods=['GET'])
-def sample_transaction():
-    pass
-
 if __name__ == '__main__':
     from argparse import ArgumentParser
 
     parser = ArgumentParser()
     parser.add_argument('-p', '--port', default=5000, type=int, help='port to listen on')
     parser.add_argument('-n','--node',default=None,type=str)
+    parser.add_argument('-k','--key',default=[11,29],type=int,nargs='+')
     args = parser.parse_args()
     port = args.port
+
+    public_key,private_key = KeyGen(*args.key).gen_keys()
+    print(f"Public Key: {public_key}")
 
     if args.node is not None:
         node_identifier = args.node
