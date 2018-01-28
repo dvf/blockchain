@@ -172,6 +172,8 @@ class Key:
         :param msg:
         :return:
         """
+        if any([x > self._m for x in sig]):
+            return False
         return self.decrypt(sig) == hashlib.sha256(msg).digest()
 
     def __eq__(self, other):
