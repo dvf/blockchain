@@ -14,7 +14,7 @@ class ToyCrypto(unittest.TestCase):
         print(pub)
         print(priv)
         sig = priv.signature(msg)
-        self.assertTrue(pub.verify_signature(sig, msg))
+        self.assertTrue(pub.verify_signature(sig, msg),"Signature not verified")
 
     def test_serialization(self):
         kg = toy_crypto.KeyGen(11, 29)
