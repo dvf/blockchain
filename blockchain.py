@@ -130,7 +130,7 @@ class Blockchain:
 
         block = {
             'index': len(self.chain) + 1,
-            #'timestamp': time(),
+            'timestamp': time(),
             'transactions': self.current_transactions,
             'addresses': self.current_addresses,
             'proof': proof,
@@ -164,8 +164,11 @@ class Blockchain:
             if not self.valid_proof(last_proof, proof, this_hash):
                 return (False, "Invalid proof for mined block")
 
+        # Make sure sender has account and tokens to send
+        if (sender != "0") and (sender not in self.balances()):
+            return (False, 'Sender not registered with blockchain')
+
         # Check sufficient funds
-        #import pdb; pdb.set_trace()
         if (sender != "0") and (self.balances()[sender] < amount):
             return (False,'Insufficient amount in account')
 
