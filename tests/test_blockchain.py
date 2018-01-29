@@ -13,11 +13,18 @@ class BlockchainTestCase(TestCase):
     def create_block(self, proof=123, previous_hash='abc'):
         self.blockchain.new_block(proof, previous_hash)
 
-    def create_transaction(self, sender='a', recipient='b', amount=1):
+    #def create_transaction(self, sender='a', recipient='b', amount=1):
+    def create_transaction(self):
+        # Change this to be a mined transaction since otherwise it would have to be signed and user needs to be in chain
+        proof = self.blockchain.proof_of_work(self.blockchain.last_block)
+        sender = "0"
+        recipient = "b"
+        amount = 1
         self.blockchain.new_transaction(
             sender=sender,
             recipient=recipient,
-            amount=amount
+            amount=amount,
+            proof=proof
         )
 
 
@@ -66,7 +73,7 @@ class TestBlocksAndTransactions(BlockchainTestCase):
         transaction = self.blockchain.current_transactions[-1]
 
         assert transaction
-        assert transaction['sender'] == 'a'
+        assert transaction['sender'] == '0'
         assert transaction['recipient'] == 'b'
         assert transaction['amount'] == 1
 
