@@ -1,4 +1,5 @@
 import com.sun.jmx.snmp.Timestamp
+import java.security.MessageDigest
 
 object Blockchain {
     val chain: MutableList<Block>? = null
@@ -29,8 +30,9 @@ object Blockchain {
     }
 
     fun hash(block: Block): String {
-        // TODO ブロックのSHA-256ハッシュを作る
-        return "dummyHash"
+        // ブロックのSHA-256ハッシュを作る
+        val digest = MessageDigest.getInstance("SHA-256").digest(block.toString().toByteArray())
+        return digest.fold("", { str, it -> str + "%02x".format(it) })// TODO 各メソッドの仕様を再確認したい
     }
 
 }
