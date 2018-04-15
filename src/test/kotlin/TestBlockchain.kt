@@ -17,7 +17,7 @@ class TestBlockchain {
         transactionsA?.add(transaction01)
         transactionsA?.add(transaction02)
 
-        var blockA = Block(1, 1.1, transactionsA, 1, "hash")
+        var blockA = Block(1, 1, transactionsA, 1, "hash")
         var hashA: String = blockchain.hash(blockA)
 
         // 同じtransactionだが別のインスタンスでblockを用意する
@@ -25,7 +25,7 @@ class TestBlockchain {
         transactionsB?.add(transaction01)
         transactionsB?.add(transaction02)
 
-        var blockB = Block(1, 1.1, transactionsB, 1, "hash")
+        var blockB = Block(1, 1, transactionsB, 1, "hash")
         var hashB: String = blockchain.hash(blockB)
 
         // 同じtransactionが入ったblockは同じhash値になることを確認する

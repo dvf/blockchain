@@ -8,7 +8,7 @@ object Blockchain {
     init {
         val genesisBlock: Block = Block(
                 1,
-                123.0, // TODO 現在のtimestampを設定
+                System.currentTimeMillis()/1000,
                 currentTransactions,
                 100,
                 "1"
