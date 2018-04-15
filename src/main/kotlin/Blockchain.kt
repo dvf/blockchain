@@ -1,4 +1,3 @@
-import com.sun.jmx.snmp.Timestamp
 import java.security.MessageDigest
 
 object Blockchain {
@@ -30,7 +29,7 @@ object Blockchain {
     }
 
     fun hash(block: Block): String {
-        return convertHash(block.toString())
+        return convertToHash(block.toString())
     }
 
     // hash(前のproof + proof)の最初の4文字が0となるhash値を探す
@@ -42,12 +41,12 @@ object Blockchain {
         return Integer.toString(proof)
     }
 
-    fun validWork(lastProof: String, proof: String): Boolean {
-        val hashVal = convertHash(lastProof + proof)
+    private fun validWork(lastProof: String, proof: String): Boolean {
+        val hashVal = convertToHash(lastProof + proof)
         return hashVal.substring(0, 4) == "0000"
     }
 
-    fun convertHash(string: String): String {
+    fun convertToHash(string: String): String {
         val digest = MessageDigest.getInstance("SHA-256").digest(string.toByteArray())
         val hashVal = digest.fold("", {str, it -> str + "%02x".format(it)})
 

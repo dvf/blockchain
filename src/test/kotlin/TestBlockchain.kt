@@ -1,5 +1,4 @@
 import org.junit.Test
-import org.hamcrest.CoreMatchers.`is`
 import org.junit.Assert.*
 
 class TestBlockchain {
@@ -38,7 +37,7 @@ class TestBlockchain {
         val proof = blockchain.proofOfWork(lastProof)
         println("proof：" + proof)
 
-        val hashVal = blockchain.convertHash(lastProof + proof)
+        val hashVal = blockchain.convertToHash(lastProof + proof)
         println("hash：" + hashVal)
 
         assertEquals("0000", hashVal.substring(0, 4))
