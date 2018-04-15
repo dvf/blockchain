@@ -1,20 +1,41 @@
+import com.sun.jmx.snmp.Timestamp
+
 object Blockchain {
-    val chain: List<Block>? = null
-    val currentTransactions: List<Transaction>? = null
+    val chain: MutableList<Block>? = null
+    val currentTransactions: MutableList<Transaction>? = null
 
-    fun newBlock(){
-        // 新しいブロックを作り、チェーンに加える
+    init {
+        // ジェネシスブロック定義
+        val genesisBlock: Block = Block(
+                1,
+                123.0, // TODO 現在のtimestampを設定
+                currentTransactions,
+                100,
+                "1"
+        )
+        // ジェネシスブロック追加
+        newBlock(genesisBlock)
     }
 
-    fun newTransaction(){
+    fun newBlock(block: Block){
+        // 登録されていたtransactionをリセット
+        currentTransactions?.dropWhile { true }
+        // 新しいブロックを登録
+        chain?.add(block)
+    }
+
+    fun newTransaction(transaction: Transaction) {
         // 新しいトランザクションをリストに加える
+        currentTransactions?.add(transaction)
     }
 
-    fun hash(block: Block){
-        // ブロックをハッシュ化する
+    fun hash(block: Block): String {
+        // TODO ブロックのSHA-256ハッシュを作る
+        return "dummyHash"
     }
 
-    fun lastBlock(){
-        // チェーンの最後のブロックをリターンする
-    }
+//    fun lastBlock() : Block {
+//        // チェーンの最後のブロックをリターンする
+//        return chain?.last() as Block
+//    }
 }
