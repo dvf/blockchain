@@ -1,8 +1,8 @@
 import java.security.MessageDigest
 
-object Blockchain {
-    val chain: MutableList<Block>? = null
-    val currentTransactions: MutableList<Transaction>? = null
+class Blockchain {
+    var chain: MutableList<Block> = mutableListOf()
+    var currentTransactions: MutableList<Transaction> = mutableListOf()
 
     init {
         val genesisBlock: Block = Block(
@@ -18,14 +18,14 @@ object Blockchain {
 
     fun newBlock(block: Block){
         // 登録されていたtransactionをリセット
-        currentTransactions?.dropWhile { true }
+        currentTransactions.dropWhile { true }
         // 新しいブロックを登録
-        chain?.add(block)
+        chain.add(block)
     }
 
     fun newTransaction(transaction: Transaction) {
         // 新しいトランザクションをリストに加える
-        currentTransactions?.add(transaction)
+        currentTransactions.add(transaction)
     }
 
     fun hash(block: Block): String {
