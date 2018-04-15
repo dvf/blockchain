@@ -5,7 +5,6 @@ object Blockchain {
     val currentTransactions: MutableList<Transaction>? = null
 
     init {
-        // ジェネシスブロック定義
         val genesisBlock: Block = Block(
                 1,
                 123.0, // TODO 現在のtimestampを設定
@@ -34,8 +33,4 @@ object Blockchain {
         return "dummyHash"
     }
 
-//    fun lastBlock() : Block {
-//        // チェーンの最後のブロックをリターンする
-//        return chain?.last() as Block
-//    }
 }
