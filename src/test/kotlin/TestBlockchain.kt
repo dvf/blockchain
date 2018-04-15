@@ -29,6 +29,6 @@ class TestBlockchain {
         var hashB: String = blockchain.hash(blockB)
 
         // 同じtransactionが入ったblockは同じhash値になることを確認する
-        assertEquals(blockA, blockB)
+        assertEquals(hashA, hashB)
     }
 }
