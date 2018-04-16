@@ -269,7 +269,15 @@ def register_nodes():
         'total_nodes': list(blockchain.nodes),
     }
     return jsonify(response), 201
-
+	
+@app.route('/nodes', methods=['GET'])
+def full_nodes():
+    nodes = [item for item in blockchain.nodes]
+    response = {
+        'nodes': nodes,
+        'length': len(nodes),
+    }
+    return jsonify(response), 200  
 
 @app.route('/nodes/resolve', methods=['GET'])
 def consensus():
