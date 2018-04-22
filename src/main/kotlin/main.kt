@@ -14,9 +14,7 @@ fun main(args: Array<String>){
     val controller = Controller()
 
     path("/transactions") {
-        get("/new") { req, res ->
-            "新しいBlockを採掘する"
-        }
+        get("/new", controller.addTransaction(), jsonTransformer)
     }
 
     path("/mine") {

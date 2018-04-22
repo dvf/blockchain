@@ -20,4 +20,8 @@ class Controller {
     fun resolveNode(): Route = Route { req, res ->
         "チェーンが確認されました"
     }
+
+    fun addTransaction(): Route = Route { req, res ->
+        "トランザクションはブロックに追加されました"
+    }
 }
