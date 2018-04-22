@@ -11,6 +11,7 @@ fun main(args: Array<String>){
     val objectMapper = ObjectMapper().registerKotlinModule()
     val jsonTransformer = JsonTransformer(objectMapper)
     val blockChain = Blockchain()
+    val controller = Controller()
 
     path("/transactions") {
         get("/new") { req, res ->
@@ -20,24 +21,16 @@ fun main(args: Array<String>){
 
     path("/mine") {
         // 新しいBlockを採掘する
-        get("") { req, res ->
-            "新しいBlockを採掘する"
-        }
+        get("", controller.mine(), jsonTransformer)
     }
 
     path("/chain") {
         // フルのブロックチェーンをリターンする
-        get("") { req, res ->
-            objectMapper.writeValueAsString(blockChain.chain)
-        }
+        get("", controller.fullChain(), jsonTransformer)
     }
 
     path("/nodes") {
-        get("/register") { req, res ->
-            "新しいnodeを登録する"
-        }
-        get("/resolve") { req, res ->
-            "チェーンが確認されました"
-        }
+        get("/register", controller.registerNode(), jsonTransformer)
+        get("/resolve", controller.resolveNode(), jsonTransformer)
     }
 }
