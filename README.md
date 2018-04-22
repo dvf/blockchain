@@ -1,4 +1,4 @@
-kotlin-blockchain
+[WIP]kotlin-blockchain
 ====
 
 Kotlinでブロックチェーンを実装する
@@ -11,6 +11,16 @@ Kotlinでブロックチェーンを実装する
 - [Learn Blockchains by Building One -The fastest way to learn how Blockchains work is to build one-](https://hackernoon.com/learn-blockchains-by-building-one-117428612f46)
 
 ## Demo
+
+```
+# 現在のブロックの状態を確認する
+http://localhost:4567/chain
+```
+
+```
+# トランザクションの登録
+$ curl -s http://localhost:4567/transactions/new -X POST -d '{"sender":"testSender","recipient":"testRecipient","amount":1}'
+```
 
 ## VS.
 
