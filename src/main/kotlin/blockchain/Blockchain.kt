@@ -16,13 +16,24 @@ class Blockchain {
                 "1"
         )
         // ジェネシスブロック追加
-        newBlock(genesisBlock)
+        chain.add(genesisBlock)
     }
 
-    fun newBlock(block: Block){
+    fun lastBlock(): Block {
+        return chain.last()
+    }
+
+    fun addBlock(proof: String){
         // 登録されていたtransactionをリセット
-        currentTransactions.dropWhile { true }
-        // 新しいブロックを登録
+        currentTransactions = mutableListOf()
+        // 新しいブロックを作成
+        val block = Block(
+                chain.last().index + 1,
+                System.currentTimeMillis() / 1000,
+                currentTransactions,
+                proof.toInt(),
+                hash(chain.last())
+        )
         chain.add(block)
     }
 

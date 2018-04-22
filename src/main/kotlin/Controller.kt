@@ -12,7 +12,18 @@ class Controller(private val objectMapper: ObjectMapper,
     }
 
     fun mine(): Route = Route { req, res ->
-        "新しいBlockを採掘する"
+        val lastBlock: Block = blockchain.lastBlock()
+        val lastProof = lastBlock.proof
+        val proof = blockchain.proofOfWork(lastProof.toString())// TODO proofの型を整理したい
+
+        // proofを発見した報酬を獲得(senderを0とすることでマイニング実行者の報酬としている)
+        blockchain.newTransaction(
+                // TODO nodeIdentifierを実装(nodeに一意な識別子)
+                Transaction("0", "node_id", 1)
+        )
+        // チェーンに新しいブロックを追加することで新しいブロック採掘完了
+        blockchain.addBlock(proof)
+        "新しいブロックを採掘しました"
     }
 
     fun registerNode(): Route = Route { req, res ->
