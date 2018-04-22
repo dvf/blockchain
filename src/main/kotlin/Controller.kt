@@ -1,12 +1,14 @@
 import blockchain.*
+import blockchain.model.*
+import com.fasterxml.jackson.databind.ObjectMapper
 import spark.Route
+import spark.Spark.halt
 
-class Controller {
+class Controller(private val objectMapper: ObjectMapper,
+                 private val blockchain: Blockchain) {
 
     fun fullChain(): Route = Route { req, res ->
-        // TODO Blockchainインスタンスをコンストラクタに持ってく
-        val blockChain = Blockchain()
-        blockChain.chain
+        blockchain.chain
     }
 
     fun mine(): Route = Route { req, res ->
@@ -22,6 +24,15 @@ class Controller {
     }
 
     fun addTransaction(): Route = Route { req, res ->
-        "トランザクションはブロックに追加されました"
+        val request: NewTransactionRequest =
+                try {
+                    objectMapper.readValue(req.bodyAsBytes(), NewTransactionRequest::class.java)
+                } catch (e: Exception) {
+                    throw halt(400)
+                }
+        val transaction = Transaction(request.sender,request.recipient,request.amount)
+        blockchain.newTransaction(transaction)
+        res.status(201)
+        blockchain.chain
     }
 }

@@ -11,10 +11,10 @@ fun main(args: Array<String>){
     val objectMapper = ObjectMapper().registerKotlinModule()
     val jsonTransformer = JsonTransformer(objectMapper)
     val blockChain = Blockchain()
-    val controller = Controller()
+    val controller = Controller(objectMapper, blockChain)
 
     path("/transactions") {
-        get("/new", controller.addTransaction(), jsonTransformer)
+        post("/new", controller.addTransaction(), jsonTransformer)
     }
 
     path("/mine") {
