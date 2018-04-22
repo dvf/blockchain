@@ -1,3 +1,5 @@
+package blockchain
+
 import com.fasterxml.jackson.databind.ObjectMapper
 import spark.ResponseTransformer
 

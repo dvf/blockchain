@@ -1,3 +1,5 @@
+import blockchain.Blockchain
+import blockchain.model.*
 import org.junit.Test
 import org.junit.Assert.*
 

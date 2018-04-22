@@ -1,3 +1,6 @@
+package blockchain
+
+import blockchain.model.*
 import java.security.MessageDigest
 
 class Blockchain {
@@ -7,7 +10,7 @@ class Blockchain {
     init {
         val genesisBlock: Block = Block(
                 1,
-                System.currentTimeMillis()/1000,
+                System.currentTimeMillis() / 1000,
                 currentTransactions,
                 100,
                 "1"

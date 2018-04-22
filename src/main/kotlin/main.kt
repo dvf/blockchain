@@ -1,3 +1,4 @@
+import blockchain.*
 import spark.Spark.get
 import spark.Spark.post
 import spark.Spark.delete
