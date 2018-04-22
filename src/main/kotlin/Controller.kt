@@ -33,6 +33,6 @@ class Controller(private val objectMapper: ObjectMapper,
         val transaction = Transaction(request.sender,request.recipient,request.amount)
         blockchain.newTransaction(transaction)
         res.status(201)
-        blockchain.chain
+        "トランザクションはブロックに追加されました"
     }
 }
