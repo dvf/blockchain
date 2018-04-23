@@ -27,6 +27,15 @@ class Controller(private val objectMapper: ObjectMapper,
     }
 
     fun registerNode(): Route = Route { req, res ->
+        val request: RegisterNodeRequest =
+                try {
+                    objectMapper.readValue(req.bodyAsBytes(), RegisterNodeRequest::class.java)
+                } catch (e: Exception) {
+                    throw halt(400)
+                }
+        val node = Node(request.url)
+        blockchain.registerNode(node)
+        // TODO ノード登録に失敗した場合の処理をいれたい
         "新しいnodeを登録する"
     }
 

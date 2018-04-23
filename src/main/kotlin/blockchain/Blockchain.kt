@@ -6,6 +6,7 @@ import java.security.MessageDigest
 class Blockchain {
     var chain: MutableList<Block> = mutableListOf()
     var currentTransactions: MutableList<Transaction> = mutableListOf()
+    var nodes: MutableMap<String, Node> = mutableMapOf()
 
     init {
         val genesisBlock: Block = Block(
@@ -35,6 +36,12 @@ class Blockchain {
                 hash(chain.last())
         )
         chain.add(block)
+    }
+
+    fun registerNode(node: Node) {
+        if (!nodes.containsKey(node.url)) {
+            nodes.put(node.url, node)
+        }
     }
 
     fun newTransaction(transaction: Transaction) {

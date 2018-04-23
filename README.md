@@ -22,6 +22,11 @@ http://localhost:4567/chain
 $ curl -s http://localhost:4567/transactions/new -X POST -d '{"sender":"testSender","recipient":"testRecipient","amount":1}'
 ```
 
+```
+# ノード登録
+$ curl -s http://localhost:4567/nodes/register -X POST -d '{"url":"http://hoge.co.jp"}'
+```
+
 ## VS.
 
 ## Requirement

@@ -28,7 +28,7 @@ fun main(args: Array<String>){
     }
 
     path("/nodes") {
-        get("/register", controller.registerNode(), jsonTransformer)
+        post("/register", controller.registerNode(), jsonTransformer)
         get("/resolve", controller.resolveNode(), jsonTransformer)
     }
 }
