@@ -74,4 +74,34 @@ class Blockchain {
         return hashVal
     }
 
+    fun validChain(chain: MutableList<Block>): Boolean {
+
+        chain.forEach {
+            if (it.index == 1) {
+                // Genesisブロックの時はスキップ
+                return@forEach
+            }
+
+            // previousHashと一つ前のブロックから再現したハッシュを比較していく
+            val lastIndex = it.index - 1
+            if (it.previousHash != hash(chain.get( lastIndex - 1))) {
+                // ハッシュが一致しないためプルーフオブワークが失敗していると判定する
+                return false
+            }
+        }
+
+        return true
+    }
+
+    fun resoloveConflicts(): Boolean {
+        var maxLength = chain.count()
+
+        nodes.forEach { nodeUrl, node ->
+            // TODO http://nodeUrl/chainに対してHTTPリクエスト => フルチェーン取得
+
+            // TODO nodeUrl/chainより取得したchainが長い場合、validChain()を実行し判定をしてからそちらのチェーンを採用する
+        }
+
+        return true
+    }
 }
