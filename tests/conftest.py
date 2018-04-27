@@ -17,3 +17,24 @@ def client(app):
     """
     with app.test_client() as client:
         yield client
+
+@pytest.fixture(scope='function')
+def blockchain_init():
+    """Initialize blockchain instance"""
+    yield blockchain.Blockchain()
+
+@pytest.fixture(scope='function')
+def create_block(blockchain_init):
+    """create new block from initialized blockchain instance"""
+    yield blockchain_init.new_block(proof=123, previous_hash='abc')
+
+@pytest.fixture(scope='function')
+def create_transaction(blockchain_init):
+    tr = blockchain_init.new_transaction(
+        sender='a',
+        recipient='b',
+        amount=1
+    )
+    yield tr
+
+
