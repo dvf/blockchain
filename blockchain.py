@@ -55,7 +55,7 @@ class Blockchain:
                 return False
 
             # Check that the Proof of Work is correct
-            if not self.valid_proof(last_block['proof'], block['proof'], block['previous_hash']):
+            if not self.valid_proof(last_block['proof'], block['proof'], last_block['previous_hash']):
                 return False
 
             last_block = block
