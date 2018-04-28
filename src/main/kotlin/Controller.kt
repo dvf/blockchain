@@ -5,7 +5,8 @@ import spark.Route
 import spark.Spark.halt
 
 class Controller(private val objectMapper: ObjectMapper,
-                 private val blockchain: Blockchain) {
+                 private val blockchain: Blockchain,
+                 private val nodeId: String) {
 
     fun fullChain(): Route = Route { req, res ->
         blockchain.chain
@@ -18,8 +19,7 @@ class Controller(private val objectMapper: ObjectMapper,
 
         // proofを発見した報酬を獲得(senderを0とすることでマイニング実行者の報酬としている)
         blockchain.newTransaction(
-                // TODO nodeIdentifierを実装(nodeに一意な識別子)
-                Transaction("0", "node_id", 1)
+                Transaction("0", nodeId, 1)
         )
         // チェーンに新しいブロックを追加することで新しいブロック採掘完了
         blockchain.addBlock(proof)
