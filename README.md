@@ -14,7 +14,7 @@ Kotlinでブロックチェーンを実装する
 
 ```
 # 現在のブロックの状態を確認する
-http://localhost:4567/chain
+curl -s http://localhost:4567/chain
 ```
 
 ```
