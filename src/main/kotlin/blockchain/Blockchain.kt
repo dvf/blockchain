@@ -78,16 +78,17 @@ class Blockchain {
 
         chain.forEach {
             if (it.index == 1) {
-                // Genesisブロックの時はスキップ
+                println("Genesisブロックのためスキップ")
                 return@forEach
             }
 
             // previousHashと一つ前のブロックから再現したハッシュを比較していく
             val lastIndex = it.index - 1
             if (it.previousHash != hash(chain.get( lastIndex - 1))) {
-                // ハッシュが一致しないためプルーフオブワークが失敗していると判定する
+                println("ハッシュが一致しない")
                 return false
             }
+
         }
 
         return true
