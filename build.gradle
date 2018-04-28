@@ -3,6 +3,7 @@ buildscript {
 
     repositories {
         mavenCentral()
+        jcenter()
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
@@ -16,6 +17,7 @@ apply plugin: 'kotlin'
 
 repositories {
     mavenCentral()
+    jcenter()
 }
 
 dependencies {
@@ -23,7 +25,8 @@ dependencies {
     compile "com.sparkjava:spark-core:2.6.0"
     compile "com.fasterxml.jackson.core:jackson-databind:2.8.8.1"
     compile "com.fasterxml.jackson.module:jackson-module-kotlin:2.8.8"
-    testCompile 'junit:junit:4.12'
+    compile "com.github.kittinunf.fuel:fuel:1.12.1" //for JVM
+    testCompile "junit:junit:4.12"
 }
 
 compileKotlin {

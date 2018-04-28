@@ -40,7 +40,7 @@ class Controller(private val objectMapper: ObjectMapper,
     }
 
     fun resolveNode(): Route = Route { req, res ->
-        val replaced = blockchain.resoloveConflicts()
+        val replaced = blockchain.resolveConflicts()
         if (replaced) {
             "チェーンが置き換えられました"
         } else {

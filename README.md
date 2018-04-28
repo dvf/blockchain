@@ -27,6 +27,11 @@ $ curl -s http://localhost:4567/transactions/new -X POST -d '{"sender":"testSend
 $ curl -s http://localhost:4567/nodes/register -X POST -d '{"url":"http://hoge.co.jp"}'
 ```
 
+```
+#
+$ curl -s http://localhost:4567/nodes/resolve
+```
+
 ## VS.
 
 ## Requirement
