@@ -13,26 +13,24 @@ Kotlinでブロックチェーンを実装する
 ## Demo
 
 ```
-# 現在のブロックの状態を確認する
+# Get current chain info
 $ curl -s http://localhost:4567/chain
 ```
 
 ```
-# トランザクションの登録
+# Register a new transaction
 $ curl -s http://localhost:4567/transactions/new -X POST -d '{"sender":"testSender","recipient":"testRecipient","amount":1}'
 ```
 
 ```
-# ノード登録
+# Register a new node
 $ curl -s http://localhost:4567/nodes/register -X POST -d '{"url":"http://hoge.co.jp"}'
 ```
 
 ```
-#
+# 
 $ curl -s http://localhost:4567/nodes/resolve
 ```
-
-## VS.
 
 ## Requirement
 
@@ -40,12 +38,5 @@ $ curl -s http://localhost:4567/nodes/resolve
 
 ## Install
 
-## Contribution
-
-## Licence
-
-[MIT](https://github.com/tcnksm/tool/blob/master/LICENCE)
-
-## Author
-
-[masayuki5160](https://github.com/masayuki5160)
+## Contributing
+Contributions are welcome! Please feel free to submit a Pull Request.
