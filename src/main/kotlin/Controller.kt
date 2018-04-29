@@ -9,7 +9,7 @@ class Controller(private val objectMapper: ObjectMapper,
                  private val nodeId: String) {
 
     fun fullChain(): Route = Route { req, res ->
-        blockchain.chain
+        Chain(blockchain.chain, blockchain.chain.count())
     }
 
     fun mine(): Route = Route { req, res ->

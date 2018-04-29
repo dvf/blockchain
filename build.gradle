@@ -26,6 +26,7 @@ dependencies {
     compile "com.fasterxml.jackson.core:jackson-databind:2.8.8.1"
     compile "com.fasterxml.jackson.module:jackson-module-kotlin:2.8.8"
     compile "com.github.kittinunf.fuel:fuel:1.12.1" //for JVM
+    compile 'com.github.kittinunf.fuel:fuel-gson:1.12.1' //for Gson support
     testCompile "junit:junit:4.12"
 }
 

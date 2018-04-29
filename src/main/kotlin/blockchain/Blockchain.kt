@@ -1,11 +1,9 @@
 package blockchain
 
 import blockchain.model.*
-import com.github.kittinunf.fuel.Fuel
 import java.security.MessageDigest
 import com.github.kittinunf.fuel.core.FuelManager
 import com.github.kittinunf.fuel.httpGet
-import com.github.kittinunf.result.Result
 
 class Blockchain {
     var chain: MutableList<Block> = mutableListOf()
@@ -99,20 +97,18 @@ class Blockchain {
 
     fun resolveConflicts(): Boolean {
         var maxLength = chain.count()
-
         nodes.forEach { nodeUrl, node ->
             FuelManager.instance.basePath = nodeUrl
-            "/chain".httpGet().responseString { request, response, result ->
-
-                val (data, error) = result
+            "/chain".httpGet().responseObject(GetChainRequest.Deserializer()) { request, response, result ->
+                val (body, error) = result
                 if (error == null) {
                     // TODO nodeUrl/chainより取得したchainが長い場合、validChain()を実行し判定をしてからそちらのチェーンを採用する
-                    // TODO dataのパース処理
-                    println(data)
+                    println("HTTPリクエスト成功")
+                    println(body?.chain?.get(0)?.index)
                 } else {
                     //error handling
+                    println(error)
                 }
-
             }
         }
 
