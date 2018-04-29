@@ -97,14 +97,28 @@ class Blockchain {
 
     fun resolveConflicts(): Boolean {
         var maxLength = chain.count()
+        var currentChain = chain
+
+        // TODO ネスト深いのでリファクタリング
         nodes.forEach { nodeUrl, node ->
             FuelManager.instance.basePath = nodeUrl
             "/chain".httpGet().responseObject(GetChainRequest.Deserializer()) { request, response, result ->
                 val (body, error) = result
                 if (error == null) {
-                    // TODO nodeUrl/chainより取得したchainが長い場合、validChain()を実行し判定をしてからそちらのチェーンを採用する
                     println("HTTPリクエスト成功")
-                    println(body?.chain?.get(0)?.index)
+                    val chain = body?.chain
+                    val length = body?.length as Int
+
+                    if(maxLength < length) {
+                        // TODO !!演算子でなく他に方法ない？
+                        val mutableChain = chain!!.toMutableList()
+                        if (validChain(mutableChain)) {
+                            // 検証成功のためチェーンを切り替える
+                            maxLength = length
+                            currentChain = mutableChain
+                            println("現在のチェーンより有効なチェーンを確認")
+                        }
+                    }
                 } else {
                     //error handling
                     println(error)
@@ -112,6 +126,14 @@ class Blockchain {
             }
         }
 
-        return true
+        // 自らのチェーンより長く、有効なチェーンを見つけたため置き換える
+        if (maxLength > chain.count()) {
+            println("現在のチェーンより有効なチェーンに置き換える")
+            chain = currentChain
+
+            return true
+        }
+
+        return false
     }
 }
