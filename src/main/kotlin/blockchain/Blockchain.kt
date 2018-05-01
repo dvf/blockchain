@@ -1,9 +1,13 @@
 package blockchain
 
 import blockchain.model.*
+import com.github.kittinunf.fuel.core.FuelError
 import java.security.MessageDigest
 import com.github.kittinunf.fuel.core.FuelManager
+import com.github.kittinunf.fuel.core.Request
+import com.github.kittinunf.fuel.core.Response
 import com.github.kittinunf.fuel.httpGet
+import com.github.kittinunf.result.Result
 
 class Blockchain {
     var chain: MutableList<Block> = mutableListOf()
@@ -101,13 +105,17 @@ class Blockchain {
 
         // TODO ネスト深いのでリファクタリング
         nodes.forEach { nodeUrl, node ->
+            println("HTTPリクエストstart:" + nodeUrl)
             FuelManager.instance.basePath = nodeUrl
-            "/chain".httpGet().responseObject(GetChainRequest.Deserializer()) { request, response, result ->
-                val (body, error) = result
-                if (error == null) {
+            // 同期処理
+            val (request, response, result) = "/chain".httpGet().responseObject(GetChainRequest.Deserializer())
+
+            when (result) {
+                is Result.Success -> {
                     println("HTTPリクエスト成功")
-                    val chain = body?.chain
-                    val length = body?.length as Int
+
+                    val chain = result.value.chain
+                    val length = result.value.length
 
                     if(maxLength < length) {
                         // TODO !!演算子でなく他に方法ない？
@@ -119,9 +127,10 @@ class Blockchain {
                             println("現在のチェーンより有効なチェーンを確認")
                         }
                     }
-                } else {
-                    //error handling
-                    println(error)
+                }
+
+                is Result.Failure -> {
+                    println("ERROR：" + result.error)
                 }
             }
         }
