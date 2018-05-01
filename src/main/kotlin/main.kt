@@ -21,12 +21,10 @@ fun main(args: Array<String>){
     }
 
     path("/mine") {
-        // 新しいBlockを採掘する
         get("", controller.mine(), jsonTransformer)
     }
 
     path("/chain") {
-        // フルのブロックチェーンをリターンする
         get("", controller.fullChain(), jsonTransformer)
     }
 

@@ -19,7 +19,7 @@ class Blockchain {
                 100,
                 "1"
         )
-        // ジェネシスブロック追加
+        // Add the genesis block
         chain.add(genesisBlock)
     }
 
@@ -28,7 +28,7 @@ class Blockchain {
     }
 
     fun addBlock(proof: String){
-        // 新しいブロックを作成
+        // Create a new block
         val block = Block(
                 chain.last().index + 1,
                 System.currentTimeMillis() / 1000,
@@ -38,7 +38,7 @@ class Blockchain {
         )
         chain.add(block)
 
-        // 登録されていたtransactionをリセット
+        // Reset transactions
         currentTransactions = mutableListOf()
     }
 
@@ -49,7 +49,7 @@ class Blockchain {
     }
 
     fun newTransaction(transaction: Transaction) {
-        // 新しいトランザクションをリストに加える
+        // add a new transaction
         currentTransactions.add(transaction)
     }
 
@@ -57,7 +57,9 @@ class Blockchain {
         return convertToHash(block.toString())
     }
 
-    // hash(前のproof + proof)の最初の4文字が0となるhash値を探す
+    // Simple Proof of Work Algorithm:
+    // - Find a number p' such that hash(pp') contains leading 4 zeroes
+    // - Where p is the previous proof, and p' is the new proof
     fun proofOfWork(lastProof: String): String {
         var proof = 0
         while (!validWork(lastProof, Integer.toString(proof))) {
@@ -78,18 +80,17 @@ class Blockchain {
         return hashVal
     }
 
+    // Determine if a given blockchain is valid
     fun validChain(chain: MutableList<Block>): Boolean {
 
         chain.forEach {
             if (it.index == 1) {
-                println("Genesisブロックのためスキップ")
                 return@forEach
             }
 
-            // previousHashと一つ前のブロックから再現したハッシュを比較していく
+            // Check that the Proof of Work is correct
             val lastIndex = it.index - 1
             if (it.previousHash != hash(chain.get( lastIndex - 1))) {
-                println("ハッシュが一致しない")
                 return false
             }
         }
@@ -101,28 +102,24 @@ class Blockchain {
         var maxLength = chain.count()
         var currentChain = chain
 
-        // TODO ネスト深いのでリファクタリング
         nodes.forEach { nodeUrl, node ->
-            println("HTTPリクエストstart:" + nodeUrl)
+
             FuelManager.instance.basePath = nodeUrl
-            // 同期処理
             val (request, response, result) = "/chain".httpGet().responseObject(GetChainRequest.Deserializer())
 
             when (result) {
                 is Result.Success -> {
-                    println("HTTPリクエスト成功")
+                    println("http request ok!")
 
                     val chain = result.value.chain
                     val length = result.value.length
 
+                    // Check if the length is longer and the chain is valid
                     if(maxLength < length) {
-                        // TODO !!演算子でなく他に方法ない？
                         val mutableChain = chain!!.toMutableList()
                         if (validChain(mutableChain)) {
-                            // 検証成功のためチェーンを切り替える
                             maxLength = length
                             currentChain = mutableChain
-                            println("現在のチェーンより有効なチェーンを確認")
                         }
                     }
                 }
@@ -133,9 +130,8 @@ class Blockchain {
             }
         }
 
-        // 自らのチェーンより長く、有効なチェーンを見つけたため置き換える
+        // Replace our chain if we discovered a new, valid chain longer than ours
         if (maxLength > chain.count()) {
-            println("現在のチェーンより有効なチェーンに置き換える")
             chain = currentChain
 
             return true

@@ -15,15 +15,16 @@ class Controller(private val objectMapper: ObjectMapper,
     fun mine(): Route = Route { req, res ->
         val lastBlock: Block = blockchain.lastBlock()
         val lastProof = lastBlock.proof
-        val proof = blockchain.proofOfWork(lastProof.toString())// TODO proofの型を整理したい
+        val proof = blockchain.proofOfWork(lastProof.toString())
 
-        // proofを発見した報酬を獲得(senderを0とすることでマイニング実行者の報酬としている)
+        // We must receive a reward for finding the proof.
+        // The sender is "0" to signify that this node has mined a new coin.
         blockchain.newTransaction(
                 Transaction("0", nodeId, 1)
         )
-        // チェーンに新しいブロックを追加することで新しいブロック採掘完了
+        // Forge the new Block by adding it to the chain
         blockchain.addBlock(proof)
-        "新しいブロックを採掘しました"
+        "A new block have been added"
     }
 
     fun registerNode(): Route = Route { req, res ->
@@ -35,17 +36,16 @@ class Controller(private val objectMapper: ObjectMapper,
                 }
         val node = Node(request.url)
         blockchain.registerNode(node)
-        // TODO ノード登録に失敗した場合の処理をいれたい
-        "新しいnodeを登録完了"
+        "New nodes have been added"
     }
 
     fun resolveNode(): Route = Route { req, res ->
         val replaced = blockchain.resolveConflicts()
         val message: String
         if (replaced) {
-            message = "チェーンが置き換えられました"
+            message = "Our chain was replaced"
         } else {
-            message = "チェーンが確認されました"
+            message = "Our chain is authoritative"
         }
         res.status(200)
         message
@@ -61,6 +61,6 @@ class Controller(private val objectMapper: ObjectMapper,
         val transaction = Transaction(request.sender,request.recipient,request.amount)
         blockchain.newTransaction(transaction)
         res.status(201)
-        "トランザクションはブロックに追加されました"
+        "A new transaction have been added"
     }
 }
