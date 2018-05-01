@@ -1,7 +1,7 @@
 kotlin-blockchain
 ====
 
-A simple blockchain program in Kotlin
+This is the source code for my post on [シンプルなブロックチェーンをKotlin(サーバーサイド)で実装する](https://qiita.com/masayuki5160/items/a0ec176601d690ed0b8e)
 
 ## Description
 
