@@ -13,6 +13,14 @@ Kotlinでブロックチェーンを実装する
 ## Demo
 
 ```
+# Dockerfileからイメージ作成
+$ docker build -t masayuki5160/kotlin-blockchain .
+
+# コンテナ起動
+$ docker run -d -p 4567:4567 -p 8778:8778 masayuki5160/kotlin-blockchain
+```
+
+```
 # Get current chain info
 $ curl -s http://localhost:4567/chain
 ```

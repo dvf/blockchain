@@ -16,6 +16,7 @@ RUN apk update && \
     rm -rf ~/.gradle && \
     rm -rf /kotlin-blockchain
 
+# TODO kotlin-blockchain-1.0-SNAPSHOT.jarを-1.0-SNAPSHOTなしにしたい
 ENTRYPOINT java $JAVA_OPTS -javaagent:/usr/local/kotlin-blockchain/lib/jolokia-jvm-agent.jar=port=8778,host=0.0.0.0 -jar /usr/local/kotlin-blockchain/lib/kotlin-blockchain-1.0-SNAPSHOT.jar
 
 EXPOSE 4567 8778
