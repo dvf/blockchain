@@ -46,6 +46,11 @@ $ curl -s http://localhost:4567/nodes/register -X POST -d '{"url":"http://hoge.c
 $ curl -s http://localhost:4567/nodes/resolve
 ```
 
+## Environment
+
+- Docker version 18.03.0-ce, build 0520e24
+- Kotlin version 1.2.21-release-88 (JRE 1.8.0_73-b02)
+
 ## Install
 
 ```
