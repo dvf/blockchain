@@ -15,7 +15,7 @@ class Blockchain {
         val genesisBlock: Block = Block(
                 1,
                 System.currentTimeMillis() / 1000,
-                currentTransactions,
+                mutableListOf(),
                 100,
                 "1"
         )
@@ -28,8 +28,6 @@ class Blockchain {
     }
 
     fun addBlock(proof: String){
-        // 登録されていたtransactionをリセット
-        currentTransactions = mutableListOf()
         // 新しいブロックを作成
         val block = Block(
                 chain.last().index + 1,
@@ -39,6 +37,9 @@ class Blockchain {
                 hash(chain.last())
         )
         chain.add(block)
+
+        // 登録されていたtransactionをリセット
+        currentTransactions = mutableListOf()
     }
 
     fun registerNode(node: Node) {
