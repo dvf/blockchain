@@ -1,11 +1,8 @@
 package blockchain
 
 import blockchain.model.*
-import com.github.kittinunf.fuel.core.FuelError
 import java.security.MessageDigest
 import com.github.kittinunf.fuel.core.FuelManager
-import com.github.kittinunf.fuel.core.Request
-import com.github.kittinunf.fuel.core.Response
 import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.result.Result
 
