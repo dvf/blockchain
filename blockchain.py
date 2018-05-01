@@ -5,7 +5,7 @@ from urllib.parse import urlparse
 from uuid import uuid4
 
 import requests
-from flask import Flask, jsonify, request
+from flask import Flask, request
 
 
 class Blockchain:
@@ -226,7 +226,7 @@ def mine():
         'proof': block['proof'],
         'previous_hash': block['previous_hash'],
     }
-    return jsonify(response), 200
+    return json.dumps(response), 200
 
 
 @app.route('/transactions/new', methods=['POST'])
@@ -242,7 +242,7 @@ def new_transaction():
     index = blockchain.new_transaction(values['sender'], values['recipient'], values['amount'])
 
     response = {'message': f'Transaction will be added to Block {index}'}
-    return jsonify(response), 201
+    return json.dumps(response), 201
 
 
 @app.route('/chain', methods=['GET'])
@@ -251,7 +251,7 @@ def full_chain():
         'chain': blockchain.chain,
         'length': len(blockchain.chain),
     }
-    return jsonify(response), 200
+    return json.dumps(response), 200
 
 
 @app.route('/nodes/register', methods=['POST'])
@@ -269,8 +269,16 @@ def register_nodes():
         'message': 'New nodes have been added',
         'total_nodes': list(blockchain.nodes),
     }
-    return jsonify(response), 201
+    return json.dumps(response), 201
 
+
+@app.route('/nodes/list_nodes', methods=['GET'])
+def list_nodes():
+    response = {
+        'message': 'All nodes:',
+        'all_nodes': list(blockchain.nodes),
+    }
+    return json.dumps(response), 200
 
 @app.route('/nodes/resolve', methods=['GET'])
 def consensus():
@@ -287,7 +295,7 @@ def consensus():
             'chain': blockchain.chain
         }
 
-    return jsonify(response), 200
+    return json.dumps(response), 200
 
 
 if __name__ == '__main__':
