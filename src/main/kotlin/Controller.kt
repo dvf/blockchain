@@ -36,17 +36,19 @@ class Controller(private val objectMapper: ObjectMapper,
         val node = Node(request.url)
         blockchain.registerNode(node)
         // TODO ノード登録に失敗した場合の処理をいれたい
-        "新しいnodeを登録する"
+        "新しいnodeを登録完了"
     }
 
     fun resolveNode(): Route = Route { req, res ->
         val replaced = blockchain.resolveConflicts()
+        val message: String
         if (replaced) {
-            "チェーンが置き換えられました"
+            message = "チェーンが置き換えられました"
         } else {
-            "チェーンが確認されました"
+            message = "チェーンが確認されました"
         }
         res.status(200)
+        message
     }
 
     fun addTransaction(): Route = Route { req, res ->
