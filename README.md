@@ -1,11 +1,11 @@
-[WIP]kotlin-blockchain
+kotlin-blockchain
 ====
 
-Kotlinでブロックチェーンを実装する
+A simple blockchain program in Kotlin
 
 ## Description
 
-以下記事を参考にブロックチェーンをKotlinで実装しています。
+### Appendix
 
 - [ブロックチェーンを作ることで学ぶ 〜ブロックチェーンがどのように動いているのか学ぶ最速の方法は作ってみることだ〜](https://qiita.com/hidehiro98/items/841ece65d896aeaa8a2a)
 - [Learn Blockchains by Building One -The fastest way to learn how Blockchains work is to build one-](https://hackernoon.com/learn-blockchains-by-building-one-117428612f46)
@@ -13,10 +13,10 @@ Kotlinでブロックチェーンを実装する
 ## Demo
 
 ```
-# Dockerfileからイメージ作成
+# Create Docker Image
 $ docker build -t masayuki5160/kotlin-blockchain .
 
-# コンテナ起動
+# Start Container
 $ docker run -d -p 4567:4567 -p 8778:8778 masayuki5160/kotlin-blockchain
 ```
 
@@ -30,21 +30,31 @@ $ curl -s http://localhost:4567/chain
 $ curl -s http://localhost:4567/transactions/new -X POST -d '{"sender":"testSender","recipient":"testRecipient","amount":1}'
 ```
 
+
+```
+# Mining
+$ curl -s http://localhost:4567/mine
+```
+
 ```
 # Register a new node
 $ curl -s http://localhost:4567/nodes/register -X POST -d '{"url":"http://hoge.co.jp"}'
 ```
 
 ```
-# 
+# Consensus algorithm
 $ curl -s http://localhost:4567/nodes/resolve
 ```
 
-## Requirement
-
-## Usage
-
 ## Install
+
+```
+# Create Docker Image
+$ docker build -t masayuki5160/kotlin-blockchain .
+
+# Start Container
+$ docker run -d -p 4567:4567 -p 8778:8778 masayuki5160/kotlin-blockchain
+```
 
 ## Contributing
 Contributions are welcome! Please feel free to submit a Pull Request.
