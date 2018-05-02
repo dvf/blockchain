@@ -14,10 +14,11 @@ This is the source code for my post on [シンプルなブロックチェーン�
 
 ```
 # Create Docker Image
-$ docker build -t masayuki5160/kotlin-blockchain .
+$ cd kotlin/
+$ docker build -t kotlin-blockchain .
 
 # Start Container
-$ docker run -d -p 4567:4567 -p 8778:8778 masayuki5160/kotlin-blockchain
+$ docker run -d -p 4567:4567 -p 8778:8778 kotlin-blockchain
 ```
 
 ```
@@ -55,10 +56,11 @@ $ curl -s http://localhost:4567/nodes/resolve
 
 ```
 # Create Docker Image
-$ docker build -t masayuki5160/kotlin-blockchain .
+$ cd kotlin/
+$ docker build -t kotlin-blockchain .
 
 # Start Container
-$ docker run -d -p 4567:4567 -p 8778:8778 masayuki5160/kotlin-blockchain
+$ docker run -d -p 4567:4567 -p 8778:8778 kotlin-blockchain
 ```
 
 ## Contributing
