@@ -1,6 +1,5 @@
 FROM java:openjdk-8-jdk-alpine
 
-# リポジトリをdockerコンテナ内にコピー
 COPY . /kotlin-blockchain
 
 RUN apk update && \
