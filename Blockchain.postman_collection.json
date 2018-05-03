@@ -1,0 +1,359 @@
+{
+	"info": {
+		"_postman_id": "112349ef-eed6-477c-9fa3-6873663d3e71",
+		"name": "Blockchain",
+		"description": "Collection for testing \"Learn Blokchain by building one\" code.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "node (running on port 5000)",
+			"description": "Request for node running on port 5000 by default. Chane this in collection variables. IMPORTANT: If changing ports update node/register new node to contain info about new nodes.",
+			"item": [
+				{
+					"name": "Mine",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "{{node1}}mine",
+							"host": [
+								"{{node1}}mine"
+							]
+						},
+						"description": "Mining endpoint - make a request to this endpoint after node has some new tranactions to add them to the chain."
+					},
+					"response": []
+				},
+				{
+					"name": "new transaction",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n \"sender\": \"d4ee26eee15148ee92c6cd394edd974e\",\n \"recipient\": \"Jane Roe\",\n \"amount\": 100\n}"
+						},
+						"url": {
+							"raw": "{{node1}}transactions/new",
+							"host": [
+								"{{node1}}transactions"
+							],
+							"path": [
+								"new"
+							]
+						},
+						"description": "Prepares transaction to be added to next block."
+					},
+					"response": []
+				},
+				{
+					"name": "chain",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n \"sender\": \"d4ee26eee15148ee92c6cd394edd974e\",\n \"recipient\": \"someone-other-address\",\n \"amount\": 5\n}"
+						},
+						"url": {
+							"raw": "{{node1}}chain",
+							"host": [
+								"{{node1}}chain"
+							]
+						},
+						"description": "Returns chain at current node (this chain might be outdated, user node/resolve conflicts to update chain)."
+					},
+					"response": []
+				},
+				{
+					"name": "node/resolve conflicts",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "{{node1}}nodes/resolve",
+							"host": [
+								"{{node1}}nodes"
+							],
+							"path": [
+								"resolve"
+							]
+						},
+						"description": "Gets chains from all known nodes. Updates chain to the longest valid chain.\n\nIMPORTANT! Remeber to always register new nodes befor resolving conflicts."
+					},
+					"response": []
+				},
+				{
+					"name": "node /register new node",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"nodes\": [\"http://127.0.0.1:5001\"]\n}"
+						},
+						"url": {
+							"raw": "{{node1}}nodes/register",
+							"host": [
+								"{{node1}}nodes"
+							],
+							"path": [
+								"register"
+							]
+						},
+						"description": "Adds a new node to current network and returns a list of currently known nodes."
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "0a9b9e7a-b337-4057-8c5e-009131c95016",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "86761e1f-baf3-42a1-99bf-a16f87596427",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "node (running on port 5001)",
+			"description": "Request for node running on port 5001 by default. Chane this in collection variables. IMPORTANT: If changing ports update node/register new node to contain info about new nodes.",
+			"item": [
+				{
+					"name": "Mine",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "{{node2}}/mine",
+							"host": [
+								"{{node2}}"
+							],
+							"path": [
+								"mine"
+							]
+						},
+						"description": "Mining endpoint - make a request to this endpoint after node has some new tranactions to add them to the chain."
+					},
+					"response": []
+				},
+				{
+					"name": "new transaction",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n \"sender\": \"d4ee26eee15148ee92c6cd394edd974e\",\n \"recipient\": \"John Doe\",\n \"amount\": 112\n}"
+						},
+						"url": {
+							"raw": "{{node2}}/transactions/new",
+							"host": [
+								"{{node2}}"
+							],
+							"path": [
+								"transactions",
+								"new"
+							]
+						},
+						"description": "Prepares transaction to be added to next block."
+					},
+					"response": []
+				},
+				{
+					"name": "chain",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n \"sender\": \"d4ee26eee15148ee92c6cd394edd974e\",\n \"recipient\": \"someone-other-address\",\n \"amount\": 5\n}"
+						},
+						"url": {
+							"raw": "{{node2}}/chain",
+							"host": [
+								"{{node2}}"
+							],
+							"path": [
+								"chain"
+							]
+						},
+						"description": "Returns chain at current node (this chain might be outdated, user node/resolve conflicts to update chain)."
+					},
+					"response": []
+				},
+				{
+					"name": "node/resolve conflicts",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "{{node2}}/nodes/resolve",
+							"host": [
+								"{{node2}}"
+							],
+							"path": [
+								"nodes",
+								"resolve"
+							]
+						},
+						"description": "Gets chains from all known nodes. Updates chain to the longest valid chain.\n\nIMPORTANT! Remeber to always register new nodes befor resolving conflicts."
+					},
+					"response": []
+				},
+				{
+					"name": "node /register new node",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"nodes\": [\"http://127.0.0.1:5000\"]\n}"
+						},
+						"url": {
+							"raw": "{{node2}}/nodes/register",
+							"host": [
+								"{{node2}}"
+							],
+							"path": [
+								"nodes",
+								"register"
+							]
+						},
+						"description": "Adds a new node to current network and returns a list of currently known nodes."
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "e4c64b5e-ebf6-4b3d-8313-67d12aec5ae5",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "9f27bc07-80be-4feb-805f-fb2be8012a74",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "1272db28-c576-46cd-90e8-35e4859fc9ad",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "9a3e01d4-f366-4ca8-97c8-ca7bad0608ba",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "9ec49d08-2ca8-4909-be75-ea7822196a12",
+			"key": "node1",
+			"value": "http://localhost:5000/\n",
+			"type": "string",
+			"description": ""
+		},
+		{
+			"id": "578f5694-0b91-4eca-bfd4-582d2d051fe0",
+			"key": "node2",
+			"value": "http://localhost:5001/",
+			"type": "string",
+			"description": ""
+		}
+	]
+}
