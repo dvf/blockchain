@@ -41,7 +41,7 @@ class Node:
 		self.has_electing = False
 		self.logger = logger
 		pass
-	def register_nodes(self, address):
+	def RegisterNodes(self, address):
 		"""
 		Add a new node to the list of nodes
 
@@ -57,19 +57,8 @@ class Node:
 			raise ValueError('Invalid URL')
 		self.neighbor_num = len(self.nei_nodes)
 		pass
-	def AskForSupporters(self):
-		"""
-		Function: Candidates ask for supporters to be Leader in Election process 
-		"""
-		
-		pass
-	def Response2Election(self, sender):
-		"""
-		Function: Send 'OK' or nothing to the Candidate
-		Param:
-		sender: The sender`s adddress
-		"""
-		pass
+	def GetNeiNodes(self):
+		return [item for item in leader.nei_nodes]
 	def Heartbeat(self):
 		"""
 		Function: The Leader keeps the relationship with Followers
@@ -118,6 +107,7 @@ class Node:
 	def UpdateNeiNode(self, remove_nodes):
 		for node in remove_nodes:
 			self.nei_nodes.remove(node)
+		self.neighbor_num = len(self.nei_nodes)
 		pass
 	def Election(self): 
 		"""
@@ -169,6 +159,23 @@ class Node:
 		self.message = message
 		self.is_client_on = True
 		pass
+	def HeartbeatReceive(self, values):
+		if values['message_type']==MessageType.heartbeat.value: # Candidate
+			leader.leader_on = True
+			leader.leader = values['sender']
+			if leader.role == Role.Leader:
+				response = {'message': 'RESET'}
+			else:
+				response = {'message': 'OK'}
+		elif values['message_type'] == MessageType.election.value: # Leader
+			if leader.HasElecting():
+				response = {'message': 'NO'}
+			else:
+				response = {'message': 'OK'}
+		elif values['message_type'] == MessageType.operation.value: # Candidate
+			print('operation')
+			response = {'message': 'OK'}
+		return response
 	def ConfirmLeader(self):
 		"""
 		Function: Followers make sure that the leader is on.
@@ -203,16 +210,16 @@ app = Flask(__name__)
 logger = common.CommonHelper.GetLogger('log/%s.log' % time.strftime("%Y%m%d"));
 leader = Node(logger)
 @app.route('/register', methods=['POST'])
-def register_nodes():
+def RegisterNodes():
 	values = request.get_json()
 	nodes = values.get('nodes')
 	if nodes is None:
 		return "Error: Please supply a valid list of nodes", 400
 	for node in nodes:
-		leader.register_nodes(node)
+		leader.RegisterNodes(node)
 	response = {
 		'message': 'New nodes have been added',
-		'total_nodes': list(leader.nei_nodes),
+		'total_nodes': leader.GetNeiNodes()
 	}
 	return jsonify(response), 201
 @app.route('/heartbeat/receive', methods=['POST'])
@@ -223,28 +230,11 @@ def HeartbeatReceive():
 	required = ['message_type','sender', 'message']
 	if not all(k in values for k in required):
 		return 'Missing values', 400
-	if values['message_type']==MessageType.heartbeat.value: # Candidate
-		leader.leader_on = True
-		leader.leader = values['sender']
-		if leader.role == Role.Leader:
-			response = {'message': 'RESET'}
-		else:
-			response = {'message': 'OK'}
-		return jsonify(response), 201
-		#leader.HeartbeatFeedback(valudes['sender'], valudes['message'])
-	elif values['message_type'] == MessageType.election.value: # Leader
-		if leader.HasElecting():
-			response = {'message': 'NO'}
-		else:
-			response = {'message': 'OK'}
-		return jsonify(response), 201
-	elif values['message_type'] == MessageType.operation.value: # Candidate
-		print('operation')
-		response = {'message': 'OK'}
-		return jsonify(response), 201
+	response = leader.HeartbeatReceive(values)
+	return jsonify(response), 201
 @app.route('/nodes', methods=['GET'])
 def full_nodes():
-	nodes = [item for item in leader.nei_nodes]
+	nodes = leader.GetNeiNodes()
 	response = {
 		'nodes': nodes,
 		'length': len(nodes),
