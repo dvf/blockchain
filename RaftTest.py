@@ -23,12 +23,17 @@ class MessageType(Enum):
 	end = 0 
 	heartbeat = 1
 	election = 2
-	operation = 3
-	
+	update = 3
+	commit = 4
+class NodeState(Enum):
+	heartbeat = 1
+	update = 2
+	commit = 3
 class Node:	 
 	def __init__(self, logger):
 		self.role = Role.Follower
 		self.address = ""
+		self.client_address = ""
 		self.nei_nodes = set()
 		self.neighbor_num = 0
 		self.time_count = 0
@@ -40,10 +45,11 @@ class Node:
 		self.leader_on = False
 		self.has_electing = False
 		self.logger = logger
+		self.state = NodeState.heartbeat.value # only for leader
 		pass
 	def RegisterNodes(self, address):
 		"""
-		Add a new node to the list of nodes
+		Function: Add a new node to the list of nodes
 
 		:param address: Address of node. Eg. 'http:#192.168.0.5:5000'
 		"""
@@ -59,20 +65,12 @@ class Node:
 		pass
 	def GetNeiNodes(self):
 		return [item for item in leader.nei_nodes]
-	def Heartbeat(self):
-		"""
-		Function: The Leader keeps the relationship with Followers
-		"""
-		#handle_type = MessageType.heartbeat.value
-		#if self.is_client_on:
-		#	   handle_type = 1
-		
-		self.confirm_count = 0;
+	def HbOperator(self):
 		post_data = json.dumps({
 			'message_type': MessageType.heartbeat.value,
 			'sender': self.address,
 			'message': ""
-		})
+		})	
 		unreach_nodes = set()
 		for node in self.nei_nodes:
 			try:
@@ -89,13 +87,107 @@ class Node:
 			if not all (k in values for k in required):
 				print(f'Heartbeat Error: {node}')
 				continue
-			if values['message'] == 'OK':
-				self.confirm_count = self.confirm_count + 1
-			elif values['message'] == 'RESET':
+			if values['message'] == 'RESET':
 				self.role = Role.Follower
 				break
-		self.UpdateNeiNode(unreach_nodes)	   
-		
+		self.UpdateNeiNode(unreach_nodes)		
+		pass
+	def UpdateOperator(self):		
+		post_data = json.dumps({
+			'message_type': MessageType.update.value,
+			'sender': self.address,
+			'message': self.message
+		})
+		self.confirm_count = 0		
+		unreach_nodes = set()
+		for node in self.nei_nodes:
+			try:
+				response = requests.post(f'http://{node}/heartbeat/receive', data=post_data)
+			except Exception as err:
+				trace = traceback.format_exc()
+				msg = "[Exception] %s\n%s" % (str(err), trace);
+				print(msg)
+				self.logger.error(msg)
+				unreach_nodes.add(node)
+				continue
+			values = response.json()
+			required = ['message']
+			if not all (k in values for k in required):
+				print(f'Heartbeat Error: {node}')
+				continue
+			if values['message'] == 'RESET':
+				self.role = Role.Follower
+				break
+			elif values['message'] == 'OK':
+				self.confirm_count = self.confirm_count + 1
+		self.UpdateNeiNode(unreach_nodes)	
+		if self.neighbor_num == 0 or self.confirm_count > self.neighbor_num/2:
+			self.state = NodeState.commit.value
+			return True		
+		else:
+			# continue to update
+			return False
+		pass
+	def CommitOperator(self):
+		self.state = NodeState.heartbeat.value
+		post_data = json.dumps({
+			'message_type': MessageType.commit.value,
+			'sender': self.address,
+			'message': self.message
+		})	
+		unreach_nodes = set()
+		for node in self.nei_nodes:
+			try:
+				response = requests.post(f'http://{node}/heartbeat/receive', data=post_data)
+			except Exception as err:
+				trace = traceback.format_exc()
+				msg = "[Exception] %s\n%s" % (str(err), trace);
+				print(msg)
+				self.logger.error(msg)
+				unreach_nodes.add(node)
+				continue
+			values = response.json()
+			required = ['message']
+			if not all (k in values for k in required):
+				print(f'Heartbeat Error: {node}')
+				continue
+			if values['message'] == 'RESET':
+				self.role = Role.Follower
+				break
+		self.UpdateNeiNode(unreach_nodes)	
+	def Send2Client(self, message):
+		post_data = json.dumps({
+			'sender': self.address,
+			'message': message
+		})
+		try:				
+			response = requests.post(f'http://{self.client_address}/heartbeat/receive', data=post_data)
+		except Exception as err:
+			trace = traceback.format_exc()
+			msg = "[Exception] %s\n%s" % (str(err), trace);
+			print(msg)
+			self.logger.error(msg)
+			unreach_nodes.add(node)
+		values = response.json()
+		return values
+	def Heartbeat(self):
+		"""
+		Function: The Leader keeps the relationship with Followers
+		"""
+		#handle_type = MessageType.heartbeat.value
+		#if self.is_client_on:
+		#	   handle_type = 1
+		if self.state == NodeState.heartbeat.value:
+			self.HbOperator()
+		elif self.state == NodeState.update.value:
+			while not self.UpdateOperator():
+				time.sleep(0.1) # sleep 100ms
+				pass
+		elif self.state == NodeState.commit.value:
+			self.CommitOperator()
+			self.UpdateLog()			
+			# rely to client
+			self.Send2Client("Commit successfully")			
 		pass
 	def HasElecting(self):
 		if self.has_electing:
@@ -142,22 +234,33 @@ class Node:
 				self.support_count = self.support_count + 1
 		self.UpdateNeiNode(unreach_nodes)
 		if self.support_count > self.neighbor_num/2:
+			self.state = NodeState.heartbeat.value
 			self.role = Role.Leader
 			return True
 		elif self.support_count == self.neighbor_num/2 and not self.has_electing:
-			self.has_electing = True
+			self.has_electing = True			
+			self.state = NodeState.heartbeat.value
 			self.role = Role.Leader
 			return True
 		self.role = Role.Follower
 		return False
 		pass
-	def RequestHandle(self, message):
+	def Rely2Client(self, values):
 		"""
 		Function: Leader deals with the request from clients.
 		Param:					  
 		"""
-		self.message = message
+		self.client_address = values['sender']		
+		self.message = values['message']
 		self.is_client_on = True
+		self.state = NodeState.update.value
+		response = {
+			'message': "OK"
+		}
+		return response
+		pass
+	def UpdateLog(self, message):
+		print('update log file')
 		pass
 	def HeartbeatReceive(self, values):
 		if values['message_type']==MessageType.heartbeat.value: # Candidate
@@ -172,9 +275,15 @@ class Node:
 				response = {'message': 'NO'}
 			else:
 				response = {'message': 'OK'}
-		elif values['message_type'] == MessageType.operation.value: # Candidate
-			print('operation')
+		elif values['message_type'] == MessageType.update.value: # Candidate
+			print('updating')
 			response = {'message': 'OK'}
+		elif values['message_type'] == MessageType.commit.value: # Candidate
+			print('commit')
+			if self.UpdateLog():
+				response = {'message': 'OK'}
+			else:
+				response = {'message': 'ERROR'}
 		return response
 	def ConfirmLeader(self):
 		"""
@@ -239,6 +348,15 @@ def full_nodes():
 		'nodes': nodes,
 		'length': len(nodes),
 	}
+	return jsonify(response), 200  
+@app.route('/update', methods=['POST'])
+def Update():	
+	values = request.get_json(force=True)
+	required = ['sender', 'message']
+	if not all(k in values for k in required):
+		return 'Missing values', 400
+	response = leader.Rely2Client(values)
+	
 	return jsonify(response), 200  
 
 # thread function
