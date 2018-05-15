@@ -51,10 +51,11 @@ class Blockchain:
             print(f'{block}')
             print("\n-----------\n")
             # Check that the hash of the block is correct
-            if block['previous_hash'] != self.hash(last_block):
+            last_block_hash = self.hash(last_block)
+            if block['previous_hash'] != last_block_hash:
                 return False
 
-            # Check that the Proof of Work is correct
+            # Check that the Proof of Work is correct            
             if not self.valid_proof(last_block['proof'], block['proof'], block['previous_hash']):
                 return False
 
@@ -139,7 +140,7 @@ class Blockchain:
 
     @property
     def last_block(self):
-        return self.chain[-1]
+        return self.chain[-1]  
 
     @staticmethod
     def hash(block):
