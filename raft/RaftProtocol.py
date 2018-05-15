@@ -30,7 +30,7 @@ class NodeState(Enum):
 	update = 2
 	commit = 3
 class Node:	 
-	def __init__(self, logger):
+	def __init__(self):
 		self.role = Role.Follower
 		self.address = ""
 		self.client_address = ""
@@ -44,7 +44,7 @@ class Node:
 		self.confirm_count = 0
 		self.leader_on = False
 		self.has_electing = False
-		self.logger = logger
+		self.logger = None
 		self.state = NodeState.heartbeat.value # only for leader
 		pass
 	def RegisterNodes(self, address):
@@ -78,7 +78,7 @@ class Node:
 			except Exception as err:
 				trace = traceback.format_exc()
 				msg = "[Exception] %s\n%s" % (str(err), trace);
-				print(msg)
+				print(f'Error POST[http://{node}/heartbeat/receive]')
 				self.logger.error(msg)
 				unreach_nodes.add(node)
 				continue
@@ -105,8 +105,8 @@ class Node:
 				response = requests.post(f'http://{node}/heartbeat/receive', data=post_data)
 			except Exception as err:
 				trace = traceback.format_exc()
-				msg = "[Exception] %s\n%s" % (str(err), trace);
-				print(msg)
+				msg = "[Exception] %s\n%s" % (str(err), trace)				
+				print(f'Error POST[http://{node}/heartbeat/receive]')
 				self.logger.error(msg)
 				unreach_nodes.add(node)
 				continue
@@ -141,8 +141,8 @@ class Node:
 				response = requests.post(f'http://{node}/heartbeat/receive', data=post_data)
 			except Exception as err:
 				trace = traceback.format_exc()
-				msg = "[Exception] %s\n%s" % (str(err), trace);
-				print(msg)
+				msg = "[Exception] %s\n%s" % (str(err), trace)
+				print(f'Error POST[http://{node}/heartbeat/receive]')
 				self.logger.error(msg)
 				unreach_nodes.add(node)
 				continue
@@ -164,8 +164,8 @@ class Node:
 			response = requests.post(f'http://{self.client_address}/heartbeat/receive', data=post_data)
 		except Exception as err:
 			trace = traceback.format_exc()
-			msg = "[Exception] %s\n%s" % (str(err), trace);
-			print(msg)
+			msg = "[Exception] %s\n%s" % (str(err), trace)
+			print(f'Error POST[http://{node}/heartbeat/receive]')
 			self.logger.error(msg)
 			return False
 		#values = response.json()
@@ -220,8 +220,8 @@ class Node:
 				response = requests.post(f'http://{node}/heartbeat/receive', data=post_data);
 			except Exception as err:
 				trace = traceback.format_exc()
-				msg = "[Exception] %s\n%s" % (str(err), trace);
-				print(msg)
+				msg = "[Exception] %s\n%s" % (str(err), trace)
+				print(f'Error POST[http://{node}/heartbeat/receive]')
 				self.logger.error(msg)
 				unreach_nodes.add(node)
 				continue
@@ -250,17 +250,18 @@ class Node:
 		Function: Leader deals with the request from clients.
 		Param:					  
 		"""
+		if self.role != Role.Leader:			
+			return {'message': "Not Leader"} 
 		self.client_address = values['sender']		
 		self.message = values['message']
 		self.is_client_on = True
 		self.state = NodeState.update.value
-		response = {
-			'message': "OK"
-		}
-		return response
-		pass
+		return {'message': "OK"}
+		
 	def UpdateLog(self, message):
-		print('commit log updating')
+		msg = f'Update Log[{message}]'
+		print(msg)
+		self.logger.info(msg)
 		return True
 		pass
 	def HeartbeatReceive(self, values):
@@ -304,6 +305,7 @@ class Node:
 		Function: Followers monitor the time_count, until election timeout.
 		"""
 		self.address = address
+		self.logger = common.CommonHelper.GetLogger('log/%s_%s.log' % (time.strftime("%Y%m%d"),self.address[-4:]));
 		while(1):
 			print(f'{self.address} {self.role} Start!')
 			if self.role == Role.Leader:
@@ -319,11 +321,11 @@ class Node:
 
 # Instantiate the Node
 app = Flask(__name__)
-logger = common.CommonHelper.GetLogger('log/%s.log' % time.strftime("%Y%m%d"));
-leader = Node(logger)
+
+leader = Node()
 @app.route('/register', methods=['POST'])
 def RegisterNodes():
-	values = request.get_json()
+	values = request.get_json(force=True)
 	nodes = values.get('nodes')
 	if nodes is None:
 		return "Error: Please supply a valid list of nodes", 400
@@ -351,7 +353,7 @@ def full_nodes():
 		'nodes': nodes,
 		'length': len(nodes),
 	}
-	return jsonify(response), 200  
+	return jsonify(response), 200
 @app.route('/update', methods=['POST'])
 def Update():	
 	values = request.get_json(force=True)

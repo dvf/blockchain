@@ -6,6 +6,7 @@ import logging.handlers;
 import datetime,time;
 import hashlib;
 import struct;
+import json
 #import pexpect;
 import re;
 
@@ -127,6 +128,14 @@ def GetDatetimeFromString(str_time):
         str_time += '0';
     t = datetime.datetime.strptime(str_time, '%Y-%m-%d %H:%M:%S.%f')
     return t
+#File Operator Part
+def ReadJsonFile(path):
+	with open(path,'r') as load_f:
+		load_dict = json.load(load_f)
+	return load_dict
+def WriteJsonFile(path, data):
+	with open(path, 'w') as json_file:
+		json_file.write(json.dumps(data))
 
 if __name__ == '__main__':
     print(GetHostIp());

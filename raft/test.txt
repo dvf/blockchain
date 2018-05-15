@@ -1,0 +1,10 @@
+import os
+import common.CommonHelper
+import json
+def ReadJsonFile(path):
+	with open(path,'r') as load_f:
+		load_dict = json.load(load_f)
+		return load_dict
+		
+if __name__ == '__main__':
+	
