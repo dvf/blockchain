@@ -167,9 +167,9 @@ class Node:
 			msg = "[Exception] %s\n%s" % (str(err), trace);
 			print(msg)
 			self.logger.error(msg)
-			unreach_nodes.add(node)
-		values = response.json()
-		return values
+			return False
+		#values = response.json()
+		return True
 	def Heartbeat(self):
 		"""
 		Function: The Leader keeps the relationship with Followers
@@ -185,7 +185,7 @@ class Node:
 				pass
 		elif self.state == NodeState.commit.value:
 			self.CommitOperator()
-			self.UpdateLog()			
+			self.UpdateLog(self.message)			
 			# rely to client
 			self.Send2Client("Commit successfully")			
 		pass
@@ -260,27 +260,30 @@ class Node:
 		return response
 		pass
 	def UpdateLog(self, message):
-		print('update log file')
+		print('commit log updating')
+		return True
 		pass
 	def HeartbeatReceive(self, values):
 		if values['message_type']==MessageType.heartbeat.value: # Candidate
-			leader.leader_on = True
-			leader.leader = values['sender']
-			if leader.role == Role.Leader:
+			self.leader_on = True
+			self.leader = values['sender']
+			if self.role == Role.Leader:
 				response = {'message': 'RESET'}
 			else:
 				response = {'message': 'OK'}
 		elif values['message_type'] == MessageType.election.value: # Leader
-			if leader.HasElecting():
+			if self.HasElecting():
 				response = {'message': 'NO'}
 			else:
 				response = {'message': 'OK'}
 		elif values['message_type'] == MessageType.update.value: # Candidate
+			self.leader_on = True
 			print('updating')
 			response = {'message': 'OK'}
 		elif values['message_type'] == MessageType.commit.value: # Candidate
+			self.leader_on = True
 			print('commit')
-			if self.UpdateLog():
+			if self.UpdateLog(values['message']):
 				response = {'message': 'OK'}
 			else:
 				response = {'message': 'ERROR'}
@@ -303,7 +306,7 @@ class Node:
 		self.address = address
 		while(1):
 			print(f'{self.address} {self.role} Start!')
-			if self.role == Role.Leader:			
+			if self.role == Role.Leader:
 				time.sleep(2)
 				rel = self.Heartbeat()
 			elif self.role == Role.Follower:
