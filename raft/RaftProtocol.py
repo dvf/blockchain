@@ -36,7 +36,6 @@ class Node:
 		self.client_address = ""
 		self.nei_nodes = set()
 		self.neighbor_num = 0
-		self.time_count = 0
 		self.leader = ""		  # restore the Leader`s address, "ip:port"
 		self.message = ""
 		self.is_client_on = False
@@ -50,8 +49,8 @@ class Node:
 	def RegisterNodes(self, address):
 		"""
 		Function: Add a new node to the list of nodes
-
-		:param address: Address of node. Eg. 'http:#192.168.0.5:5000'
+		Param 
+			address: Address of node. Eg. 'http:#192.168.0.5:5000'
 		"""
 		parsed_url = urlparse(address)
 		if parsed_url.netloc:
@@ -64,8 +63,14 @@ class Node:
 		self.neighbor_num = len(self.nei_nodes)
 		pass
 	def GetNeiNodes(self):
+		'''
+		Function: get the neighbor nodes
+		'''
 		return [item for item in leader.nei_nodes]
 	def HbOperator(self):
+		'''
+		Function: heartbeat function
+		'''
 		post_data = json.dumps({
 			'message_type': MessageType.heartbeat.value,
 			'sender': self.address,
@@ -92,7 +97,10 @@ class Node:
 				break
 		self.UpdateNeiNode(unreach_nodes)		
 		pass
-	def UpdateOperator(self):		
+	def UpdateOperator(self):	
+		'''
+		Function: update the message among the nodes
+		'''
 		post_data = json.dumps({
 			'message_type': MessageType.update.value,
 			'sender': self.address,
@@ -129,6 +137,9 @@ class Node:
 			return False
 		pass
 	def CommitOperator(self):
+		'''
+		Function: commit the update
+		'''
 		self.state = NodeState.heartbeat.value
 		post_data = json.dumps({
 			'message_type': MessageType.commit.value,
@@ -156,6 +167,11 @@ class Node:
 				break
 		self.UpdateNeiNode(unreach_nodes)	
 	def Send2Client(self, message):
+		'''
+		Function: send the message to the client
+		Param: 
+			message: data sended to client
+		'''
 		post_data = json.dumps({
 			'sender': self.address,
 			'message': message
@@ -190,6 +206,9 @@ class Node:
 			self.Send2Client("Commit successfully")			
 		pass
 	def HasElecting(self):
+		'''
+		Function: Judge the eletion state
+		'''
 		if self.has_electing:
 			return True
 		else:
@@ -197,6 +216,11 @@ class Node:
 			return False
 		pass
 	def UpdateNeiNode(self, remove_nodes):
+		'''
+		Function: remove the unlinked nodes 
+		Param:
+			remove_nodes: unlinked nodes
+		'''
 		for node in remove_nodes:
 			self.nei_nodes.remove(node)
 		self.neighbor_num = len(self.nei_nodes)
@@ -205,7 +229,7 @@ class Node:
 		"""
 		Function: Candidate apply to be leader
 		Param:
-			message: 
+			
 		"""
 		post_data = json.dumps({
 			'message_type': MessageType.election.value,
@@ -236,11 +260,13 @@ class Node:
 		if self.support_count > self.neighbor_num/2:
 			self.state = NodeState.heartbeat.value
 			self.role = Role.Leader
+			self.info(f'Elect Leader[{self.address}]')
 			return True
 		elif self.support_count == self.neighbor_num/2 and not self.has_electing:
 			self.has_electing = True			
 			self.state = NodeState.heartbeat.value
 			self.role = Role.Leader
+			self.info(f'Elect Leader[{self.address}]')
 			return True
 		self.role = Role.Follower
 		return False
@@ -248,7 +274,8 @@ class Node:
 	def Rely2Client(self, values):
 		"""
 		Function: Leader deals with the request from clients.
-		Param:					  
+		Param:	
+			values: data from clients
 		"""
 		if self.role != Role.Leader:			
 			return {'message': "Not Leader"} 
@@ -259,12 +286,22 @@ class Node:
 		return {'message': "OK"}
 		
 	def UpdateLog(self, message):
+		'''
+		Function: update the log as request from clients
+		Param:
+			message: updating data
+		'''
 		msg = f'Update Log[{message}]'
 		print(msg)
 		self.logger.info(msg)
 		return True
 		pass
 	def HeartbeatReceive(self, values):
+		'''
+		Function: resolve the requests from the other nodes 
+		Param: 
+			values: data of requests
+		'''
 		if values['message_type']==MessageType.heartbeat.value: # Candidate
 			self.leader_on = True
 			self.leader = values['sender']
@@ -302,21 +339,26 @@ class Node:
 		pass 
 	def Start(self, address):
 		"""
-		Function: Followers monitor the time_count, until election timeout.
+		Function: Followers monitor the time delay, until election timeout.
 		"""
 		self.address = address
 		self.logger = common.CommonHelper.GetLogger('log/%s_%s.log' % (time.strftime("%Y%m%d"),self.address[-4:]));
 		while(1):
-			print(f'{self.address} {self.role} Start!')
-			if self.role == Role.Leader:
-				time.sleep(2)
-				rel = self.Heartbeat()
-			elif self.role == Role.Follower:
-				time.sleep(3)
-				self.ConfirmLeader()
-			elif self.role == Role.Candidate:
-				self.Election()
-					
+			try:
+				print(f'{self.address} {self.role} Start!')
+				if self.role == Role.Leader:
+					time.sleep(2)
+					rel = self.Heartbeat()
+				elif self.role == Role.Follower:
+					time.sleep(3)
+					self.ConfirmLeader()
+				elif self.role == Role.Candidate:
+					self.Election()
+			except Exception as err:
+				trace = traceback.format_exc()
+				msg = "[Exception] %s\n%s" % (str(err), trace)
+				print(f'Running Error!')
+				self.logger.error(msg)
 		pass
 
 # Instantiate the Node

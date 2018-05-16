@@ -19,8 +19,7 @@ def NodeRun(port):
 def RegisterNodes(target, nodes):
 	post_data = json.dumps({			
 			"nodes": nodes
-		}) 	
-	print(post_data)
+		}) 
 	response = requests.post(f'http://{target}/register', data=post_data)
 	pass
 
@@ -34,18 +33,17 @@ def InitNodes(nodes):
 def UpdateOperator(message):
 	pass
 if __name__ == '__main__':
-	cfg = common.CommonHelper.ReadJsonFile("conf/configure.json")
-	
+	cfg = common.CommonHelper.ReadJsonFile("conf/configure.json")	
 	Parr = []
 	for address in cfg["nodes"]:
-		p=Process(target = NodeRun,args = (address[-4:],)) #必须加,号
+		p = Process(target = NodeRun,args = (address[-4:],)) #必须加,号
 		Parr.append(p)
 	
 	for p in Parr:
 		p.start()
 	time.sleep(3)
 	InitNodes(cfg["nodes"])
-	print("Main Process -- Client:")
+	print("Main Process Nodes Initialize Successfully!")
 	time.sleep(5)
 	
 	
