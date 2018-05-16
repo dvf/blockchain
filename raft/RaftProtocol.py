@@ -261,6 +261,7 @@ class Node:
 			self.state = NodeState.heartbeat.value
 			self.role = Role.Leader
 			self.info(f'Elect Leader[{self.address}]')
+			self.logger.info(f'Elect Leader[{self.address}]')
 			return True
 		elif self.support_count == self.neighbor_num/2 and not self.has_electing:
 			self.has_electing = True			
