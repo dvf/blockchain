@@ -1,7 +1,9 @@
 import hashlib
 import json
+import unittest
 from unittest import TestCase
-
+import sys
+sys.path.append("..")
 from blockchain import Blockchain
 
 
@@ -102,3 +104,6 @@ class TestHashingAndProofs(BlockchainTestCase):
 
         assert len(new_hash) == 64
         assert new_hash == self.blockchain.hash(new_block)
+
+if __name__ == '__main__':
+	unittest.main()
