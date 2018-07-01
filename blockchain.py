@@ -51,14 +51,12 @@ class Blockchain:
         while current_index < len(chain):
             block = chain[current_index]
             # Check that the hash of the block is correct
-            t=self.hash(last_block)
-            if block['previous_hash'] != t:
-                print("here "+ current_index)
+            last_block_hash = self.hash(last_block)
+            if block['previous_hash'] != last_block_hash:
                 return False
             x=self.valid_proof(last_block['proof'], block['proof'], block['previous_hash'])
             # Check that the Proof of Work is correct
-            if not x :
-                print("here2 " + current_index)
+            if not self.valid_proof(last_block['proof'], block['proof'], last_block_hash):
                 return False
 
             last_block = block
