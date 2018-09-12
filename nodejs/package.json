@@ -1,0 +1,23 @@
+{
+  "name": "blockchain",
+  "version": "1.0.0",
+  "description": "Simple Blockchain based on 'Learn Blockchains by Building One' article (https://hackernoon.com/learn-blockchains-by-building-one-117428612f46)",
+  "repository": "https://github.com/maxcrystal/blockchain-nodejs.git",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "run": "run.js"
+  },
+  "keywords": [
+    "nodejs",
+    "blockchain"
+  ],
+  "author": "Max Crystal",
+  "license": "MIT",
+  "devDependencies": {
+    "babel-preset-env": "^1.7.0",
+    "babel-register": "^6.26.0"
+  }
+}
