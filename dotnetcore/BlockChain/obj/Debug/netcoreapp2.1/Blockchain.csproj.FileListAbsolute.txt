@@ -1,0 +1,14 @@
+/home/armin/code/Blockchain/csharp/Blockchain/bin/Debug/netcoreapp2.1/Blockchain.deps.json
+/home/armin/code/Blockchain/csharp/Blockchain/bin/Debug/netcoreapp2.1/Blockchain.runtimeconfig.json
+/home/armin/code/Blockchain/csharp/Blockchain/bin/Debug/netcoreapp2.1/Blockchain.runtimeconfig.dev.json
+/home/armin/code/Blockchain/csharp/Blockchain/bin/Debug/netcoreapp2.1/Blockchain.dll
+/home/armin/code/Blockchain/csharp/Blockchain/bin/Debug/netcoreapp2.1/Blockchain.pdb
+/home/armin/code/Blockchain/csharp/Blockchain/obj/Debug/netcoreapp2.1/Blockchain.csprojAssemblyReference.cache
+/home/armin/code/Blockchain/csharp/Blockchain/obj/Debug/netcoreapp2.1/Blockchain.csproj.CoreCompileInputs.cache
+/home/armin/code/Blockchain/csharp/Blockchain/obj/Debug/netcoreapp2.1/Blockchain.RazorAssemblyInfo.cache
+/home/armin/code/Blockchain/csharp/Blockchain/obj/Debug/netcoreapp2.1/Blockchain.RazorAssemblyInfo.cs
+/home/armin/code/Blockchain/csharp/Blockchain/obj/Debug/netcoreapp2.1/Blockchain.AssemblyInfoInputs.cache
+/home/armin/code/Blockchain/csharp/Blockchain/obj/Debug/netcoreapp2.1/Blockchain.AssemblyInfo.cs
+/home/armin/code/Blockchain/csharp/Blockchain/obj/Debug/netcoreapp2.1/Blockchain.RazorTargetAssemblyInfo.cache
+/home/armin/code/Blockchain/csharp/Blockchain/obj/Debug/netcoreapp2.1/Blockchain.dll
+/home/armin/code/Blockchain/csharp/Blockchain/obj/Debug/netcoreapp2.1/Blockchain.pdb

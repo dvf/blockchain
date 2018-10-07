@@ -1,0 +1,17 @@
+/home/armin/code/Blockchain/csharp/BlockChain.Tests/bin/Debug/netcoreapp2.1/xunit.runner.visualstudio.dotnetcore.testadapter.dll
+/home/armin/code/Blockchain/csharp/BlockChain.Tests/bin/Debug/netcoreapp2.1/xunit.runner.reporters.netcoreapp10.dll
+/home/armin/code/Blockchain/csharp/BlockChain.Tests/bin/Debug/netcoreapp2.1/xunit.runner.utility.netcoreapp10.dll
+/home/armin/code/Blockchain/csharp/BlockChain.Tests/bin/Debug/netcoreapp2.1/Blockchain.Tests.deps.json
+/home/armin/code/Blockchain/csharp/BlockChain.Tests/bin/Debug/netcoreapp2.1/Blockchain.Tests.runtimeconfig.json
+/home/armin/code/Blockchain/csharp/BlockChain.Tests/bin/Debug/netcoreapp2.1/Blockchain.Tests.runtimeconfig.dev.json
+/home/armin/code/Blockchain/csharp/BlockChain.Tests/bin/Debug/netcoreapp2.1/Blockchain.Tests.dll
+/home/armin/code/Blockchain/csharp/BlockChain.Tests/bin/Debug/netcoreapp2.1/Blockchain.Tests.pdb
+/home/armin/code/Blockchain/csharp/BlockChain.Tests/bin/Debug/netcoreapp2.1/Blockchain.dll
+/home/armin/code/Blockchain/csharp/BlockChain.Tests/bin/Debug/netcoreapp2.1/Blockchain.pdb
+/home/armin/code/Blockchain/csharp/BlockChain.Tests/obj/Debug/netcoreapp2.1/Blockchain.Tests.csprojAssemblyReference.cache
+/home/armin/code/Blockchain/csharp/BlockChain.Tests/obj/Debug/netcoreapp2.1/Blockchain.Tests.csproj.CoreCompileInputs.cache
+/home/armin/code/Blockchain/csharp/BlockChain.Tests/obj/Debug/netcoreapp2.1/Blockchain.Tests.AssemblyInfoInputs.cache
+/home/armin/code/Blockchain/csharp/BlockChain.Tests/obj/Debug/netcoreapp2.1/Blockchain.Tests.AssemblyInfo.cs
+/home/armin/code/Blockchain/csharp/BlockChain.Tests/obj/Debug/netcoreapp2.1/Blockchain.Tests.csproj.CopyComplete
+/home/armin/code/Blockchain/csharp/BlockChain.Tests/obj/Debug/netcoreapp2.1/Blockchain.Tests.dll
+/home/armin/code/Blockchain/csharp/BlockChain.Tests/obj/Debug/netcoreapp2.1/Blockchain.Tests.pdb

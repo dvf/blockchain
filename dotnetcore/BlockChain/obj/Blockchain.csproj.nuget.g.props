@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
+    <RestoreSuccess Condition=" '$(RestoreSuccess)' == '' ">True</RestoreSuccess>
+    <RestoreTool Condition=" '$(RestoreTool)' == '' ">NuGet</RestoreTool>
+    <ProjectAssetsFile Condition=" '$(ProjectAssetsFile)' == '' ">/home/armin/code/Blockchain/csharp/BlockChain/obj/project.assets.json</ProjectAssetsFile>
+    <NuGetPackageRoot Condition=" '$(NuGetPackageRoot)' == '' ">/home/armin/.nuget/packages/</NuGetPackageRoot>
+    <NuGetPackageFolders Condition=" '$(NuGetPackageFolders)' == '' ">/home/armin/.nuget/packages/;/usr/share/dotnet/sdk/NuGetFallbackFolder</NuGetPackageFolders>
+    <NuGetProjectStyle Condition=" '$(NuGetProjectStyle)' == '' ">PackageReference</NuGetProjectStyle>
+    <NuGetToolVersion Condition=" '$(NuGetToolVersion)' == '' ">4.8.0</NuGetToolVersion>
+  </PropertyGroup>
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+  </PropertyGroup>
+  <ImportGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
+    <Import Project="/usr/share/dotnet/sdk/NuGetFallbackFolder/microsoft.netcore.app/2.1.0/build/netcoreapp2.1/Microsoft.NETCore.App.props" Condition="Exists('/usr/share/dotnet/sdk/NuGetFallbackFolder/microsoft.netcore.app/2.1.0/build/netcoreapp2.1/Microsoft.NETCore.App.props')" />
+    <Import Project="/usr/share/dotnet/sdk/NuGetFallbackFolder/microsoft.extensions.fileproviders.embedded/2.1.1/build/netstandard2.0/Microsoft.Extensions.FileProviders.Embedded.props" Condition="Exists('/usr/share/dotnet/sdk/NuGetFallbackFolder/microsoft.extensions.fileproviders.embedded/2.1.1/build/netstandard2.0/Microsoft.Extensions.FileProviders.Embedded.props')" />
+    <Import Project="/usr/share/dotnet/sdk/NuGetFallbackFolder/microsoft.extensions.configuration.usersecrets/2.1.1/build/netstandard2.0/Microsoft.Extensions.Configuration.UserSecrets.props" Condition="Exists('/usr/share/dotnet/sdk/NuGetFallbackFolder/microsoft.extensions.configuration.usersecrets/2.1.1/build/netstandard2.0/Microsoft.Extensions.Configuration.UserSecrets.props')" />
+    <Import Project="/usr/share/dotnet/sdk/NuGetFallbackFolder/microsoft.entityframeworkcore.design/2.1.1/build/netcoreapp2.0/Microsoft.EntityFrameworkCore.Design.props" Condition="Exists('/usr/share/dotnet/sdk/NuGetFallbackFolder/microsoft.entityframeworkcore.design/2.1.1/build/netcoreapp2.0/Microsoft.EntityFrameworkCore.Design.props')" />
+    <Import Project="/usr/share/dotnet/sdk/NuGetFallbackFolder/microsoft.aspnetcore.mvc.razor.extensions/2.1.1/build/netstandard2.0/Microsoft.AspNetCore.Mvc.Razor.Extensions.props" Condition="Exists('/usr/share/dotnet/sdk/NuGetFallbackFolder/microsoft.aspnetcore.mvc.razor.extensions/2.1.1/build/netstandard2.0/Microsoft.AspNetCore.Mvc.Razor.Extensions.props')" />
+    <Import Project="/usr/share/dotnet/sdk/NuGetFallbackFolder/microsoft.aspnetcore.razor.design/2.1.1/build/netstandard2.0/Microsoft.AspNetCore.Razor.Design.props" Condition="Exists('/usr/share/dotnet/sdk/NuGetFallbackFolder/microsoft.aspnetcore.razor.design/2.1.1/build/netstandard2.0/Microsoft.AspNetCore.Razor.Design.props')" />
+    <Import Project="/usr/share/dotnet/sdk/NuGetFallbackFolder/microsoft.aspnetcore.app/2.1.1/build/netcoreapp2.1/Microsoft.AspNetCore.App.props" Condition="Exists('/usr/share/dotnet/sdk/NuGetFallbackFolder/microsoft.aspnetcore.app/2.1.1/build/netcoreapp2.1/Microsoft.AspNetCore.App.props')" />
+  </ImportGroup>
+</Project>
