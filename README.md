@@ -22,6 +22,21 @@ $ pipenv install
     * `$ pipenv run python blockchain.py -p 5001`
     * `$ pipenv run python blockchain.py --port 5002`
     
+5. Registering a node and Resolve chain:
+```
+$ curl -X POST -H "Content-Type: application/json" -d '{ 
+"nodes": ["http://127.0.0.1:5001"]}' "http://localhost:5000/nodes/register"`
+{
+  "message": "New nodes have been added", 
+  "total_nodes": [
+    "127.0.0.1:5001"
+  ]
+}
+
+$ curl -X GET http://localhost:5001/nodes/resolve
+
+```
+    
 ## Docker
 
 Another option for running this blockchain program is to use Docker.  Follow the instructions below to create a local Docker container:
