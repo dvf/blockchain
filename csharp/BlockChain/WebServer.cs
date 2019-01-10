@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using Newtonsoft.Json;
 using System.Configuration;
 using System.IO;
 using System.Net;
@@ -8,11 +9,15 @@ namespace BlockChainDemo
 {
     public class WebServer
     {
-        public WebServer(BlockChain chain)
+        public WebServer(BlockChain chain, string host = null,string port = null)
         {
             var settings = ConfigurationManager.AppSettings;
-            string host = settings["host"]?.Length > 1 ? settings["host"] : "localhost";
-            string port = settings["port"]?.Length > 1 ? settings["port"] : "12345";
+            var localhost = string.IsNullOrEmpty(host)
+                ? (settings["host"]?.Length > 1 ? settings["host"] : "localhost")
+                : host;
+
+            var localport = string.IsNullOrEmpty(port)
+                ?(settings["port"]?.Length > 1 ? settings["port"] : "12345"):port;
 
             var server = new TinyWebServer.WebServer(request =>
                 {
@@ -57,21 +62,26 @@ namespace BlockChainDemo
                             var urlList = new { Urls = new string[0] };
                             var obj = JsonConvert.DeserializeAnonymousType(json, urlList);
                             return chain.RegisterNodes(obj.Urls);
-
-                        //GET: http://localhost:12345/nodes/resolve
+                        
+                        //GET http://localhost:12345/nodes
+                        case "/nodes":
+                            return chain.GetAllRegisteredNodes();
+                        
+                       //GET: http://localhost:12345/nodes/resolve
                         case "/nodes/resolve":
                             return chain.Consensus();
                     }
 
                     return "";
                 },
-                $"http://{host}:{port}/mine/",
-                $"http://{host}:{port}/transactions/new/",
-                $"http://{host}:{port}/chain/",
-                $"http://{host}:{port}/nodes/register/",
-                $"http://{host}:{port}/nodes/resolve/"
+                $"http://{localhost}:{localport}/mine/",
+                $"http://{localhost}:{localport}/transactions/new/",
+                $"http://{localhost}:{localport}/chain/",
+                $"http://{localhost}:{localport}/nodes/register/",
+                $"http://{localhost}:{localport}/nodes/",
+                $"http://{localhost}:{localport}/nodes/resolve/"
             );
-
+            Console.WriteLine($"Server is now listining on http://{localhost}:{localport}");
             server.Run();
         }
     }

@@ -56,6 +56,8 @@
     <Compile Include="BlockChain.cs" />
     <Compile Include="Node.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="NodeResolveResult.cs" />
+    <Compile Include="ResolveStatus.cs" />
     <Compile Include="Transaction.cs" />
     <Compile Include="WebServer.cs" />
   </ItemGroup>

@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Runtime.Remoting.Messaging;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -59,16 +60,32 @@ namespace BlockChainDemo
             return true;
         }
 
-        private bool ResolveConflicts()
+        private ResolveStatus ResolveConflicts()
         {
             List<Block> newChain = null;
+            ResolveStatus resolveStatus = new ResolveStatus();
             int maxLength = _chain.Count;
 
             foreach (Node node in _nodes)
             {
                 var url = new Uri(node.Address, "/chain");
                 var request = (HttpWebRequest)WebRequest.Create(url);
-                var response = (HttpWebResponse)request.GetResponse();
+                HttpWebResponse response;
+                try
+                {
+                    
+                    response = (HttpWebResponse)request.GetResponse();
+                }
+                catch (Exception exception)
+                {
+                    resolveStatus.ResolveResults.Add(new NodeResolveResult()
+                    {
+                        NodeUrl = node.Address.ToString(),
+                        Status = false,
+                        ResultMessage = exception.Message
+                    });
+                    continue;
+                }
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
@@ -84,17 +101,35 @@ namespace BlockChainDemo
                     {
                         maxLength = data.chain.Count;
                         newChain = data.chain;
+                       
                     }
+                    resolveStatus.ResolveResults.Add(new NodeResolveResult()
+                    {
+                        NodeUrl = node.Address.ToString(),
+                        Status = true,
+                        ResultMessage = "Sync Success!"
+                    });
+                }
+                else
+                {
+                    resolveStatus.ResolveResults.Add(new NodeResolveResult()
+                    {
+                        NodeUrl = node.Address.ToString(),
+                        Status = false,
+                        ResultMessage = response.StatusCode.ToString()
+                    });
+                    continue;
                 }
             }
 
             if (newChain != null)
             {
                 _chain = newChain;
-                return true;
+                resolveStatus.Status = true;
+                return resolveStatus;
             }
-
-            return false;
+            resolveStatus.Status = false;
+            return resolveStatus;
         }
 
         private Block CreateNewBlock(int proof, string previousHash = null)
@@ -195,13 +230,25 @@ namespace BlockChainDemo
             return result.Substring(0, result.Length - 2);
         }
 
+        internal string GetAllRegisteredNodes()
+        {
+            var response = new
+            {
+                nodes = _nodes.ToArray(),
+                length = _nodes.Count
+            };
+            return JsonConvert.SerializeObject(response);
+        }
+
         internal string Consensus()
         {
-            bool replaced = ResolveConflicts();
+            var resoveStatus = ResolveConflicts();
+            bool replaced = resoveStatus.Status;
             string message = replaced ? "was replaced" : "is authoritive";
             
             var response = new
             {
+                ResolveStatus = resoveStatus,
                 Message = $"Our chain {message}",
                 Chain = _chain
             };
