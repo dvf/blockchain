@@ -14,6 +14,7 @@
 
             var chain = new BlockChain();
             var server = new WebServer(chain,host,port);
+            server.Start();
             System.Console.Read();
         }
     }

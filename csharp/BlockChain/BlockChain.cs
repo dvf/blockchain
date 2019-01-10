@@ -24,7 +24,7 @@ namespace BlockChainDemo
         public BlockChain()
         {
             NodeId = Guid.NewGuid().ToString().Replace("-", "");
-            CreateNewBlock(proof: 100, previousHash: "1"); //genesis block
+            CreateNewBlock(proof: 0, previousHash: "0"); //genesis block
         }
 
         //private functionality
@@ -142,7 +142,7 @@ namespace BlockChainDemo
                 Proof = proof,
                 PreviousHash = previousHash ?? GetHash(_chain.Last())
             };
-
+            block.Hash = GetSha256(block.ToString());
             _currentTransactions.Clear();
             _chain.Add(block);
             return block;
@@ -189,7 +189,7 @@ namespace BlockChainDemo
         {
             int proof = CreateProofOfWork(_lastBlock.Proof, _lastBlock.PreviousHash);
 
-            CreateTransaction(sender: "0", recipient: NodeId, amount: 1);
+            //CreateTransaction(sender: "0", recipient: NodeId, amount: 1);
             Block block = CreateNewBlock(proof /*, _lastBlock.PreviousHash*/);
 
             var response = new
@@ -268,6 +268,11 @@ namespace BlockChainDemo
             _currentTransactions.Add(transaction);
 
             return _lastBlock != null ? _lastBlock.Index + 1 : 0;
+        }
+
+        public List<Block> GetBlocks()
+        {
+            return _chain;
         }
     }
 }
