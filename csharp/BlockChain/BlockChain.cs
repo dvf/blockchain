@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -8,15 +9,34 @@ using System.Net;
 using System.Runtime.Remoting.Messaging;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace BlockChainDemo
 {
+
+    public class ShowNounceEventArgs : EventArgs
+    {
+        public ShowNounceEventArgs(string s)
+        {
+            Message = s;
+        }
+
+        public string Message { get; }
+    }
+
     public class BlockChain
     {
         private List<Transaction> _currentTransactions = new List<Transaction>();
         private List<Block> _chain = new List<Block>();
         private List<Node> _nodes = new List<Node>();
         private Block _lastBlock => _chain.Last();
+        private string difficultyLevel = "00000";
+        private static bool cancelMining = false;
+        public event EventHandler NewBlockMined;
+        public event EventHandler BlockMiningCanceled;
+        public event EventHandler ConsensusValidateRequest;
+        public delegate void ShowCurrentNounceEventHandler(object sender, ShowNounceEventArgs eventArgs);
+        public event ShowCurrentNounceEventHandler ShowCurrentNounce;
 
         public string NodeId { get; private set; }
 
@@ -24,7 +44,8 @@ namespace BlockChainDemo
         public BlockChain()
         {
             NodeId = Guid.NewGuid().ToString().Replace("-", "");
-            CreateNewBlock(proof: 0, previousHash: "0"); //genesis block
+            //var gensisProof = ProofOfWork(new List<Transaction>(), "0");
+            CreateNewBlock(proof: 513836, hash: "00000a712adde5f716eec160bef8488a1a17eda30b3734a23efca8eee81d408c", previousHash: "0"); //genesis block
         }
 
         //private functionality
@@ -49,8 +70,12 @@ namespace BlockChainDemo
                 if (block.PreviousHash != GetHash(lastBlock))
                     return false;
 
-                //Check that the Proof of Work is correct
-                if (!IsValidProof(lastBlock.Proof, block.Proof, lastBlock.PreviousHash))
+                //Original Check that the Proof of Work is correct
+                //if (!IsValidProof(lastBlock.Proof, block.Proof, lastBlock.PreviousHash))
+                //    return false;
+
+                //Alaa Check that the proof of Work is correct
+                if (!IsValidProof(block, lastBlock.PreviousHash))
                     return false;
 
                 lastBlock = block;
@@ -132,43 +157,89 @@ namespace BlockChainDemo
             return resolveStatus;
         }
 
-        private Block CreateNewBlock(int proof, string previousHash = null)
+        private Block CreateNewBlock(int proof, string hash,string previousHash = null)
         {
             var block = new Block
             {
                 Index = _chain.Count,
-                Timestamp = DateTime.UtcNow,
+                Timestamp = DateTime.Now,
                 Transactions = _currentTransactions.ToList(),
-                Proof = proof,
+                Nounce = proof,
                 PreviousHash = previousHash ?? GetHash(_chain.Last())
             };
-            block.Hash = GetSha256(block.ToString());
+            block.Hash = hash;
             _currentTransactions.Clear();
             _chain.Add(block);
             return block;
         }
 
-        private int CreateProofOfWork(int lastProof, string previousHash)
-        {
-            int proof = 0;
-            while (!IsValidProof(lastProof, proof, previousHash))
-                proof++;
+        //Original Proof of Work
+        //private int CreateProofOfWork(int lastProof, string previousHash)
+        //{
+        //    int proof = 0;
+        //    while (!IsValidProof(lastProof, proof, previousHash))
+        //        proof++;
 
-            return proof;
+        //    return proof;
+        //}
+
+        //Alaa Proof of Work
+        private Tuple<int, string> ProofOfWork(List<Transaction> data, string previousHash)
+        {
+            int nounce = 0;
+            int showNounceCounter = 0;
+            bool isSuccess;
+            string hash;
+            do
+            {
+                if (cancelMining)
+                {
+                    cancelMining = false;
+                    return new Tuple<int, string>(-1,"canceled");
+                }
+
+                showNounceCounter++;
+                var dataText = JsonConvert.SerializeObject(data);
+                string guess = $"{dataText}{nounce}{previousHash}";
+                 hash = GetSha256(guess);
+                if (showNounceCounter == 100)
+                {
+                    OnShowCurrentNounce(new ShowNounceEventArgs(nounce.ToString()));
+
+                    showNounceCounter = 0;
+                }
+                 isSuccess = hash.StartsWith(difficultyLevel);
+                if (!isSuccess)
+                    nounce++;
+            } while (!isSuccess);
+            OnShowCurrentNounce(new ShowNounceEventArgs(nounce.ToString()));
+            return  new Tuple<int, string>(nounce, hash);
         }
 
-        private bool IsValidProof(int lastProof, int proof, string previousHash)
-        {
-            string guess = $"{lastProof}{proof}{previousHash}";
-            string result = GetSha256(guess);
-            return result.StartsWith("0000");
-        }
 
+        //Alaa  Proof Check
+        private bool IsValidProof(Block block,string previousHash)
+        {
+            var dataText = JsonConvert.SerializeObject(block.Transactions);
+            string guess = $"{dataText}{block.Nounce}{previousHash}";
+            var hash = GetSha256(guess);
+            return hash.StartsWith(difficultyLevel);
+        }
+        //Original Proof Check
+        //private bool IsValidProof(int lastProof, int proof, string previousHash)
+        //{
+        //    string guess = $"{lastProof}{proof}{previousHash}";
+        //    string result = GetSha256(guess);
+        //    return result.StartsWith("0000");
+        //}
+
+        //Original GetHash
         private string GetHash(Block block)
         {
             string blockText = JsonConvert.SerializeObject(block);
             return GetSha256(blockText);
         }
+
 
         private string GetSha256(string data)
         {
@@ -185,23 +256,75 @@ namespace BlockChainDemo
         }
 
         //web server calls
-        internal string Mine()
+        internal void Mine()
         {
-            int proof = CreateProofOfWork(_lastBlock.Proof, _lastBlock.PreviousHash);
+            //int proof = CreateProofOfWork(_lastBlock.Proof, _lastBlock.PreviousHash);
 
-            //CreateTransaction(sender: "0", recipient: NodeId, amount: 1);
-            Block block = CreateNewBlock(proof /*, _lastBlock.PreviousHash*/);
-
-            var response = new
+            //Alaa Proof of work
+            Tuple<int, string> powResult = new Tuple<int, string>(0,String.Empty);
+            BackgroundWorker worker = new BackgroundWorker();
+            worker.DoWork += delegate
             {
-                Message = "New Block Forged",
-                Index = block.Index,
-                Transactions = block.Transactions.ToArray(),
-                Proof = block.Proof,
-                PreviousHash = block.PreviousHash
+                //Block Reward
+                CreateTransaction(sender: "Reward", recipient: NodeId, amount: 15);
+
+                powResult = ProofOfWork(_currentTransactions, _lastBlock.PreviousHash);
+                cancelMining = false;
+            };
+            worker.RunWorkerAsync();
+            worker.RunWorkerCompleted += (sender, args) =>
+            {
+
+                if (powResult.Item1 != -1)
+                {
+                    //Alaa New Blocks
+                    Block block = CreateNewBlock(powResult.Item1, powResult.Item2);
+
+                    //Send New Block Mined Event
+                    SendNewBlockMinedEvent();
+
+                    OnNewBlockMined();
+                }
+                else
+                {
+                    
+                    OnBlockMiningCanceled();
+
+                }
+                
+
             };
 
-            return JsonConvert.SerializeObject(response);
+            //Block block = CreateNewBlock(proof /*, _lastBlock.PreviousHash*/);
+
+            //    var response = new
+            //{
+            //    Message = "New Block Forged",
+            //    Index = block.Index,
+            //    Transactions = block.Transactions.ToArray(),
+            //    Proof = block.Proof,
+            //    PreviousHash = block.PreviousHash
+            //};
+
+            //return JsonConvert.SerializeObject(response);
+        }
+
+        private void SendNewBlockMinedEvent()
+        {
+            foreach (Node node in _nodes)
+            {
+                var url = new Uri(node.Address, "/consensus/request");
+                var request = (HttpWebRequest) WebRequest.Create(url);
+                HttpWebResponse res;
+                try
+                {
+                    res = (HttpWebResponse) request.GetResponse();
+                }
+                catch
+                {
+                    continue;
+                }
+            }
         }
 
         internal string GetFullChain()
@@ -240,8 +363,19 @@ namespace BlockChainDemo
             return JsonConvert.SerializeObject(response);
         }
 
+        internal void RequestUpdate()
+        {
+            cancelMining = true;
+
+            _currentTransactions.Clear();
+
+            OnConsensusValidateRequest();
+
+            Consensus();
+        }
         internal string Consensus()
         {
+            cancelMining = false;
             var resoveStatus = ResolveConflicts();
             bool replaced = resoveStatus.Status;
             string message = replaced ? "was replaced" : "is authoritive";
@@ -273,6 +407,28 @@ namespace BlockChainDemo
         public List<Block> GetBlocks()
         {
             return _chain;
+        }
+
+
+
+        protected virtual void OnNewBlockMined()
+        {
+            NewBlockMined?.Invoke(this, EventArgs.Empty);
+        }
+
+        protected virtual void OnConsensusValidateRequest()
+        {
+            ConsensusValidateRequest?.Invoke(this, EventArgs.Empty);
+        }
+
+        protected virtual void OnShowCurrentNounce(ShowNounceEventArgs eventargs)
+        {
+            ShowCurrentNounce?.Invoke(this, eventargs);
+        }
+
+        protected virtual void OnBlockMiningCanceled()
+        {
+            BlockMiningCanceled?.Invoke(this, EventArgs.Empty);
         }
     }
 }
