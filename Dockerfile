@@ -2,16 +2,14 @@ FROM python:3.6-alpine
 
 WORKDIR /app
 
-ENV BUILD_LIST git
+# Install dependencies.
+ADD requirements.txt /app
+RUN cd /app && \
+    pip install -r requirements.txt
 
-RUN apk add --update $BUILD_LIST \
-    && git clone https://github.com/dvf/blockchain.git /app \
-    && pip install pipenv \
-    && pipenv --python=python3.6 \
-    && pipenv install \
-    && apk del $BUILD_LIST \
-    && rm -rf /var/cache/apk/*
+# Add actual source code.
+ADD blockchain.py /app
 
 EXPOSE 5000
 
-ENTRYPOINT [ "pipenv", "run", "python", "/app/blockchain.py", "--port", "5000"  ]
+CMD ["python", "blockchain.py", "--port", "5000"]

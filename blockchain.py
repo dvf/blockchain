@@ -25,7 +25,14 @@ class Blockchain:
         """
 
         parsed_url = urlparse(address)
-        self.nodes.add(parsed_url.netloc)
+        if parsed_url.netloc:
+            self.nodes.add(parsed_url.netloc)
+        elif parsed_url.path:
+            # Accepts an URL without scheme like '192.168.0.5:5000'.
+            self.nodes.add(parsed_url.path)
+        else:
+            raise ValueError('Invalid URL')
+
 
     def valid_chain(self, chain):
         """
@@ -44,11 +51,12 @@ class Blockchain:
             print(f'{block}')
             print("\n-----------\n")
             # Check that the hash of the block is correct
-            if block['previous_hash'] != self.hash(last_block):
+            last_block_hash = self.hash(last_block)
+            if block['previous_hash'] != last_block_hash:
                 return False
 
             # Check that the Proof of Work is correct
-            if not self.valid_proof(last_block['proof'], block['proof']):
+            if not self.valid_proof(last_block['proof'], block['proof'], last_block_hash):
                 return False
 
             last_block = block
@@ -146,30 +154,39 @@ class Blockchain:
         block_string = json.dumps(block, sort_keys=True).encode()
         return hashlib.sha256(block_string).hexdigest()
 
-    def proof_of_work(self, last_proof):
+    def proof_of_work(self, last_block):
         """
         Simple Proof of Work Algorithm:
-         - Find a number p' such that hash(pp') contains leading 4 zeroes, where p is the previous p'
-         - p is the previous proof, and p' is the new proof
+
+         - Find a number p' such that hash(pp') contains leading 4 zeroes
+         - Where p is the previous proof, and p' is the new proof
+         
+        :param last_block: <dict> last Block
+        :return: <int>
         """
 
+        last_proof = last_block['proof']
+        last_hash = self.hash(last_block)
+
         proof = 0
-        while self.valid_proof(last_proof, proof) is False:
+        while self.valid_proof(last_proof, proof, last_hash) is False:
             proof += 1
 
         return proof
 
     @staticmethod
-    def valid_proof(last_proof, proof):
+    def valid_proof(last_proof, proof, last_hash):
         """
         Validates the Proof
 
-        :param last_proof: Previous Proof
-        :param proof: Current Proof
-        :return: True if correct, False if not.
+        :param last_proof: <int> Previous Proof
+        :param proof: <int> Current Proof
+        :param last_hash: <str> The hash of the Previous Block
+        :return: <bool> True if correct, False if not.
+
         """
 
-        guess = f'{last_proof}{proof}'.encode()
+        guess = f'{last_proof}{proof}{last_hash}'.encode()
         guess_hash = hashlib.sha256(guess).hexdigest()
         return guess_hash[:4] == "0000"
 
@@ -188,8 +205,7 @@ blockchain = Blockchain()
 def mine():
     # We run the proof of work algorithm to get the next proof...
     last_block = blockchain.last_block
-    last_proof = last_block['proof']
-    proof = blockchain.proof_of_work(last_proof)
+    proof = blockchain.proof_of_work(last_block)
 
     # We must receive a reward for finding the proof.
     # The sender is "0" to signify that this node has mined a new coin.
@@ -200,7 +216,8 @@ def mine():
     )
 
     # Forge the new Block by adding it to the chain
-    block = blockchain.new_block(proof, last_block['previous_hash'])
+    previous_hash = blockchain.hash(last_block)
+    block = blockchain.new_block(proof, previous_hash)
 
     response = {
         'message': "New Block Forged",
