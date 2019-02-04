@@ -55,8 +55,18 @@ namespace BlockChainDemo
 
                             json = new StreamReader(request.InputStream).ReadToEnd();
                             Transaction trx = JsonConvert.DeserializeObject<Transaction>(json);
-                            int blockId = chain.CreateTransaction(trx.Sender, trx.Recipient, trx.Amount);
+                            int blockId = chain.CreateTransaction(trx.Id,trx.Sender, trx.Recipient, trx.Amount);
                             return $"Your transaction will be included in block {blockId}";
+                        //POST: http://localhost:12345/transactions/add
+                        //{ "Id": "123", "Amount":123, "Recipient":"ebeabf5cc1d54abdbca5a8fe9493b479", "Sender":"31de2e0ef1cb4937830fcfd5d2b3b24f" }
+                        case "/transactions/add":
+                            if (request.HttpMethod != HttpMethod.Post.Method)
+                                return $"{new HttpResponseMessage(HttpStatusCode.MethodNotAllowed)}";
+
+                            json = new StreamReader(request.InputStream).ReadToEnd();
+                            Transaction incomeTrx = JsonConvert.DeserializeObject<Transaction>(json);
+                            chain.AddTransaction(incomeTrx.Id, incomeTrx.Sender, incomeTrx.Recipient, incomeTrx.Amount);
+                            return $"Your transaction has been added";
 
                         //GET: http://localhost:12345/chain
                         case "/chain":
@@ -85,17 +95,30 @@ namespace BlockChainDemo
                         case "/consensus/request":
                              chain.RequestUpdate();
                             return "A consensus request has been sent";
+                        //POST: http://localhost:12345/balance/query
+                        //{ "Owner": "Node 1"}
+                        case "/balance/query":
+                            if (request.HttpMethod != HttpMethod.Post.Method)
+                                return $"{new HttpResponseMessage(HttpStatusCode.MethodNotAllowed)}";
+
+                            json = new StreamReader(request.InputStream).ReadToEnd();
+                            var ownerQuery = new { Owner = "" };
+                            var owner = JsonConvert.DeserializeAnonymousType(json, ownerQuery);
+                            var balance = chain.QueryBalance(owner.Owner);
+                            return balance.ToString();
                     }
 
                     return "";
                 },
                 $"http://{_host}:{_port}/mine/",
                 $"http://{_host}:{_port}/transactions/new/",
+                $"http://{_host}:{_port}/transactions/add/",
                 $"http://{_host}:{_port}/chain/",
                 $"http://{_host}:{_port}/nodes/register/",
                 $"http://{_host}:{_port}/nodes/",
                 $"http://{_host}:{_port}/nodes/resolve/",
-                $"http://{_host}:{_port}/consensus/request/"
+                $"http://{_host}:{_port}/consensus/request/",
+                $"http://{_host}:{_port}/balance/query/"
 
             );
             

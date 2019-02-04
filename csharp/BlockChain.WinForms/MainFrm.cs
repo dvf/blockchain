@@ -126,6 +126,7 @@ namespace BlockChain.WinForms
         {
             hostTxtBox.Text = WebServerSettings.Default.Host;
             portTxtBox.Text = WebServerSettings.Default.Port;
+
         }
 
         private void saveSettingsBtn_Click(object sender, EventArgs e)
@@ -183,9 +184,9 @@ namespace BlockChain.WinForms
                 return;
             _transactions = _data.chain[e.RowIndex];
             transGrd.DataSource = _transactions["Transactions"];
-            transGrd.Columns[0].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
-            transGrd.Columns[1].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
-            transGrd.Columns[2].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+            //transGrd.Columns[0].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+            //transGrd.Columns[1].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+            //transGrd.Columns[2].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
         }
 
         private void sendBtn_Click(object sender, EventArgs e)

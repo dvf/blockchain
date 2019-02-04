@@ -11,6 +11,7 @@ namespace BlockChainDemo
         public List<Transaction> Transactions { get; set; }
         public int Nounce { get; set; }
         public string PreviousHash { get; set; }
+        public string MindedBy { get; set; }
 
         public override string ToString()
         {
