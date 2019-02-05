@@ -56,9 +56,6 @@ namespace BlockChain.Miner
 
         public static string ValidateConsensus()
         {
-            //_client.Get(new RestRequest("nodes/resolve"));
-            //return "a Valide Consensus request has been sent";
-
             var response = _client.Get(new RestRequest("nodes/resolve"));
             var data = JsonConvert.DeserializeObject<dynamic>(response.Content);
             return data.Message;
@@ -71,6 +68,13 @@ namespace BlockChain.Miner
             req.AddJsonBody(queryBody);
             var response = _client.Post(req);
             return response.Content;
+        }
+
+        public static dynamic LoadTransactionsMemPool()
+        {
+            var response = _client.Get(new RestRequest("/transactions/pool"));
+            var data = JsonConvert.DeserializeObject<dynamic>(response.Content);
+            return data;
         }
     }
 }

@@ -176,6 +176,7 @@ namespace BlockChain.Miner
             queryBalanceBtn.Enabled = true;
             loadPeersBtn.Enabled = true;
             sendBtn.Enabled = true;
+            loadMemPool.Enabled = true;
         }
 
         private void startBtn_Click(object sender, EventArgs e)
@@ -294,6 +295,20 @@ namespace BlockChain.Miner
                 Recipient = receiverTxt.Text
             });
             Log(result,Severity.Success);
+        }
+
+        private void loadMemPool_Click(object sender, EventArgs e)
+        {
+            var data = NodeApiClient.LoadTransactionsMemPool();
+
+            memPoolGrd.DataSource = null;
+            memPoolGrd.DataSource = data;
+
+            //set autosize mode
+            //memPoolGrd.Columns[0].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+            //memPoolGrd.Columns[1].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+            //memPoolGrd.Columns[2].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+           
         }
     }
 }

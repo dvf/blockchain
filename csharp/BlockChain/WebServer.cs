@@ -106,6 +106,9 @@ namespace BlockChainDemo
                             var owner = JsonConvert.DeserializeAnonymousType(json, ownerQuery);
                             var balance = chain.QueryBalance(owner.Owner);
                             return balance.ToString();
+                        //GET: http://localhost:12345/transactions/pool
+                        case "/transactions/pool":
+                            return chain.GetTransactionsMemTool();
                     }
 
                     return "";
@@ -118,7 +121,8 @@ namespace BlockChainDemo
                 $"http://{_host}:{_port}/nodes/",
                 $"http://{_host}:{_port}/nodes/resolve/",
                 $"http://{_host}:{_port}/consensus/request/",
-                $"http://{_host}:{_port}/balance/query/"
+                $"http://{_host}:{_port}/balance/query/",
+                $"http://{_host}:{_port}/transactions/pool/"
 
             );
             

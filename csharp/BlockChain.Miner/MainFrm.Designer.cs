@@ -62,6 +62,7 @@
             this.addPeerBtn = new System.Windows.Forms.Button();
             this.peerTxt = new System.Windows.Forms.TextBox();
             this.peersLst = new System.Windows.Forms.ListBox();
+            this.memPoolTab = new System.Windows.Forms.TabPage();
             this.settingsTab = new System.Windows.Forms.TabPage();
             this.saveSettingsBtn = new System.Windows.Forms.Button();
             this.minningSettingGrp = new System.Windows.Forms.GroupBox();
@@ -80,6 +81,9 @@
             this.autoMineBtn = new System.Windows.Forms.Button();
             this.label6 = new System.Windows.Forms.Label();
             this.blockTimeTxt = new System.Windows.Forms.NumericUpDown();
+            this.memPoolGrp = new System.Windows.Forms.GroupBox();
+            this.loadMemPool = new System.Windows.Forms.Button();
+            this.memPoolGrd = new System.Windows.Forms.DataGridView();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -94,6 +98,7 @@
             this.queryBalanceGrp.SuspendLayout();
             this.peersTab.SuspendLayout();
             this.peersGrp.SuspendLayout();
+            this.memPoolTab.SuspendLayout();
             this.settingsTab.SuspendLayout();
             this.minningSettingGrp.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.blockTimeSettingTxt)).BeginInit();
@@ -101,6 +106,8 @@
             this.logsGrp.SuspendLayout();
             this.autoMineGrp.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.blockTimeTxt)).BeginInit();
+            this.memPoolGrp.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.memPoolGrd)).BeginInit();
             this.SuspendLayout();
             // 
             // tabControl1
@@ -110,6 +117,7 @@
             this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Controls.Add(this.walletTab);
             this.tabControl1.Controls.Add(this.peersTab);
+            this.tabControl1.Controls.Add(this.memPoolTab);
             this.tabControl1.Controls.Add(this.settingsTab);
             this.tabControl1.Location = new System.Drawing.Point(12, 12);
             this.tabControl1.Name = "tabControl1";
@@ -436,7 +444,7 @@
             this.peersTab.Location = new System.Drawing.Point(4, 22);
             this.peersTab.Name = "peersTab";
             this.peersTab.Padding = new System.Windows.Forms.Padding(3);
-            this.peersTab.Size = new System.Drawing.Size(522, 603);
+            this.peersTab.Size = new System.Drawing.Size(528, 603);
             this.peersTab.TabIndex = 1;
             this.peersTab.Text = "Peers";
             this.peersTab.UseVisualStyleBackColor = true;
@@ -495,6 +503,16 @@
             this.peersLst.Size = new System.Drawing.Size(469, 108);
             this.peersLst.TabIndex = 0;
             // 
+            // memPoolTab
+            // 
+            this.memPoolTab.Controls.Add(this.memPoolGrp);
+            this.memPoolTab.Location = new System.Drawing.Point(4, 22);
+            this.memPoolTab.Name = "memPoolTab";
+            this.memPoolTab.Size = new System.Drawing.Size(528, 603);
+            this.memPoolTab.TabIndex = 4;
+            this.memPoolTab.Text = "Transactions MemPool";
+            this.memPoolTab.UseVisualStyleBackColor = true;
+            // 
             // settingsTab
             // 
             this.settingsTab.Controls.Add(this.saveSettingsBtn);
@@ -503,7 +521,7 @@
             this.settingsTab.Location = new System.Drawing.Point(4, 22);
             this.settingsTab.Name = "settingsTab";
             this.settingsTab.Padding = new System.Windows.Forms.Padding(3);
-            this.settingsTab.Size = new System.Drawing.Size(522, 603);
+            this.settingsTab.Size = new System.Drawing.Size(528, 603);
             this.settingsTab.TabIndex = 2;
             this.settingsTab.Text = "Settings";
             this.settingsTab.UseVisualStyleBackColor = true;
@@ -690,6 +708,46 @@
             0,
             0});
             // 
+            // memPoolGrp
+            // 
+            this.memPoolGrp.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.memPoolGrp.Controls.Add(this.loadMemPool);
+            this.memPoolGrp.Controls.Add(this.memPoolGrd);
+            this.memPoolGrp.Font = new System.Drawing.Font("Tahoma", 8F, System.Drawing.FontStyle.Bold);
+            this.memPoolGrp.Location = new System.Drawing.Point(12, 3);
+            this.memPoolGrp.Name = "memPoolGrp";
+            this.memPoolGrp.Size = new System.Drawing.Size(506, 355);
+            this.memPoolGrp.TabIndex = 4;
+            this.memPoolGrp.TabStop = false;
+            this.memPoolGrp.Text = "Transactions Memory Pool";
+            // 
+            // loadMemPool
+            // 
+            this.loadMemPool.Enabled = false;
+            this.loadMemPool.Font = new System.Drawing.Font("Tahoma", 8F);
+            this.loadMemPool.Location = new System.Drawing.Point(6, 16);
+            this.loadMemPool.Name = "loadMemPool";
+            this.loadMemPool.Size = new System.Drawing.Size(75, 23);
+            this.loadMemPool.TabIndex = 1;
+            this.loadMemPool.Text = "Load";
+            this.loadMemPool.UseVisualStyleBackColor = true;
+            this.loadMemPool.Click += new System.EventHandler(this.loadMemPool_Click);
+            // 
+            // memPoolGrd
+            // 
+            this.memPoolGrd.AllowUserToAddRows = false;
+            this.memPoolGrd.AllowUserToDeleteRows = false;
+            this.memPoolGrd.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.memPoolGrd.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.memPoolGrd.Location = new System.Drawing.Point(6, 45);
+            this.memPoolGrd.Name = "memPoolGrd";
+            this.memPoolGrd.ReadOnly = true;
+            this.memPoolGrd.Size = new System.Drawing.Size(494, 303);
+            this.memPoolGrd.TabIndex = 0;
+            // 
             // MainFrm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -721,6 +779,7 @@
             this.peersTab.ResumeLayout(false);
             this.peersGrp.ResumeLayout(false);
             this.peersGrp.PerformLayout();
+            this.memPoolTab.ResumeLayout(false);
             this.settingsTab.ResumeLayout(false);
             this.minningSettingGrp.ResumeLayout(false);
             this.minningSettingGrp.PerformLayout();
@@ -731,6 +790,8 @@
             this.autoMineGrp.ResumeLayout(false);
             this.autoMineGrp.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.blockTimeTxt)).EndInit();
+            this.memPoolGrp.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.memPoolGrd)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -788,6 +849,10 @@
         private System.Windows.Forms.TextBox senderTxt;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.RichTextBox logTxt;
+        private System.Windows.Forms.TabPage memPoolTab;
+        private System.Windows.Forms.GroupBox memPoolGrp;
+        private System.Windows.Forms.Button loadMemPool;
+        private System.Windows.Forms.DataGridView memPoolGrd;
     }
 }
 

@@ -218,10 +218,10 @@ namespace BlockChainDemo
         //}
 
         //Alaa Proof of Work
-        private Tuple<int, string> ProofOfWork(ref List<Transaction> data, string previousHash)
+        private Tuple<int, string> ProofOfWork(string previousHash)
         {
             //Perform Business Logic
-            var validTransactions = PerformBusinessLogic(data);
+            var validTransactions = PerformBusinessLogic();
 
             int nounce = 0;
             int showNounceCounter = 0;
@@ -303,22 +303,6 @@ namespace BlockChainDemo
         {
             foreach (Node node in _nodes)
             {
-                //var url = new Uri(node.Address, "/transaction/new");
-                //var client = new HttpClient ();
-                //client.BaseAddress = node.Address;
-                //var values = new Dictionary<string,string>()
-                //{
-                //    { "Id", transaction.Id.ToString()},
-                //    { "Amount", transaction.Amount.ToString()},
-                //    { "Recipient",transaction.Sender },
-                //    { "Sender",transaction.Recipient }
-                //};
-
-                //var content = new FormUrlEncodedContent(values);
-
-                //var response =  client.PostAsync($"/transactions/new/", content);
-
-                //var message =response.Result.Content.ReadAsStringAsync().Result;
                 var client = new RestClient(node.Address);
                 var req = new RestRequest("/transactions/add", Method.POST);
                 req.AddJsonBody(transaction);
@@ -364,7 +348,7 @@ namespace BlockChainDemo
             return false;
         }
 
-        private List<Transaction> PerformBusinessLogic(List<Transaction> blockTransactions)
+        private List<Transaction> PerformBusinessLogic()
         {
             try
             {
@@ -413,7 +397,7 @@ namespace BlockChainDemo
 
                 cancelMining = false;
 
-                powResult = ProofOfWork(ref _currentTransactions, _lastBlock.Hash);
+                powResult = ProofOfWork( _lastBlock.Hash);
               
             };
             worker.RunWorkerAsync();
@@ -590,6 +574,11 @@ namespace BlockChainDemo
                 }
             });
             return amountSum - amountSub;
+        }
+
+        internal string GetTransactionsMemTool()
+        {
+            return JsonConvert.SerializeObject(_memPoolTransactions);
         }
 
         public List<Block> GetBlocks()
