@@ -36,6 +36,18 @@ namespace BlockChainDemo
         }
     }
 
+    public class BadBlockchainEventArgs : EventArgs
+    {
+        private readonly Block _block;
+        private readonly string _message;
+
+        public BadBlockchainEventArgs(Block block,string message)
+        {
+            _block = block;
+            _message = message;
+        }
+    }
+
     public class BlockChain
     {
         private List<Transaction> _currentTransactions = new List<Transaction>();
@@ -45,6 +57,7 @@ namespace BlockChainDemo
         private Block _lastBlock => _chain.Last();
         private string difficultyLevel = "0000";
         private string _nodeName;
+        private readonly string _walletAddress;
         private static bool cancelMining = false;
 
         public event EventHandler NewBlockMined;
@@ -52,6 +65,8 @@ namespace BlockChainDemo
         public event EventHandler BlockMiningCanceled;
 
         public event EventHandler ConsensusValidateRequest;
+
+        public event EventHandler BadBlockchain;
 
         public delegate void ShowCurrentNounceEventHandler(object sender, ShowNounceEventArgs eventArgs);
 
@@ -61,13 +76,18 @@ namespace BlockChainDemo
 
         public event NotifyBadTransactionEventHandler NotifyBadTransaction;
 
+        public delegate void NotifyBadBlockchainEventHandler(object sender, BadBlockchainEventArgs eventArgs);
+
+        public event NotifyBadBlockchainEventHandler NotifyBadBlockchain;
+
         public string NodeId { get; private set; }
 
         //ctor
-        public BlockChain(string nodeName)
+        public BlockChain(string nodeName,string walletAddress)
         {
             NodeId = Guid.NewGuid().ToString().Replace("-", "");
             _nodeName = nodeName;
+            _walletAddress = walletAddress;
             //var gensisProof = ProofOfWork(new List<Transaction>(), "0");
             CreateNewBlock(proof: 513836, hash: "00000a712adde5f716eec160bef8488a1a17eda30b3734a23efca8eee81d408c", previousHash: "0", isGenesis: true); //genesis block
         }
@@ -100,15 +120,19 @@ namespace BlockChainDemo
 
                 //Check that the hash of the block is correct
                 if (block.PreviousHash != ComputeBlockHash(lastBlock))
+                {
+                    OnNotifyBadBlockchain(new BadBlockchainEventArgs(block,"Block  hashes is incorrect"));
                     return false;
-
-                //Original Check that the Proof of Work is correct
-                //if (!IsValidProof(lastBlock.Proof, block.Proof, lastBlock.PreviousHash))
-                //    return false;
-
-                //Alaa Check that the proof of Work is correct
-                //if (!IsValidProof(block, lastBlock.PreviousHash))
-                //    return false;
+                }
+                foreach (var transaction in block.Transactions)
+                {
+                    if (!transaction.IsValid())
+                    {
+                        OnNotifyBadBlockchain(new BadBlockchainEventArgs(block, "Block Transaction Signature is invalid"));
+                        return false;
+                    }
+                }
+               
 
                 lastBlock = block;
                 currentIndex++;
@@ -207,16 +231,6 @@ namespace BlockChainDemo
             return block;
         }
 
-        //Original Proof of Work
-        //private int CreateProofOfWork(int lastProof, string previousHash)
-        //{
-        //    int proof = 0;
-        //    while (!IsValidProof(lastProof, proof, previousHash))
-        //        proof++;
-
-        //    return proof;
-        //}
-
         //Alaa Proof of Work
         private Tuple<int, string> ProofOfWork(string previousHash)
         {
@@ -258,30 +272,6 @@ namespace BlockChainDemo
             {
                 return new Tuple<int, string>(-1, "canceled");
             }
-        }
-
-
-        //Alaa  Proof Check
-        //private bool IsValidProof(Block block,string previousHash)
-        //{
-        //    var dataText = JsonConvert.SerializeObject(block.Transactions);
-        //    string guess = $"{dataText}{block.Nounce}{previousHash}";
-        //    var hash = GetSha256(guess);
-        //    return hash.StartsWith(difficultyLevel);
-        //}
-        //Original Proof Check
-        //private bool IsValidProof(int lastProof, int proof, string previousHash)
-        //{
-        //    string guess = $"{lastProof}{proof}{previousHash}";
-        //    string result = GetSha256(guess);
-        //    return result.StartsWith("0000");
-        //}
-
-        //Original GetHash
-        private string GetHash(Block block)
-        {
-            string blockText = JsonConvert.SerializeObject(block);
-            return GetSha256(blockText);
         }
 
 
@@ -385,7 +375,7 @@ namespace BlockChainDemo
             worker.DoWork += delegate
             {
                 //Block Reward
-                NewTransaction(sender: "Coinbase", recipient: _nodeName, amount: 15);
+                NewTransaction(sender: "Coinbase", recipient: _walletAddress, amount: 15);
 
                 //Copy memPool to Current Transactions
                 _currentTransactions = new List<Transaction>(_memPoolTransactions.OrderByDescending(t => t.TimeStamp));
@@ -427,18 +417,6 @@ namespace BlockChainDemo
 
             };
 
-            //Block block = CreateNewBlock(proof /*, _lastBlock.PreviousHash*/);
-
-            //    var response = new
-            //{
-            //    Message = "New Block Forged",
-            //    Index = block.Index,
-            //    Transactions = block.Transactions.ToArray(),
-            //    Proof = block.Proof,
-            //    PreviousHash = block.PreviousHash
-            //};
-
-            //return JsonConvert.SerializeObject(response);
         }
 
         private void SendNewBlockMinedEvent()
@@ -525,29 +503,44 @@ namespace BlockChainDemo
             return JsonConvert.SerializeObject(response);
         }
 
-        internal Transaction AddTransaction(Guid id, string sender, string recipient, int amount)
+        internal Transaction AddTransaction(Guid id, string sender, string recipient, int amount,string signature)
         {
             var transaction = new Transaction
             {
                 Id = id,
                 Sender = sender,
                 Recipient = recipient,
-                Amount = amount
+                Amount = amount,
+                Signature = signature
             };
-
-            _memPoolTransactions.Add(transaction);
+            if (!transaction.IsValid())
+            {
+                OnNotifyBadTransaction(new BadTransactionEventArgs(transaction));
+                return null;
+            }
+            else
+            {
+                _memPoolTransactions.Add(transaction);
+            }
+            
             return transaction;
         }
 
-        internal int CreateTransaction(Guid id,string sender, string recipient, int amount)
+        internal int CreateTransaction(Guid id,string sender, string recipient, int amount,string signature)
         {
             if (_memPoolTransactions.All(t => t.Id != id))
             {
-                var tr = NewTransaction(sender, recipient, amount);
-
-                PublishTransaction(tr);
-
-                return _lastBlock != null ? _lastBlock.Index + 1 : 0;
+                var tr = AddTransaction(id,sender, recipient, amount,signature);
+                if (tr != null)
+                {
+                    PublishTransaction(tr);
+                    return _lastBlock != null ? _lastBlock.Index + 1 : 0;
+                }
+                else
+                {
+                    return -1;
+                }
+                
             }
             else
             {
@@ -611,6 +604,11 @@ namespace BlockChainDemo
         protected virtual void OnNotifyBadTransaction(BadTransactionEventArgs eventargs)
         {
             NotifyBadTransaction?.Invoke(this, eventargs);
+        }
+
+        protected virtual void OnNotifyBadBlockchain(BadBlockchainEventArgs eventargs)
+        {
+            NotifyBadBlockchain?.Invoke(this, eventargs);
         }
     }
 }

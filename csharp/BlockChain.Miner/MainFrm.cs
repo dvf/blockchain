@@ -32,7 +32,9 @@ namespace BlockChain.Miner
             blockTimeTxt.Value = WebServerSettings.Default.BlockTime;
             blockTimeSettingTxt.Value = WebServerSettings.Default.BlockTime;
             nodeNameTxt.Text = WebServerSettings.Default.NodeName;
-            senderTxt.Text = WebServerSettings.Default.NodeName;
+            senderTxt.Text = WebServerSettings.Default.WalletAddress;
+            walletTxt.Text = WebServerSettings.Default.WalletAddress;
+            walletAddressTxt.Text = WebServerSettings.Default.WalletAddress;
         }
 
         delegate void LogArgReturningVoidDelegate(string text, Severity severity);
@@ -148,7 +150,7 @@ namespace BlockChain.Miner
         private void MainFrm_Load(object sender, EventArgs e)
         {
             LoadWebServerSettings();
-            var chain = new BlockChainDemo.BlockChain(WebServerSettings.Default.NodeName);
+            var chain = new BlockChainDemo.BlockChain(WebServerSettings.Default.NodeName,WebServerSettings.Default.WalletAddress);
 
             Text += $" Node : {WebServerSettings.Default.NodeName}";
             chain.NewBlockMined += ChainOnNewBlockMined;
@@ -248,6 +250,7 @@ namespace BlockChain.Miner
             WebServerSettings.Default.Port = portTxtBox.Text;
             WebServerSettings.Default.BlockTime = (int)blockTimeSettingTxt.Value;
             WebServerSettings.Default.NodeName = nodeNameTxt.Text;
+            WebServerSettings.Default.WalletAddress = walletTxt.Text;
             WebServerSettings.Default.Save();
         }
 

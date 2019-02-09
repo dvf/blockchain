@@ -55,8 +55,15 @@ namespace BlockChainDemo
 
                             json = new StreamReader(request.InputStream).ReadToEnd();
                             Transaction trx = JsonConvert.DeserializeObject<Transaction>(json);
-                            int blockId = chain.CreateTransaction(trx.Id,trx.Sender, trx.Recipient, trx.Amount);
-                            return $"Your transaction will be included in block {blockId}";
+                            int blockId = chain.CreateTransaction(trx.Id,trx.Sender, trx.Recipient, trx.Amount,trx.Signature);
+                            if (blockId > 0)
+                            {
+                                return $"Your transaction will be included in block {blockId}";
+                            }
+                            else
+                            {
+                                return "Your transaction is invalid";
+                            }
                         //POST: http://localhost:12345/transactions/add
                         //{ "Id": "123", "Amount":123, "Recipient":"ebeabf5cc1d54abdbca5a8fe9493b479", "Sender":"31de2e0ef1cb4937830fcfd5d2b3b24f" }
                         case "/transactions/add":
@@ -65,7 +72,7 @@ namespace BlockChainDemo
 
                             json = new StreamReader(request.InputStream).ReadToEnd();
                             Transaction incomeTrx = JsonConvert.DeserializeObject<Transaction>(json);
-                            chain.AddTransaction(incomeTrx.Id, incomeTrx.Sender, incomeTrx.Recipient, incomeTrx.Amount);
+                            chain.AddTransaction(incomeTrx.Id, incomeTrx.Sender, incomeTrx.Recipient, incomeTrx.Amount, incomeTrx.Signature);
                             return $"Your transaction has been added";
 
                         //GET: http://localhost:12345/chain

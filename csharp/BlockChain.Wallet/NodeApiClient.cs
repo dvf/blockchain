@@ -1,10 +1,9 @@
 ﻿using System;
-using BlockChain.Miner.Properties;
 using BlockChainDemo;
 using Newtonsoft.Json;
 using RestSharp;
 
-namespace BlockChain.Miner
+namespace BlockChain.Wallet
 {
     internal class NodeApiClient
     {
@@ -12,7 +11,8 @@ namespace BlockChain.Miner
         private static RestClient _client;
         static NodeApiClient()
         {
-            _baseUrl = $"http://{WebServerSettings.Default.Host}:{WebServerSettings.Default.Port}/";
+            //_baseUrl = $"http://{WebServerSettings.Default.Host}:{WebServerSettings.Default.Port}/";
+            _baseUrl = Program.Url;
             _client = new RestClient(_baseUrl);
 
         }
@@ -61,10 +61,10 @@ namespace BlockChain.Miner
             return data.Message;
         }
 
-        public static string QueryBalance()
+        public static string QueryBalance(string owner)
         {
             var req = new RestRequest("/balance/query", Method.POST);
-            var queryBody = new { Owner = WebServerSettings.Default.WalletAddress };
+            var queryBody = new { Owner = owner };
             req.AddJsonBody(queryBody);
             var response = _client.Post(req);
             return response.Content;

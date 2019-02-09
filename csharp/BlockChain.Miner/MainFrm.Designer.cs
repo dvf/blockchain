@@ -63,6 +63,9 @@
             this.peerTxt = new System.Windows.Forms.TextBox();
             this.peersLst = new System.Windows.Forms.ListBox();
             this.memPoolTab = new System.Windows.Forms.TabPage();
+            this.memPoolGrp = new System.Windows.Forms.GroupBox();
+            this.loadMemPool = new System.Windows.Forms.Button();
+            this.memPoolGrd = new System.Windows.Forms.DataGridView();
             this.settingsTab = new System.Windows.Forms.TabPage();
             this.saveSettingsBtn = new System.Windows.Forms.Button();
             this.minningSettingGrp = new System.Windows.Forms.GroupBox();
@@ -81,9 +84,11 @@
             this.autoMineBtn = new System.Windows.Forms.Button();
             this.label6 = new System.Windows.Forms.Label();
             this.blockTimeTxt = new System.Windows.Forms.NumericUpDown();
-            this.memPoolGrp = new System.Windows.Forms.GroupBox();
-            this.loadMemPool = new System.Windows.Forms.Button();
-            this.memPoolGrd = new System.Windows.Forms.DataGridView();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.walletTxt = new System.Windows.Forms.TextBox();
+            this.label10 = new System.Windows.Forms.Label();
+            this.walletAddressTxt = new System.Windows.Forms.TextBox();
+            this.label11 = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -99,6 +104,8 @@
             this.peersTab.SuspendLayout();
             this.peersGrp.SuspendLayout();
             this.memPoolTab.SuspendLayout();
+            this.memPoolGrp.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.memPoolGrd)).BeginInit();
             this.settingsTab.SuspendLayout();
             this.minningSettingGrp.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.blockTimeSettingTxt)).BeginInit();
@@ -106,8 +113,7 @@
             this.logsGrp.SuspendLayout();
             this.autoMineGrp.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.blockTimeTxt)).BeginInit();
-            this.memPoolGrp.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.memPoolGrd)).BeginInit();
+            this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabControl1
@@ -328,6 +334,7 @@
             this.newTransGrpBox.TabIndex = 17;
             this.newTransGrpBox.TabStop = false;
             this.newTransGrpBox.Text = "New Transaction";
+            this.newTransGrpBox.Visible = false;
             // 
             // amountTxt
             // 
@@ -408,6 +415,8 @@
             // 
             // queryBalanceGrp
             // 
+            this.queryBalanceGrp.Controls.Add(this.walletAddressTxt);
+            this.queryBalanceGrp.Controls.Add(this.label11);
             this.queryBalanceGrp.Controls.Add(this.balanceTxt);
             this.queryBalanceGrp.Controls.Add(this.queryBalanceBtn);
             this.queryBalanceGrp.Font = new System.Drawing.Font("Tahoma", 8F, System.Drawing.FontStyle.Bold);
@@ -420,7 +429,7 @@
             // 
             // balanceTxt
             // 
-            this.balanceTxt.Location = new System.Drawing.Point(203, 59);
+            this.balanceTxt.Location = new System.Drawing.Point(203, 110);
             this.balanceTxt.Name = "balanceTxt";
             this.balanceTxt.ReadOnly = true;
             this.balanceTxt.Size = new System.Drawing.Size(94, 20);
@@ -430,7 +439,7 @@
             // 
             this.queryBalanceBtn.Enabled = false;
             this.queryBalanceBtn.Font = new System.Drawing.Font("Tahoma", 8F);
-            this.queryBalanceBtn.Location = new System.Drawing.Point(203, 99);
+            this.queryBalanceBtn.Location = new System.Drawing.Point(203, 136);
             this.queryBalanceBtn.Name = "queryBalanceBtn";
             this.queryBalanceBtn.Size = new System.Drawing.Size(94, 42);
             this.queryBalanceBtn.TabIndex = 0;
@@ -513,8 +522,49 @@
             this.memPoolTab.Text = "Transactions MemPool";
             this.memPoolTab.UseVisualStyleBackColor = true;
             // 
+            // memPoolGrp
+            // 
+            this.memPoolGrp.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.memPoolGrp.Controls.Add(this.loadMemPool);
+            this.memPoolGrp.Controls.Add(this.memPoolGrd);
+            this.memPoolGrp.Font = new System.Drawing.Font("Tahoma", 8F, System.Drawing.FontStyle.Bold);
+            this.memPoolGrp.Location = new System.Drawing.Point(12, 3);
+            this.memPoolGrp.Name = "memPoolGrp";
+            this.memPoolGrp.Size = new System.Drawing.Size(506, 355);
+            this.memPoolGrp.TabIndex = 4;
+            this.memPoolGrp.TabStop = false;
+            this.memPoolGrp.Text = "Transactions Memory Pool";
+            // 
+            // loadMemPool
+            // 
+            this.loadMemPool.Enabled = false;
+            this.loadMemPool.Font = new System.Drawing.Font("Tahoma", 8F);
+            this.loadMemPool.Location = new System.Drawing.Point(6, 16);
+            this.loadMemPool.Name = "loadMemPool";
+            this.loadMemPool.Size = new System.Drawing.Size(75, 23);
+            this.loadMemPool.TabIndex = 1;
+            this.loadMemPool.Text = "Load";
+            this.loadMemPool.UseVisualStyleBackColor = true;
+            this.loadMemPool.Click += new System.EventHandler(this.loadMemPool_Click);
+            // 
+            // memPoolGrd
+            // 
+            this.memPoolGrd.AllowUserToAddRows = false;
+            this.memPoolGrd.AllowUserToDeleteRows = false;
+            this.memPoolGrd.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.memPoolGrd.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.memPoolGrd.Location = new System.Drawing.Point(6, 45);
+            this.memPoolGrd.Name = "memPoolGrd";
+            this.memPoolGrd.ReadOnly = true;
+            this.memPoolGrd.Size = new System.Drawing.Size(494, 303);
+            this.memPoolGrd.TabIndex = 0;
+            // 
             // settingsTab
             // 
+            this.settingsTab.Controls.Add(this.groupBox1);
             this.settingsTab.Controls.Add(this.saveSettingsBtn);
             this.settingsTab.Controls.Add(this.minningSettingGrp);
             this.settingsTab.Controls.Add(this.webServerSettingsGrpBox);
@@ -708,45 +758,51 @@
             0,
             0});
             // 
-            // memPoolGrp
+            // groupBox1
             // 
-            this.memPoolGrp.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.memPoolGrp.Controls.Add(this.loadMemPool);
-            this.memPoolGrp.Controls.Add(this.memPoolGrd);
-            this.memPoolGrp.Font = new System.Drawing.Font("Tahoma", 8F, System.Drawing.FontStyle.Bold);
-            this.memPoolGrp.Location = new System.Drawing.Point(12, 3);
-            this.memPoolGrp.Name = "memPoolGrp";
-            this.memPoolGrp.Size = new System.Drawing.Size(506, 355);
-            this.memPoolGrp.TabIndex = 4;
-            this.memPoolGrp.TabStop = false;
-            this.memPoolGrp.Text = "Transactions Memory Pool";
+            this.groupBox1.Controls.Add(this.walletTxt);
+            this.groupBox1.Controls.Add(this.label10);
+            this.groupBox1.Font = new System.Drawing.Font("Tahoma", 8F, System.Drawing.FontStyle.Bold);
+            this.groupBox1.Location = new System.Drawing.Point(6, 287);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(510, 106);
+            this.groupBox1.TabIndex = 17;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "Wallet Settings";
             // 
-            // loadMemPool
+            // walletTxt
             // 
-            this.loadMemPool.Enabled = false;
-            this.loadMemPool.Font = new System.Drawing.Font("Tahoma", 8F);
-            this.loadMemPool.Location = new System.Drawing.Point(6, 16);
-            this.loadMemPool.Name = "loadMemPool";
-            this.loadMemPool.Size = new System.Drawing.Size(75, 23);
-            this.loadMemPool.TabIndex = 1;
-            this.loadMemPool.Text = "Load";
-            this.loadMemPool.UseVisualStyleBackColor = true;
-            this.loadMemPool.Click += new System.EventHandler(this.loadMemPool_Click);
+            this.walletTxt.Location = new System.Drawing.Point(112, 35);
+            this.walletTxt.Name = "walletTxt";
+            this.walletTxt.Size = new System.Drawing.Size(357, 20);
+            this.walletTxt.TabIndex = 3;
             // 
-            // memPoolGrd
+            // label10
             // 
-            this.memPoolGrd.AllowUserToAddRows = false;
-            this.memPoolGrd.AllowUserToDeleteRows = false;
-            this.memPoolGrd.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.memPoolGrd.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.memPoolGrd.Location = new System.Drawing.Point(6, 45);
-            this.memPoolGrd.Name = "memPoolGrd";
-            this.memPoolGrd.ReadOnly = true;
-            this.memPoolGrd.Size = new System.Drawing.Size(494, 303);
-            this.memPoolGrd.TabIndex = 0;
+            this.label10.AutoSize = true;
+            this.label10.Font = new System.Drawing.Font("Tahoma", 8F);
+            this.label10.Location = new System.Drawing.Point(23, 35);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(83, 13);
+            this.label10.TabIndex = 2;
+            this.label10.Text = "Wallet Address:";
+            // 
+            // walletAddressTxt
+            // 
+            this.walletAddressTxt.Location = new System.Drawing.Point(115, 53);
+            this.walletAddressTxt.Name = "walletAddressTxt";
+            this.walletAddressTxt.ReadOnly = true;
+            this.walletAddressTxt.Size = new System.Drawing.Size(269, 20);
+            this.walletAddressTxt.TabIndex = 10;
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(112, 37);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(118, 13);
+            this.label11.TabIndex = 9;
+            this.label11.Text = "Your wallet address";
             // 
             // MainFrm
             // 
@@ -780,6 +836,8 @@
             this.peersGrp.ResumeLayout(false);
             this.peersGrp.PerformLayout();
             this.memPoolTab.ResumeLayout(false);
+            this.memPoolGrp.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.memPoolGrd)).EndInit();
             this.settingsTab.ResumeLayout(false);
             this.minningSettingGrp.ResumeLayout(false);
             this.minningSettingGrp.PerformLayout();
@@ -790,8 +848,8 @@
             this.autoMineGrp.ResumeLayout(false);
             this.autoMineGrp.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.blockTimeTxt)).EndInit();
-            this.memPoolGrp.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.memPoolGrd)).EndInit();
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -853,6 +911,11 @@
         private System.Windows.Forms.GroupBox memPoolGrp;
         private System.Windows.Forms.Button loadMemPool;
         private System.Windows.Forms.DataGridView memPoolGrd;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.TextBox walletTxt;
+        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.TextBox walletAddressTxt;
+        private System.Windows.Forms.Label label11;
     }
 }
 

@@ -70,5 +70,18 @@ namespace BlockChain.Miner.Properties {
                 this["BlockTime"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("CBGejRLrG6ElT0OW7Cx5rWB705W+vnhA7HMLD32Vzpb5aMxP31Jd1XJV4+lFWYIPiu0i6WBwA7Rr0nhNY" +
+            "7SU+w==")]
+        public string WalletAddress {
+            get {
+                return ((string)(this["WalletAddress"]));
+            }
+            set {
+                this["WalletAddress"] = value;
+            }
+        }
     }
 }

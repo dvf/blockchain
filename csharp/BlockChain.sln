@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlockChain.WinForms", "Bloc
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlockChain.Miner", "BlockChain.Miner\BlockChain.Miner.csproj", "{33E36EFF-54F7-451F-AE9A-D9583FA840F5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlockChain.Wallet", "BlockChain.Wallet\BlockChain.Wallet.csproj", "{C45F025B-36FF-4455-8B3B-D36C5A9B5978}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{33E36EFF-54F7-451F-AE9A-D9583FA840F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{33E36EFF-54F7-451F-AE9A-D9583FA840F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{33E36EFF-54F7-451F-AE9A-D9583FA840F5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C45F025B-36FF-4455-8B3B-D36C5A9B5978}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C45F025B-36FF-4455-8B3B-D36C5A9B5978}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C45F025B-36FF-4455-8B3B-D36C5A9B5978}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C45F025B-36FF-4455-8B3B-D36C5A9B5978}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

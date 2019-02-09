@@ -14,5 +14,8 @@
     <Setting Name="BlockTime" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">20</Value>
     </Setting>
+    <Setting Name="WalletAddress" Type="System.String" Scope="User">
+      <Value Profile="(Default)">CBGejRLrG6ElT0OW7Cx5rWB705W+vnhA7HMLD32Vzpb5aMxP31Jd1XJV4+lFWYIPiu0i6WBwA7Rr0nhNY7SU+w==</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
