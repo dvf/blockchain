@@ -57,6 +57,7 @@
             this.transGrd.ReadOnly = true;
             this.transGrd.Size = new System.Drawing.Size(744, 355);
             this.transGrd.TabIndex = 0;
+            this.transGrd.CellContentDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.transGrd_CellContentClick);
             // 
             // ShowTransactionsDialog
             // 

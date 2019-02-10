@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using BlockChain.Miner.Properties;
 using BlockChainDemo;
+using Newtonsoft.Json;
 
 namespace BlockChain.Miner
 {
@@ -278,8 +279,9 @@ namespace BlockChain.Miner
 
         private void blocksGrid_CellContentDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
-            _transactions = _data.chain[e.RowIndex];
-            var showTransactionsFrm = new ShowTransactionsDialog(_transactions);
+            var block = JsonConvert.DeserializeObject<Block>(_data.chain[e.RowIndex].ToString());
+            //_transactions =  
+            var showTransactionsFrm = new ShowTransactionsDialog(block.Transactions);
             showTransactionsFrm.ShowDialog();
         }
 

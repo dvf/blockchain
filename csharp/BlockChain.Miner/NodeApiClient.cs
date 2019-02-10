@@ -31,6 +31,14 @@ namespace BlockChain.Miner
             return response.Content;
         }
 
+        public static string EditTransaction(Transaction transaction)
+        {
+            var req = new RestRequest("/transactions/edit", Method.POST);
+            req.AddJsonBody(transaction);
+            var response = _client.Post<Transaction>(req);
+            return response.Content;
+        }
+
         public static string  MineBlock()
         {
             var response = _client.Get(new RestRequest("/mine"));

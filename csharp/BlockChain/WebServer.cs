@@ -74,6 +74,17 @@ namespace BlockChainDemo
                             Transaction incomeTrx = JsonConvert.DeserializeObject<Transaction>(json);
                             chain.AddTransaction(incomeTrx.Id, incomeTrx.Sender, incomeTrx.Recipient, incomeTrx.Amount, incomeTrx.Signature);
                             return $"Your transaction has been added";
+                        //POST: http://localhost:12345/transactions/edit
+                        //{ "Id": "123", "Amount":123, "Recipient":"ebeabf5cc1d54abdbca5a8fe9493b479", "Sender":"31de2e0ef1cb4937830fcfd5d2b3b24f" }
+                        case "/transactions/edit":
+                            if (request.HttpMethod != HttpMethod.Post.Method)
+                                return $"{new HttpResponseMessage(HttpStatusCode.MethodNotAllowed)}";
+
+                            json = new StreamReader(request.InputStream).ReadToEnd();
+                            Transaction newTrx = JsonConvert.DeserializeObject<Transaction>(json);
+                            chain.EditTransaction(newTrx.Id, newTrx.Sender, newTrx.Recipient, newTrx.Amount, newTrx.Signature);
+                            return $"Your transaction has been edited";
+
 
                         //GET: http://localhost:12345/chain
                         case "/chain":
@@ -123,6 +134,7 @@ namespace BlockChainDemo
                 $"http://{_host}:{_port}/mine/",
                 $"http://{_host}:{_port}/transactions/new/",
                 $"http://{_host}:{_port}/transactions/add/",
+                $"http://{_host}:{_port}/transactions/edit/",
                 $"http://{_host}:{_port}/chain/",
                 $"http://{_host}:{_port}/nodes/register/",
                 $"http://{_host}:{_port}/nodes/",

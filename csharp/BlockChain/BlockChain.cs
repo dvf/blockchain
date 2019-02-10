@@ -548,6 +548,21 @@ namespace BlockChainDemo
             }
         }
 
+        internal int EditTransaction(Guid id, string sender, string recipient, int amount, string signature)
+        {
+            var idx = _chain.FindIndex(b => b.Transactions.Any(t => t.Id == id));
+            if (idx != -1)
+            {
+                var tIdx =_chain[idx].Transactions.FindIndex(t => t.Id == id);
+                var tr = new Transaction() { Id = id, Sender = sender,Recipient = recipient,Amount = amount,Signature = signature};
+                _chain[idx].Transactions[tIdx] = tr;
+                return idx;
+            }
+            else
+            {
+                return -1;
+            }
+        }
         internal int QueryBalance(string owner)
         {
             var amountSum = 0;

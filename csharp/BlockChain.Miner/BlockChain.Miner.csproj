@@ -56,6 +56,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EditTransactionFrm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="EditTransactionFrm.Designer.cs">
+      <DependentUpon>EditTransactionFrm.cs</DependentUpon>
+    </Compile>
     <Compile Include="MainFrm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -72,6 +78,9 @@
     <Compile Include="ShowTransactionsDialog.Designer.cs">
       <DependentUpon>ShowTransactionsDialog.cs</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="EditTransactionFrm.resx">
+      <DependentUpon>EditTransactionFrm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="MainFrm.resx">
       <DependentUpon>MainFrm.cs</DependentUpon>
     </EmbeddedResource>
