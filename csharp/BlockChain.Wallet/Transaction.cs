@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using Newtonsoft.Json;
@@ -24,9 +23,9 @@ namespace BlockChainDemo
         public string ComputeHash()
         {
             var hasher = new SHA256CryptoServiceProvider();
-            //var obj = JsonConvert.SerializeObject(this);
+          //  var obj = JsonConvert.SerializeObject(this);
             var obj = $"{Sender}{Recipient}{Amount}";
-            var hash =hasher.ComputeHash(Encoding.UTF8.GetBytes(obj));
+            var hash = hasher.ComputeHash(Encoding.UTF8.GetBytes(obj));
             return Convert.ToBase64String(hash);
         }
         public void Sign(string privateKey)
@@ -45,9 +44,7 @@ namespace BlockChainDemo
         {
             if (string.IsNullOrEmpty(Sender))
                 return false;
-            if (Sender == "Coinbase")
-                return true;
-            if(string.IsNullOrEmpty(Signature))
+            if (string.IsNullOrEmpty(Signature))
                 throw new Exception("No Signature is found is this transaction");
 
             using (var sep = new Secp256k1())
