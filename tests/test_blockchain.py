@@ -1,104 +1,51 @@
-import hashlib
-import json
-from unittest import TestCase
+import pytest
 
 from blockchain import Blockchain
 
 
-class BlockchainTestCase(TestCase):
-
-    def setUp(self):
-        self.blockchain = Blockchain()
-
-    def create_block(self, proof=123, previous_hash='abc'):
-        self.blockchain.new_block(proof, previous_hash)
-
-    def create_transaction(self, sender='a', recipient='b', amount=1):
-        self.blockchain.new_transaction(
-            sender=sender,
-            recipient=recipient,
-            amount=amount
-        )
+@pytest.fixture
+def blockchain():
+    return Blockchain()
 
 
-class TestRegisterNodes(BlockchainTestCase):
+class TestBlockchain:
+    def test_genesis_block(self, blockchain):
+        genesis_block = blockchain.chain[0]
 
-    def test_valid_nodes(self):
-        blockchain = Blockchain()
+        assert len(blockchain.chain) == 1
+        assert genesis_block["index"] == 0
+        assert genesis_block["transactions"] == []
+        assert genesis_block["timestamp"]
+        assert genesis_block["previous_hash"] is None
+        assert genesis_block["nonce"] is None
+        assert genesis_block["hash"]
 
-        blockchain.register_node('http://192.168.0.1:5000')
+    def test_pending_transactions_reset_after_block_addition(self, blockchain):
+        blockchain.pending_transactions.append({"from": "Alice", "to": "Bob", "amount": 12})
+        blockchain.new_block()
 
-        self.assertIn('192.168.0.1:5000', blockchain.nodes)
+        assert blockchain.pending_transactions == []
 
-    def test_malformed_nodes(self):
-        blockchain = Blockchain()
+    def test_blocks_are_hashed_correctly(self, blockchain):
+        some_block = blockchain.new_block(previous_hash="abc123", nonce="abc123")
 
-        blockchain.register_node('http//192.168.0.1:5000')
+        assert some_block["hash"] == blockchain.hash({k: v for k, v in some_block.items() if k != "hash"})
 
-        self.assertNotIn('192.168.0.1:5000', blockchain.nodes)
+    def test_blockchain_returns_last_block(self, blockchain):
+        some_block = blockchain.new_block(previous_hash="abc123", nonce="abc123")
 
-    def test_idempotency(self):
-        blockchain = Blockchain()
+        assert blockchain.last_block() == some_block
 
-        blockchain.register_node('http://192.168.0.1:5000')
-        blockchain.register_node('http://192.168.0.1:5000')
+    def test_pow_is_acceptable(self, blockchain):
+        assert blockchain.pow_is_acceptable("00000acbdef123123987hsdkfjskdf213", 5) is True
+        assert blockchain.pow_is_acceptable("0000acbdef123123987hsdkfjskdf2134", 5) is False
 
-        assert len(blockchain.nodes) == 1
+    def test_nonce(self, blockchain):
+        assert blockchain.nonce()
+        assert blockchain.nonce() != blockchain.nonce()
 
+    def test_proof_of_work(self, blockchain):
+        mined_block = blockchain.proof_of_work(difficulty=3)
 
-class TestBlocksAndTransactions(BlockchainTestCase):
-
-    def test_block_creation(self):
-        self.create_block()
-
-        latest_block = self.blockchain.last_block
-
-        # The genesis block is create at initialization, so the length should be 2
-        assert len(self.blockchain.chain) == 2
-        assert latest_block['index'] == 2
-        assert latest_block['timestamp'] is not None
-        assert latest_block['proof'] == 123
-        assert latest_block['previous_hash'] == 'abc'
-
-    def test_create_transaction(self):
-        self.create_transaction()
-
-        transaction = self.blockchain.current_transactions[-1]
-
-        assert transaction
-        assert transaction['sender'] == 'a'
-        assert transaction['recipient'] == 'b'
-        assert transaction['amount'] == 1
-
-    def test_block_resets_transactions(self):
-        self.create_transaction()
-
-        initial_length = len(self.blockchain.current_transactions)
-
-        self.create_block()
-
-        current_length = len(self.blockchain.current_transactions)
-
-        assert initial_length == 1
-        assert current_length == 0
-
-    def test_return_last_block(self):
-        self.create_block()
-
-        created_block = self.blockchain.last_block
-
-        assert len(self.blockchain.chain) == 2
-        assert created_block is self.blockchain.chain[-1]
-
-
-class TestHashingAndProofs(BlockchainTestCase):
-
-    def test_hash_is_correct(self):
-        self.create_block()
-
-        new_block = self.blockchain.last_block
-        new_block_json = json.dumps(self.blockchain.last_block, sort_keys=True).encode()
-        new_hash = hashlib.sha256(new_block_json).hexdigest()
-
-        assert len(new_hash) == 64
-        assert new_hash == self.blockchain.hash(new_block)
+        assert mined_block["nonce"]
+        assert blockchain.hash(mined_block)[:3] == "000"
