@@ -4,14 +4,14 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "nodemon blockchain.js",
+    "server": "micro-dev"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "micro": "^9.3.4",
+    "micro-dev": "^3.0.0",
     "nodemon": "^1.19.0"
-  },
-  "scripts": {
-    "dev": "nodemon blockchain.js"
   }
 }
