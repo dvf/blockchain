@@ -1,0 +1,17 @@
+{
+  "name": "blockchain",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon blockchain.js",
+    "server": "micro-dev"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "micro": "^9.3.4",
+    "micro-dev": "^3.0.0",
+    "nodemon": "^1.19.0"
+  }
+}
