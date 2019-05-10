@@ -1,17 +1,31 @@
 {
   "name": "blockchain",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "A simple blockchain in JavaScript",
+  "main": "blockchain.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "nodemon": "^1.19.0"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/feulf/blockchain-js.git"
   },
-  "scripts": {
-    "dev": "nodemon blockchain.js"
+  "author": "Federico Ulfo",
+  "license": "Mit",
+  "bugs": {
+    "url": "https://github.com/feulf/blockchain-js/issues"
+  },
+  "homepage": "https://github.com/feulf/blockchain-js#readme",
+  "keywords": [],
+  "dependencies": {
+    "crypto": "^1.0.1",
+    "express": "^4.16.4",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.4",
+    "utf8": "^3.0.0",
+    "uuid": "^3.3.2"
+  },
+  "devDependencies": {
+    "eslint": "^5.16.0"
   }
 }
