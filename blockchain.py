@@ -14,7 +14,7 @@ class Blockchain:
         self.chain = []
         self.nodes = set()
 
-        # Create the genesis block
+        # Create the genesis block(1st Block)
         self.new_block(previous_hash='1', proof=100)
 
     def register_node(self, address):
@@ -37,7 +37,7 @@ class Blockchain:
     def valid_chain(self, chain):
         """
         Determine if a given blockchain is valid
-
+        
         :param chain: A blockchain
         :return: True if valid, False if not
         """
