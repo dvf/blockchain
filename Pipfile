@@ -10,6 +10,6 @@ python_version = "3.6"
 
 [packages]
 
-flask = "==0.12.2"
+flask = "==1.0"
 requests = "==2.18.4"
 
