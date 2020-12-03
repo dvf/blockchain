@@ -6,10 +6,9 @@ name = "pypi"
 [dev-packages]
 
 [requires]
-python_version = "3.6"
+python_version = "3.9"
 
 [packages]
 
-flask = "==0.12.2"
-requests = "==2.18.4"
-
+flask = "latest"
+requests = "latest"
