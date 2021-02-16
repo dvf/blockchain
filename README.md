@@ -1,3 +1,8 @@
+# Are you looking for the source code for my book?
+
+Please find it here: https://github.com/dvf/blockchain-book
+The book is available on Amazon: https://www.amazon.com/Learn-Blockchain-Building-Understanding-Cryptocurrencies/dp/1484251709
+
 # Learn Blockchains by Building One
 
 [![Build Status](https://travis-ci.org/dvf/blockchain.svg?branch=master)](https://travis-ci.org/dvf/blockchain)
