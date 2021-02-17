@@ -58,7 +58,9 @@ class Blockchain:
             # Check that the Proof of Work is correct
             if not self.valid_proof(last_block['proof'], block['proof'], last_block_hash):
                 return False
-
+            #Check the maths
+            if not self.valid_maths(last_block['math'],current_index)
+                return False
             last_block = block
             current_index += 1
 
@@ -112,6 +114,7 @@ class Blockchain:
             'timestamp': time(),
             'transactions': self.current_transactions,
             'proof': proof,
+            'math': self.math(len(self.chain)),
             'previous_hash': previous_hash or self.hash(self.chain[-1]),
         }
 
@@ -154,25 +157,38 @@ class Blockchain:
         block_string = json.dumps(block, sort_keys=True).encode()
         return hashlib.sha256(block_string).hexdigest()
 
+    
     def proof_of_work(self, last_block):
-        """
-        Simple Proof of Work Algorithm:
 
-         - Find a number p' such that hash(pp') contains leading 4 zeroes
+        """                                               Simple Proof of Work Algorithm:
+
+                                                           - Find a number p' such that hash(pp') contains leading 4 zeroes
+
          - Where p is the previous proof, and p' is the new proof
-         
-        :param last_block: <dict> last Block
-        :return: <int>
-        """
 
+        :param last_block: <dict> last Block
+
+        :return: <int>
+
+        """                                                                                                 last_proof = last_block['proof']                  last_hash = self.hash(last_block)
         last_proof = last_block['proof']
+
         last_hash = self.hash(last_block)
 
         proof = 0
+
         while self.valid_proof(last_proof, proof, last_hash) is False:
+
             proof += 1
 
         return proof
+       
+
+       
+
+
+
+
 
     @staticmethod
     def valid_proof(last_proof, proof, last_hash):
@@ -189,8 +205,12 @@ class Blockchain:
         guess = f'{last_proof}{proof}{last_hash}'.encode()
         guess_hash = hashlib.sha256(guess).hexdigest()
         return guess_hash[:4] == "0000"
-
-
+    def valid_maths(math, index):
+        if math!=math(index):
+            return False
+        return True
+    def math(index):
+        return True 
 # Instantiate the Node
 app = Flask(__name__)
 
@@ -206,6 +226,7 @@ def mine():
     # We run the proof of work algorithm to get the next proof...
     last_block = blockchain.last_block
     proof = blockchain.proof_of_work(last_block)
+    math = blockchain.math(len(blockchain.chain))
 
     # We must receive a reward for finding the proof.
     # The sender is "0" to signify that this node has mined a new coin.
@@ -224,6 +245,7 @@ def mine():
         'index': block['index'],
         'transactions': block['transactions'],
         'proof': block['proof'],
+        'math': math,
         'previous_hash': block['previous_hash'],
     }
     return jsonify(response), 200
