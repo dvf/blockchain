@@ -1,0 +1,75 @@
+buildscript {
+    ext.kotlin_version = '1.2.10'
+
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+group 'kotlin-blockchain'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'java'
+apply plugin: 'kotlin'
+apply plugin: "idea"
+apply plugin: 'application'
+
+mainClassName = "MainKt"
+
+processResources.destinationDir = compileJava.destinationDir
+compileJava.dependsOn processResources
+
+kapt {
+    generateStubs = false
+}
+
+
+idea {
+    module {
+        inheritOutputDirs = false
+        outputDir = file("$buildDir/classes/main/")
+    }
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+    maven { url "http://repository.jetbrains.com/all" }
+    jcenter()
+}
+
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    compile "com.sparkjava:spark-core:2.6.0"
+    compile "com.fasterxml.jackson.core:jackson-databind:2.8.8.1"
+    compile "com.fasterxml.jackson.module:jackson-module-kotlin:2.8.8"
+    compile "com.github.kittinunf.fuel:fuel:1.12.1" //for JVM
+    compile 'com.github.kittinunf.fuel:fuel-gson:1.12.1' //for Gson support
+    testCompile "junit:junit:4.12"
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+compileTestKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+
+jar {
+    exclude 'META-INF/*.RSA', 'META-INF/*.SF','META-INF/*.DSA'
+    manifest {
+        attributes "Main-Class" : "MainKt"
+    }
+    from configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+}
+
+sourceSets {
+    main.kotlin.srcDirs += 'src/main/kotlin'
+    main.java.srcDirs += 'src/main/java'
+}
