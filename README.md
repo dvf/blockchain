@@ -64,6 +64,13 @@ https://www.visualstudio.com/vs/
 
 4. Click the "Start" button, or hit F5 to run. The program executes in a console window, and is controlled via HTTP with the same commands as the Python version.
 
+## Installation (dotnet core)
+
+1. Install Visual Studio Code: https://code.visualstudio.com/ 
+
+2. To view or edit source code open Visual Studio Code by using the "code" command in the "dotnetcore" folder.
+
+3. To run the application navigate to "dotnetcore/BlockChain" and use "dotnet run" to start the application at the default url or "dotnet run --url http://localhost:5002" using an arbitrary url.
 
 ## Contributing
 
