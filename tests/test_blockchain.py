@@ -90,6 +90,18 @@ class TestBlocksAndTransactions(BlockchainTestCase):
         assert len(self.blockchain.chain) == 2
         assert created_block is self.blockchain.chain[-1]
 
+    def test_genesis_block_chain(self):
+        blockchain = Blockchain()
+
+        assert blockchain.current_transactions == []
+        assert blockchain.nodes == set()
+        assert len(blockchain.chain) == 1
+        last_block = blockchain.chain[-1]
+        assert last_block['index'] == 1
+        assert last_block['transactions'] == []
+        assert last_block['proof'] == 100
+        assert last_block['previous_hash'] == '1'
+
 
 class TestHashingAndProofs(BlockchainTestCase):
 
