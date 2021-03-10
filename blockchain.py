@@ -1,9 +1,9 @@
 import hashlib
 import json
-from time import time
+import time
 from urllib.parse import urlparse
 from uuid import uuid4
-
+import urllib.request
 import requests
 from flask import Flask, jsonify, request
 
@@ -13,6 +13,10 @@ class Blockchain:
         self.current_transactions = []
         self.chain = []
         self.nodes = set()
+        self.difficulty=6
+        self.blocktime = 10
+        self.blockreward=0.01
+        self.last_time=time.time()
 
         # Create the genesis block
         self.new_block(previous_hash='1', proof=100)
@@ -44,26 +48,23 @@ class Blockchain:
 
         last_block = chain[0]
         current_index = 1
-
         while current_index < len(chain):
             block = chain[current_index]
-            print(f'{last_block}')
-            print(f'{block}')
-            print("\n-----------\n")
             # Check that the hash of the block is correct
             last_block_hash = self.hash(last_block)
             if block['previous_hash'] != last_block_hash:
                 return False
-
+            x=self.valid_proof(last_block['proof'], block['proof'], block['previous_hash'])
             # Check that the Proof of Work is correct
             if not self.valid_proof(last_block['proof'], block['proof'], last_block_hash):
                 return False
 
             last_block = block
             current_index += 1
-
+        print("heeeeeere")
         return True
 
+    @property
     def resolve_conflicts(self):
         """
         This is our consensus algorithm, it resolves conflicts
@@ -80,23 +81,28 @@ class Blockchain:
 
         # Grab and verify the chains from all the nodes in our network
         for node in neighbours:
-            response = requests.get(f'http://{node}/chain')
 
-            if response.status_code == 200:
-                length = response.json()['length']
-                chain = response.json()['chain']
+            y = urllib.request.urlopen(f'http://{node}/chain').read()
+            my_json = y.decode('utf8').replace("'", '"')
+            data = json.loads(my_json)
+            respons =json.dumps(data)
+            length = data['length']
+            chain = data['chain']
 
-                # Check if the length is longer and the chain is valid
-                if length > max_length and self.valid_chain(chain):
-                    max_length = length
-                    new_chain = chain
+            print(f'{str(length)}" "+  {str(max_length)}')
 
-        # Replace our chain if we discovered a new, valid chain longer than ours
-        if new_chain:
-            self.chain = new_chain
-            return True
+            # Check if the length is longer and the chain is valid
+            if length > max_length and self.valid_chain(chain):
+                print("lol")
+                max_length = length
+                new_chain = chain
 
+            # Replace our chain if we discovered a new, valid chain longer than ours
+            if new_chain:
+                self.chain = new_chain
+                return True
         return False
+
 
     def new_block(self, proof, previous_hash):
         """
@@ -109,7 +115,7 @@ class Blockchain:
 
         block = {
             'index': len(self.chain) + 1,
-            'timestamp': time(),
+            'timestamp': time.time(),
             'transactions': self.current_transactions,
             'proof': proof,
             'previous_hash': previous_hash or self.hash(self.chain[-1]),
@@ -173,6 +179,15 @@ class Blockchain:
             proof += 1
 
         return proof
+    
+    def getworkt(self):
+        last_block = blockchain.last_block
+        last_id=len(self.chain)+1
+        last_proof = last_block['proof']
+        last_hash = self.hash(last_block)
+        self.last_time=time.time()
+        return (last_id,last_hash,last_proof)
+
 
     @staticmethod
     def valid_proof(last_proof, proof, last_hash):
@@ -201,6 +216,7 @@ node_identifier = str(uuid4()).replace('-', '')
 blockchain = Blockchain()
 
 
+
 @app.route('/mine', methods=['GET'])
 def mine():
     # We run the proof of work algorithm to get the next proof...
@@ -212,7 +228,7 @@ def mine():
     blockchain.new_transaction(
         sender="0",
         recipient=node_identifier,
-        amount=1,
+        amount=blockchain.blockreward,
     )
 
     # Forge the new Block by adding it to the chain
@@ -227,6 +243,17 @@ def mine():
         'previous_hash': block['previous_hash'],
     }
     return jsonify(response), 200
+
+@app.route('/getwork', methods=['GET'])
+def getwork():
+    r =blockchain.getworkt()
+    response = {
+        'lastindex': r[0],
+        'lasthash': r[1],
+        'lastproof':r[2]
+    }
+    return jsonify(response), 200
+
 
 
 @app.route('/transactions/new', methods=['POST'])
@@ -243,6 +270,10 @@ def new_transaction():
 
     response = {'message': f'Transaction will be added to Block {index}'}
     return jsonify(response), 201
+
+
+
+
 
 
 @app.route('/chain', methods=['GET'])
@@ -271,10 +302,21 @@ def register_nodes():
     }
     return jsonify(response), 201
 
+@app.route('/nodes', methods=['GET'])
+def getnode():
+    if len(request.args)>0:
+        x=request.args.get("node")
+        y= urllib.request.urlopen(x).read()
+        my_json = y.decode('utf8').replace("'", '"')
+        data = json.loads(my_json)
+
+        return jsonify(data)
+    else:
+        return jsonify(blockchain.chain);
 
 @app.route('/nodes/resolve', methods=['GET'])
 def consensus():
-    replaced = blockchain.resolve_conflicts()
+    replaced = blockchain.resolve_conflicts
 
     if replaced:
         response = {
@@ -289,6 +331,57 @@ def consensus():
 
     return jsonify(response), 200
 
+@app.route('/getwork/difficulty', methods=['GET'])
+def getDiff():
+    response = {
+        'difficulty': blockchain.difficulty,
+        'blockTime':blockchain.blocktime
+    }
+    return jsonify(response), 200
+
+@app.route('/setdiff',methods=['POST'])
+def setDiff():
+    values = request.get_json()
+    required = ['diff']
+    if not all(k in values for k in required):
+        return 'Missing values', 400
+    blockchain.difficulty=values['diff']
+    response={
+        'message':"difficulty set to " +str(values['diff'])
+    }
+    return jsonify(response),200
+
+
+@app.route('/submitwork', methods=['POST'])
+def submit():
+    values = request.get_json()
+    last_block = blockchain.last_block
+    # Check that the required fields are in the POST'ed data
+    required = ['index','proof', 'adress']
+    if not all(k in values for k in required):
+        return 'Missing values', 400
+
+    response = {}
+    # Forge the new Block by adding it to the chain
+    if values['index']==len(blockchain.chain)+1:
+        previous_hash = blockchain.hash(last_block)
+        block = blockchain.new_block(values['proof'], previous_hash)
+        blockchain.new_transaction(
+            sender="0",
+            recipient=values['adress'],
+            amount=blockchain.blockreward,
+        )
+        response = {
+            'message': "New Block Forged",
+            'index': block['index'],
+            'transactions': block['transactions'],
+            'proof': block['proof'],
+            'previous_hash': block['previous_hash'],
+        }
+
+    return jsonify(response), 200
+
+
 
 if __name__ == '__main__':
     from argparse import ArgumentParser
@@ -298,4 +391,4 @@ if __name__ == '__main__':
     args = parser.parse_args()
     port = args.port
 
-    app.run(host='0.0.0.0', port=port)
+    app.run(host='localhost', port=port)
