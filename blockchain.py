@@ -55,8 +55,8 @@ class Blockchain:
             if block['previous_hash'] != last_block_hash:
                 return False
 
-            # Check that the Proof of Work is correct
-            if not self.valid_proof(last_block['proof'], block['proof'], last_block_hash):
+            # Check that the Proof of Work is correct            
+            if not self.valid_proof(last_block['proof'], block['proof'], block['previous_hash']):
                 return False
 
             last_block = block
@@ -140,7 +140,7 @@ class Blockchain:
 
     @property
     def last_block(self):
-        return self.chain[-1]
+        return self.chain[-1]  
 
     @staticmethod
     def hash(block):
@@ -270,7 +270,15 @@ def register_nodes():
         'total_nodes': list(blockchain.nodes),
     }
     return jsonify(response), 201
-
+	
+@app.route('/nodes', methods=['GET'])
+def full_nodes():
+    nodes = [item for item in blockchain.nodes]
+    response = {
+        'nodes': nodes,
+        'length': len(nodes),
+    }
+    return jsonify(response), 200  
 
 @app.route('/nodes/resolve', methods=['GET'])
 def consensus():
