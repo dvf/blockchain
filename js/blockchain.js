@@ -1,3 +1,4 @@
+
 const crypto = require("crypto");
 
 
@@ -80,6 +81,8 @@ class Blockchain {
 
     /**
      * Proof of Work mining algorithm
+     with RPoW and Mining Efficiency
+     
      *
      * We hash the block with random string until the hash begins with
      * a "difficulty" number of 0s.
