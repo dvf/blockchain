@@ -47,8 +47,8 @@ class Blockchain:
 
         while current_index < len(chain):
             block = chain[current_index]
-            print(f'{last_block}')
-            print(f'{block}')
+            print('{}'.format(last_block))
+            print('{}'.format(block))
             print("\n-----------\n")
             # Check that the hash of the block is correct
             last_block_hash = self.hash(last_block)
@@ -80,8 +80,7 @@ class Blockchain:
 
         # Grab and verify the chains from all the nodes in our network
         for node in neighbours:
-            response = requests.get(f'http://{node}/chain')
-
+            response = requests.get('http://{0}/chain'.format(node))
             if response.status_code == 200:
                 length = response.json()['length']
                 chain = response.json()['chain']
@@ -186,7 +185,7 @@ class Blockchain:
 
         """
 
-        guess = f'{last_proof}{proof}{last_hash}'.encode()
+        guess = '{0}{1}{2}'.format(last_proof,proof,last_hash).encode()
         guess_hash = hashlib.sha256(guess).hexdigest()
         return guess_hash[:4] == "0000"
 
@@ -241,7 +240,7 @@ def new_transaction():
     # Create a new Transaction
     index = blockchain.new_transaction(values['sender'], values['recipient'], values['amount'])
 
-    response = {'message': f'Transaction will be added to Block {index}'}
+    response = {'message' :'Transaction will be added to Block {}'.format(index)}
     return jsonify(response), 201
 
 
