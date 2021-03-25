@@ -80,8 +80,7 @@ class Blockchain:
 
         # Grab and verify the chains from all the nodes in our network
         for node in neighbours:
-            response = requests.get('http://{}/get_chain'.format(node))
-
+            response = requests.get('http://{0}/chain'.format(node))
             if response.status_code == 200:
                 length = response.json()['length']
                 chain = response.json()['chain']
@@ -186,7 +185,7 @@ class Blockchain:
 
         """
 
-        guess = '{1}{2}{3}'.format(last_proof,proof,last_hash)
+        guess = '{0}{1}{2}'.format(last_proof,proof,last_hash).encode()
         guess_hash = hashlib.sha256(guess).hexdigest()
         return guess_hash[:4] == "0000"
 
@@ -241,7 +240,7 @@ def new_transaction():
     # Create a new Transaction
     index = blockchain.new_transaction(values['sender'], values['recipient'], values['amount'])
 
-    response = {'message :Transaction will be added to Block {}'.format(index)}
+    response = {'message' :'Transaction will be added to Block {}'.format(index)}
     return jsonify(response), 201
 
 
