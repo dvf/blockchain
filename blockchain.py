@@ -33,7 +33,6 @@ class Blockchain:
         else:
             raise ValueError('Invalid URL')
 
-
     def valid_chain(self, chain):
         """
         Determine if a given blockchain is valid
