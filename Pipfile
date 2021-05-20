@@ -12,4 +12,5 @@ python_version = "3.6"
 
 flask = "==0.12.2"
 requests = "==2.18.4"
+ecdsa = "==0.16.1"
 

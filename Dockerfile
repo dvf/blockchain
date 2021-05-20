@@ -8,6 +8,7 @@ RUN cd /app && \
     pip install -r requirements.txt
 
 # Add actual source code.
+ADD transaction.py /app
 ADD blockchain.py /app
 ADD server.py /app
 
