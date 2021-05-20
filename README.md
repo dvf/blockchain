@@ -4,7 +4,7 @@ Please find it here: https://github.com/dvf/blockchain-book
 
 The book is available on Amazon: https://www.amazon.com/Learn-Blockchain-Building-Understanding-Cryptocurrencies/dp/1484251709
 
-# Learn Blockchains by Building One
+# Learn Blockchains by Building One
 
 [![Build Status](https://travis-ci.org/dvf/blockchain.svg?branch=master)](https://travis-ci.org/dvf/blockchain)
 
@@ -24,9 +24,9 @@ $ pipenv install
 ``` 
 
 4. Run the server:
-    * `$ pipenv run python blockchain.py` 
-    * `$ pipenv run python blockchain.py -p 5001`
-    * `$ pipenv run python blockchain.py --port 5002`
+    * `$ pipenv run python server.py` 
+    * `$ pipenv run python server.py -p 5001`
+    * `$ pipenv run python server.py --port 5002`
     
 ## Docker
 

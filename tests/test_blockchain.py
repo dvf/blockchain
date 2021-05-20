@@ -1,8 +1,18 @@
 import hashlib
 import json
+from base64 import b64encode
 from unittest import TestCase
 
+import ecdsa
 from blockchain import Blockchain
+from transaction import Transaction
+
+
+private_key = ecdsa.SigningKey.generate()
+public_key = private_key.get_verifying_key()
+
+private_key_2 = ecdsa.SigningKey.generate()
+public_key_2 = private_key.get_verifying_key()
 
 
 class BlockchainTestCase(TestCase):
@@ -10,14 +20,27 @@ class BlockchainTestCase(TestCase):
     def setUp(self):
         self.blockchain = Blockchain()
 
-    def create_block(self, proof=123, previous_hash='abc'):
-        self.blockchain.new_block(proof, previous_hash)
+    def create_block(self, proof=123, previous_hash='abc', miner=public_key.to_string()):
+        self.blockchain.new_block(proof, previous_hash, miner)
 
-    def create_transaction(self, sender='a', recipient='b', amount=1):
-        self.blockchain.new_transaction(
+    def create_transaction(
+            self,
+            sender=public_key.to_string(),
+            recipient=public_key_2.to_string(),
+            amount=1,
+            sender_private_key=private_key
+    ):
+        transaction = Transaction(
             sender=sender,
             recipient=recipient,
-            amount=amount
+            amount=amount,
+        )
+        transaction.create_signature(private_key=sender_private_key)
+        self.blockchain.new_transaction(
+            sender=transaction.sender,
+            recipient=transaction.recipient,
+            amount=transaction.amount,
+            signature=transaction.signature
         )
 
 
@@ -59,6 +82,7 @@ class TestBlocksAndTransactions(BlockchainTestCase):
         assert latest_block['timestamp'] is not None
         assert latest_block['proof'] == 123
         assert latest_block['previous_hash'] == 'abc'
+        assert latest_block['miner'] == b64encode(public_key.to_string()).decode()
 
     def test_create_transaction(self):
         self.create_transaction()
@@ -66,9 +90,16 @@ class TestBlocksAndTransactions(BlockchainTestCase):
         transaction = self.blockchain.current_transactions[-1]
 
         assert transaction
-        assert transaction['sender'] == 'a'
-        assert transaction['recipient'] == 'b'
+        assert transaction['sender'] == b64encode(public_key.to_string()).decode()
+        assert transaction['recipient'] == b64encode(public_key_2.to_string()).decode()
         assert transaction['amount'] == 1
+
+        assert Transaction.from_dict(
+            transaction['sender'],
+            transaction['recipient'],
+            transaction['amount'],
+            transaction['signature']
+        ).is_signature_verified()
 
     def test_block_resets_transactions(self):
         self.create_transaction()
@@ -97,7 +128,7 @@ class TestHashingAndProofs(BlockchainTestCase):
         self.create_block()
 
         new_block = self.blockchain.last_block
-        new_block_json = json.dumps(self.blockchain.last_block, sort_keys=True).encode()
+        new_block_json = json.dumps(new_block, sort_keys=True).encode()
         new_hash = hashlib.sha256(new_block_json).hexdigest()
 
         assert len(new_hash) == 64
