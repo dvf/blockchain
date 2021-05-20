@@ -1,6 +1,7 @@
-from uuid import uuid4
+from os import urandom
 
 from flask import Flask, jsonify, request
+import ecdsa
 
 from blockchain import Blockchain
 
@@ -9,7 +10,10 @@ from blockchain import Blockchain
 app = Flask(__name__)
 
 # Generate a globally unique address for this node
-node_identifier = str(uuid4()).replace('-', '')
+secret = int.from_bytes(urandom(16), byteorder='little')
+private = ecdsa.SigningKey.from_secret_exponent(secret)
+public = private.get_verifying_key()
+node_identifier = public.to_string()
 
 # Instantiate the Blockchain
 blockchain = Blockchain()
@@ -18,20 +22,15 @@ blockchain = Blockchain()
 @app.route('/mine', methods=['GET'])
 def mine():
     # We run the proof of work algorithm to get the next proof...
+    # We run the proof algorithm with our public key to verify that is as that mine the block.
     last_block = blockchain.last_block
-    proof = blockchain.proof_of_work(last_block)
+    proof = blockchain.proof_of_work(last_block, public.to_string())
 
     # We must receive a reward for finding the proof.
-    # The sender is "0" to signify that this node has mined a new coin.
-    blockchain.new_transaction(
-        sender="0",
-        recipient=node_identifier,
-        amount=1,
-    )
-
+    # We add our public key as miner to the block to receive the reward.
     # Forge the new Block by adding it to the chain
     previous_hash = blockchain.hash(last_block)
-    block = blockchain.new_block(proof, previous_hash)
+    block = blockchain.new_block(proof, previous_hash, public.to_string())
 
     response = {
         'message': "New Block Forged",
@@ -39,6 +38,7 @@ def mine():
         'transactions': block['transactions'],
         'proof': block['proof'],
         'previous_hash': block['previous_hash'],
+        'miner': block['miner']
     }
     return jsonify(response), 200
 
@@ -48,12 +48,15 @@ def new_transaction():
     values = request.get_json()
 
     # Check that the required fields are in the POST'ed data
-    required = ['sender', 'recipient', 'amount']
+    required = ['sender', 'recipient', 'amount', 'signature']
     if not all(k in values for k in required):
         return 'Missing values', 400
 
     # Create a new Transaction
-    index = blockchain.new_transaction(values['sender'], values['recipient'], values['amount'])
+    try:
+        index = blockchain.new_transaction(values['sender'], values['recipient'], values['amount'], values['signature'])
+    except ValueError:  # invalid signature
+        return 'Invalid Signature', 400
 
     response = {'message': f'Transaction will be added to Block {index}'}
     return jsonify(response), 201

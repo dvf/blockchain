@@ -5,6 +5,8 @@ from urllib.parse import urlparse
 
 import requests
 
+from transaction import Transaction
+
 
 class Blockchain:
     def __init__(self):
@@ -53,7 +55,7 @@ class Blockchain:
                 return False
 
             # Check that the Proof of Work is correct
-            if not self.valid_proof(last_block['proof'], block['proof'], last_block_hash):
+            if not self.valid_proof(last_block['proof'], block['proof'], last_block_hash, block['miner']):
                 return False
 
             last_block = block
@@ -95,12 +97,13 @@ class Blockchain:
 
         return False
 
-    def new_block(self, proof, previous_hash):
+    def new_block(self, proof, previous_hash, miner):
         """
         Create a new Block in the Blockchain
 
         :param proof: The proof given by the Proof of Work algorithm
         :param previous_hash: Hash of previous Block
+        :param miner: public key of the miner (to get reward)
         :return: New Block
         """
 
@@ -110,6 +113,7 @@ class Blockchain:
             'transactions': self.current_transactions,
             'proof': proof,
             'previous_hash': previous_hash or self.hash(self.chain[-1]),
+            'miner': miner,
         }
 
         # Reset the current list of transactions
@@ -118,20 +122,21 @@ class Blockchain:
         self.chain.append(block)
         return block
 
-    def new_transaction(self, sender, recipient, amount):
+    def new_transaction(self, sender, recipient, amount, signature):
         """
         Creates a new transaction to go into the next mined Block
 
-        :param sender: Address of the Sender
-        :param recipient: Address of the Recipient
-        :param amount: Amount
+        :param sender: Public key of the Sender (ECDSA)
+        :param recipient: Public key of the Recipient (ECDSA)
+        :param amount: Coin amount to transfer
+        :param signature: Signature of the transaction (ECDSA)
+        :raise ValueError: when the signature doesn't match the transaction.
         :return: The index of the Block that will hold this transaction
         """
-        self.current_transactions.append({
-            'sender': sender,
-            'recipient': recipient,
-            'amount': amount,
-        })
+        transaction = Transaction(sender, recipient, amount, signature)
+        if transaction.is_signature_verified() is False:
+            raise ValueError("Invalid Signature")
+        self.current_transactions.append(transaction.to_dict())
 
         return self.last_block['index'] + 1
 
@@ -151,14 +156,15 @@ class Blockchain:
         block_string = json.dumps(block, sort_keys=True).encode()
         return hashlib.sha256(block_string).hexdigest()
 
-    def proof_of_work(self, last_block):
+    def proof_of_work(self, last_block, miner_key):
         """
         Simple Proof of Work Algorithm:
 
          - Find a number p' such that hash(pp') contains leading 4 zeroes
          - Where p is the previous proof, and p' is the new proof
-         
+
         :param last_block: <dict> last Block
+        :param miner_key: <str> miner public key
         :return: <int>
         """
 
@@ -166,23 +172,24 @@ class Blockchain:
         last_hash = self.hash(last_block)
 
         proof = 0
-        while self.valid_proof(last_proof, proof, last_hash) is False:
+        while self.valid_proof(last_proof, proof, last_hash, miner_key) is False:
             proof += 1
 
         return proof
 
     @staticmethod
-    def valid_proof(last_proof, proof, last_hash):
+    def valid_proof(last_proof, proof, last_hash, miner_key):
         """
         Validates the Proof
 
         :param last_proof: <int> Previous Proof
         :param proof: <int> Current Proof
         :param last_hash: <str> The hash of the Previous Block
+        :param miner_key: <str> The miner public key
         :return: <bool> True if correct, False if not.
 
         """
 
-        guess = f'{last_proof}{proof}{last_hash}'.encode()
+        guess = f'{last_proof}{proof}{last_hash}{miner_key}'.encode()
         guess_hash = hashlib.sha256(guess).hexdigest()
         return guess_hash[:4] == "0000"
