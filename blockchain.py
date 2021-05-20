@@ -2,6 +2,7 @@ import hashlib
 import json
 from time import time
 from urllib.parse import urlparse
+from base64 import b64encode
 
 import requests
 
@@ -15,7 +16,7 @@ class Blockchain:
         self.nodes = set()
 
         # Create the genesis block
-        self.new_block(previous_hash='1', proof=100, miner='')
+        self.new_block(previous_hash='1', proof=100, miner=b'')
 
     def register_node(self, address):
         """
@@ -113,7 +114,7 @@ class Blockchain:
             'transactions': self.current_transactions,
             'proof': proof,
             'previous_hash': previous_hash or self.hash(self.chain[-1]),
-            'miner': miner,
+            'miner': b64encode(miner).decode(),
         }
 
         # Reset the current list of transactions

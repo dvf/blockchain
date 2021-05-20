@@ -20,22 +20,22 @@ class BlockchainTestCase(TestCase):
     def setUp(self):
         self.blockchain = Blockchain()
 
-    def create_block(self, proof=123, previous_hash='abc', miner=b64encode(public_key.to_string()).decode()):
+    def create_block(self, proof=123, previous_hash='abc', miner=public_key.to_string()):
         self.blockchain.new_block(proof, previous_hash, miner)
 
     def create_transaction(
             self,
-            sender=b64encode(public_key.to_string()),
-            recipient=b64encode(public_key_2.to_string()),
+            sender=public_key.to_string(),
+            recipient=public_key_2.to_string(),
             amount=1,
-            miner=private_key
+            sender_private_key=private_key
     ):
         transaction = Transaction(
             sender=sender,
             recipient=recipient,
             amount=amount,
         )
-        transaction.create_signature(miner)
+        transaction.create_signature(private_key=sender_private_key)
         self.blockchain.new_transaction(
             sender=transaction.sender,
             recipient=transaction.recipient,
@@ -90,10 +90,16 @@ class TestBlocksAndTransactions(BlockchainTestCase):
         transaction = self.blockchain.current_transactions[-1]
 
         assert transaction
-        assert transaction['sender'] == b64encode(public_key.to_string())
-        assert transaction['recipient'] == b64encode(public_key_2.to_string())
+        assert transaction['sender'] == b64encode(public_key.to_string()).decode()
+        assert transaction['recipient'] == b64encode(public_key_2.to_string()).decode()
         assert transaction['amount'] == 1
-        assert Transaction(**transaction).is_signature_verified()
+
+        assert Transaction.from_dict(
+            transaction['sender'],
+            transaction['recipient'],
+            transaction['amount'],
+            transaction['signature']
+        ).is_signature_verified()
 
     def test_block_resets_transactions(self):
         self.create_transaction()
