@@ -34,9 +34,9 @@
 
     private bool IsValidChain(List<Block> chain)
     {
-      Block block = null;
-      Block lastBlock = chain.First();
-      int currentIndex = 1;
+      Block block;
+      var lastBlock = chain.First();
+      var currentIndex = 1;
       while (currentIndex < chain.Count)
       {
         block = chain.ElementAt(currentIndex);
@@ -46,11 +46,15 @@
 
         //Check that the hash of the block is correct
         if (block.PreviousHash != GetHash(lastBlock))
+        {
           return false;
+        }
 
         //Check that the Proof of Work is correct
         if (!IsValidProof(lastBlock.Proof, block.Proof, lastBlock.PreviousHash))
+        {
           return false;
+        }
 
         lastBlock = block;
         currentIndex++;
@@ -62,7 +66,7 @@
     private bool ResolveConflicts()
     {
       List<Block> newChain = null;
-      int maxLength = _chain.Count;
+      var maxLength = _chain.Count;
 
       foreach (Node node in _nodes)
       {
@@ -77,7 +81,7 @@
             chain = new List<Block>(),
             length = 0
           };
-          string json = new StreamReader(response.GetResponseStream()).ReadToEnd();
+          var json = new StreamReader(response.GetResponseStream()).ReadToEnd();
           var data = JsonConvert.DeserializeAnonymousType(json, model);
 
           if (data.chain.Count > _chain.Count && IsValidChain(data.chain))
@@ -115,23 +119,25 @@
 
     private int CreateProofOfWork(int lastProof, string previousHash)
     {
-      int proof = 0;
+      var proof = 0;
       while (!IsValidProof(lastProof, proof, previousHash))
+      {
         proof++;
+      }
 
       return proof;
     }
 
     private bool IsValidProof(int lastProof, int proof, string previousHash)
     {
-      string guess = $"{lastProof}{proof}{previousHash}";
-      string result = GetSha256(guess);
+      var guess = $"{lastProof}{proof}{previousHash}";
+      var result = GetSha256(guess);
       return result.StartsWith("0000");
     }
 
     private string GetHash(Block block)
     {
-      string blockText = JsonConvert.SerializeObject(block);
+      var blockText = JsonConvert.SerializeObject(block);
       return GetSha256(blockText);
     }
 
@@ -140,11 +146,13 @@
       var sha256 = new SHA256Managed();
       var hashBuilder = new StringBuilder();
 
-      byte[] bytes = Encoding.Unicode.GetBytes(data);
-      byte[] hash = sha256.ComputeHash(bytes);
+      var bytes = Encoding.Unicode.GetBytes(data);
+      var hash = sha256.ComputeHash(bytes);
 
       foreach (byte x in hash)
+      {
         hashBuilder.Append($"{x:x2}");
+      }
 
       return hashBuilder.ToString();
     }
@@ -152,10 +160,10 @@
     //web server calls
     internal string Mine()
     {
-      int proof = CreateProofOfWork(_lastBlock.Proof, _lastBlock.PreviousHash);
+      var proof = CreateProofOfWork(_lastBlock.Proof, _lastBlock.PreviousHash);
 
       CreateTransaction(sender: "0", recipient: NodeId, amount: 1);
-      Block block = CreateNewBlock(proof /*, _lastBlock.PreviousHash*/);
+      var block = CreateNewBlock(proof /*, _lastBlock.PreviousHash*/);
 
       var response = new
       {
@@ -185,20 +193,20 @@
       var builder = new StringBuilder();
       foreach (string node in nodes)
       {
-        string url = $"http://{node}";
+        var url = $"http://{node}";
         RegisterNode(url);
         builder.Append($"{url}, ");
       }
 
       builder.Insert(0, $"{nodes.Count()} new nodes have been added: ");
-      string result = builder.ToString();
+      var result = builder.ToString();
       return result.Substring(0, result.Length - 2);
     }
 
     internal string Consensus()
     {
-      bool replaced = ResolveConflicts();
-      string message = replaced ? "was replaced" : "is authoritive";
+      var replaced = ResolveConflicts();
+      var message = replaced ? "was replaced" : "is authoritive";
 
       var response = new
       {
