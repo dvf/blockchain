@@ -3,16 +3,16 @@ using System.Configuration;
 using System.IO;
 using System.Net;
 using System.Net.Http;
+using Microsoft.Extensions.Configuration;
 
 namespace BlockChainDemo
 {
     public class WebServer
     {
-        public WebServer(BlockChain chain)
+        public WebServer(BlockChain chain, IConfiguration config)
         {
-            var settings = ConfigurationManager.AppSettings;
-            string host = settings["host"]?.Length > 1 ? settings["host"] : "localhost";
-            string port = settings["port"]?.Length > 1 ? settings["port"] : "12345";
+            string host = config["host"]?.Length > 1 ? config["host"] : "localhost";
+            string port = config["port"]?.Length > 1 ? config["port"] : "12345";
 
             var server = new TinyWebServer.WebServer(request =>
                 {

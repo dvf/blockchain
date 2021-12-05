@@ -1,11 +1,16 @@
-﻿namespace BlockChainDemo.Console
+﻿using Microsoft.Extensions.Configuration;
+
+namespace BlockChainDemo.Console
 {
-    class Program
+    public class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
             var chain = new BlockChain();
-            var server = new WebServer(chain);
+            var config = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json")
+                .Build();
+            var server = new WebServer(chain, config);
             System.Console.Read();
         }
     }
