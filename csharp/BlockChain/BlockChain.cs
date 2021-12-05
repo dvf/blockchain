@@ -1,15 +1,15 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Security.Cryptography;
-using System.Text;
-
-namespace BlockChainDemo
+﻿namespace BlockChainDemo
 {
+  using Newtonsoft.Json;
+  using System;
+  using System.Collections.Generic;
+  using System.Diagnostics;
+  using System.IO;
+  using System.Linq;
+  using System.Net;
+  using System.Security.Cryptography;
+  using System.Text;
+
   public class BlockChain
   {
     private List<Transaction> _currentTransactions = new List<Transaction>();

@@ -1,12 +1,11 @@
-﻿using Newtonsoft.Json;
-using System.Configuration;
-using System.IO;
-using System.Net;
-using System.Net.Http;
-using Microsoft.Extensions.Configuration;
-
-namespace BlockChainDemo
+﻿namespace BlockChainDemo
 {
+  using System.IO;
+  using System.Net;
+  using System.Net.Http;
+  using Microsoft.Extensions.Configuration;
+  using Newtonsoft.Json;
+
   public class WebServer
   {
     public WebServer(BlockChain chain, IConfiguration config)

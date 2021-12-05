@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace BlockChainDemo
+﻿namespace BlockChainDemo
 {
+  using System;
+  using System.Collections.Generic;
+
   public class Block
   {
     public int Index { get; set; }
