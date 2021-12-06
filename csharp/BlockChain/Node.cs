@@ -1,9 +1,9 @@
-﻿using System;
-
-namespace BlockChainDemo
+﻿namespace BlockChainDemo
 {
-    public class Node
-    {
-        public Uri Address { get; set; }
-    }
+  using System;
+
+  public class Node
+  {
+    public Uri Address { get; set; }
+  }
 }
