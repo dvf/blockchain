@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="blockchain" type="PythonConfigurationType" factoryName="Python" singleton="false">
+  <configuration default="false" name="blockchain.py" type="PythonConfigurationType" factoryName="Python" singleton="false">
     <module name="blockchain" />
     <option name="INTERPRETER_OPTIONS" value="" />
     <option name="PARENT_ENVS" value="true" />
