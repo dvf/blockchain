@@ -12,4 +12,4 @@ ADD blockchain.py /app
 
 EXPOSE 5000
 
-CMD ["python", "blockchain.py", "--port", "5000"]
+CMD ["python", "blockchain.py", "--port", "3000"]
