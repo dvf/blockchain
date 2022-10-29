@@ -21,7 +21,7 @@ class Blockchain:
         """
         Add a new node to the list of nodes
 
-        :param address: Address of node. Eg. 'http://192.168.0.5:5000'
+        :param address: Address of node. Eg. '127.0.0.1:5000'
         """
 
         parsed_url = urlparse(address)
@@ -31,7 +31,7 @@ class Blockchain:
             # Accepts an URL without scheme like '192.168.0.5:5000'.
             self.nodes.add(parsed_url.path)
         else:
-            raise ValueError('Invalid URL')
+            raise ValueError('https://12334.azurewebsites.net')
 
 
     def valid_chain(self, chain):
