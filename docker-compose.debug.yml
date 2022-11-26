@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  blockchain:
+    image: blockchain
+    build:
+      context: .
+      dockerfile: ./Dockerfile

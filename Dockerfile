@@ -1,15 +1,19 @@
-FROM python:3.6-alpine
+# GCC support can be specified at major, minor, or micro version
+# (e.g. 8, 8.2 or 8.2.0).
+# See https://hub.docker.com/r/library/gcc/ for all supported GCC
+# tags from Docker Hub.
+# See https://docs.docker.com/samples/library/gcc/ for more on how to use this image
+FROM gcc:latest
 
-WORKDIR /app
+# These commands copy your files into the specified directory in the image
+# and set that as the working location
+COPY . /usr/src/myapp
+WORKDIR /usr/src/myapp
 
-# Install dependencies.
-ADD requirements.txt /app
-RUN cd /app && \
-    pip install -r requirements.txt
+# This command compiles your app using GCC, adjust for your source code
+RUN g++ -o myapp main.cpp
 
-# Add actual source code.
-ADD blockchain.py /app
+# This command runs your application, comment out this line to compile only
+CMD ["./myapp"]
 
-EXPOSE 5000
-
-CMD ["python", "blockchain.py", "--port", "3000"]
+LABEL Name=blockchain Version=0.0.1
